@@ -95,6 +95,33 @@
 /* AI SOURCES */
 .ai-sources{background:var(--bg4);border:1px solid var(--border2);border-radius:var(--r);padding:10px 12px;margin-top:8px;font-size:10px;color:var(--text3)}
 .ai-sources-title{font-size:9px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+
+/* ── WAR ROOM ── */
+.wr-banner{background:var(--critbg);border:2px solid var(--crit);border-radius:var(--r2);padding:14px 20px;display:flex;align-items:center;gap:16px;animation:wrPulse 2s ease-in-out infinite}
+@keyframes wrPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,76,76,.25)}50%{box-shadow:0 0 0 12px rgba(255,76,76,0)}}
+.wr-timer{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--crit);letter-spacing:.05em}
+.wr-tab{padding:7px 16px;border-radius:var(--r);font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text2);transition:all .15s}
+.wr-tab.active{background:var(--critbg);border-color:rgba(255,76,76,.4);color:var(--crit)}
+.wr-asset{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg3);margin-bottom:6px}
+.wr-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.wr-exposed{background:var(--crit);box-shadow:0 0 8px var(--crit);animation:blink 1s ease-in-out infinite}
+.wr-workaround{background:var(--med);box-shadow:0 0 6px var(--med)}
+.wr-patched{background:var(--success)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.wr-tl-row{display:flex;gap:10px;padding:8px 0;border-left:2px solid var(--border);margin-left:12px;padding-left:16px;position:relative}
+.wr-tl-row::before{content:'';position:absolute;left:-7px;top:14px;width:12px;height:12px;border-radius:50%;background:var(--bg3);border:2px solid var(--border2)}
+.wr-tl-t{font-family:var(--mono);font-size:10px;color:var(--text3);min-width:44px;padding-top:2px;flex-shrink:0}
+/* ── CROWN JEWELS ── */
+.cj-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:16px;cursor:pointer;transition:all .15s}
+.cj-card:hover,.cj-card.active{border-color:var(--border2);background:var(--bg4)}
+.cj-ring{position:relative;width:56px;height:56px;flex-shrink:0}
+.cj-ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.cj-ring-score{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.cj-detail{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r2);padding:20px;margin-top:10px}
+/* ── ATTACK PATH SVG ── */
+.ap-wrap{overflow-x:auto;padding:10px 0}
+.ap-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:10px;margin-top:8px}
+.ap-diff-low{color:var(--crit)}.ap-diff-med{color:var(--high)}.ap-diff-hi{color:var(--success)}
 </style>
 </head>
 <body>
@@ -145,9 +172,14 @@
     <div class="sb-it" id="nav-comms"      onclick="setView('comms')">     <i class="ti ti-send"></i>Comunicados</div>
     <div class="sb-it" id="nav-risk"       onclick="setView('risk')">      <i class="ti ti-chart-area"></i>Análise de Risco</div>
   </div>
+  <div class="sb-lbl">Segurança Avançada</div>
+  <div class="sb-sec">
+    <div class="sb-it" id="nav-warroom"  onclick="setView('warroom')"> <i class="ti ti-alert-hexagon"></i>Zero-day War Room<span class="sb-n nc" id="sb-wr">2</span></div>
+    <div class="sb-it" id="nav-crownj"  onclick="setView('crownj')">  <i class="ti ti-crown"></i>Crown Jewels &amp; Attack Path<span class="sb-n nc" id="sb-cj">5</span></div>
+  </div>
   <div class="sb-lbl">Orquestração</div>
   <div class="sb-sec">
-    <div class="sb-it" id="nav-lifecycle"  onclick="setView('lifecycle')"> <i class="ti ti-route"></i>Remediation Lifecycle<span class="sb-n ni" style="font-size:8px">NOVO</span></div>
+    <div class="sb-it" id="nav-lifecycle"   onclick="setView('lifecycle')"> <i class="ti ti-route"></i>Remediation Lifecycle<span class="sb-n ni" style="font-size:8px">NOVO</span></div>
     <div class="sb-it" id="nav-dataquality" onclick="setView('dataquality')"><i class="ti ti-shield-half"></i>Data Quality</div>
     <div class="sb-it" id="nav-execintel"  onclick="setView('execintel')"> <i class="ti ti-brain"></i>Exec Intelligence</div>
     <div class="sb-it" id="nav-smartgroup" onclick="setView('smartgroup')"><i class="ti ti-stack-2"></i>Smart Grouping</div>
@@ -188,6 +220,8 @@ import { getSlaRemaining, getEscalationLevel }          from './src/utils/sla.js
 import { sevPill, statusPill, slaBar, envPill, formatDate } from './src/utils/helpers.js';
 import { estimateFinancialImpact, totalFinancialExposure, formatBRL } from './src/utils/financial.js';
 import { AUDIT_BASE, getAuditTrail } from './src/data/audit.js';
+import { WAR_ROOM_INCIDENTS }              from './src/data/warroom.js';
+import { CROWN_JEWELS, getProtectionColor, getDifficultyLabel } from './src/data/crownj.js';
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 VULNS.forEach(v => {
@@ -236,7 +270,7 @@ window.sft = s => { FST=s; render(); };
 // ── RENDER ────────────────────────────────────────────────────────────────────
 function render() {
   upd();
-  const M={dashboard,threatintel,metrics,vulns,assets,suppliers,playbooks,reclassify,exceptions,sla,cicd,compliance,comms,risk,integrations,agent,settings,lifecycle,dataquality,execintel,smartgroup};
+  const M={dashboard,threatintel,metrics,vulns,assets,suppliers,playbooks,reclassify,exceptions,sla,cicd,compliance,comms,risk,integrations,agent,settings,lifecycle,dataquality,execintel,smartgroup,warroom,crownj};
   document.getElementById('main').innerHTML=(M[VIEW]||dashboard)();
   if(VIEW==='agent') rMsgs(false);
 }
@@ -1169,6 +1203,8 @@ let TICKETS     = LS.get('tickets')     || {};  // {vulnId: {id,tool,type,create
 let VULN_STATUS = LS.get('vstatus')     || {};  // {vulnId: status}
 let AUDIT_ADDED = LS.get('audit')       || {};  // {vulnId: [events]}
 let LC_VULN_ID  = 'CVE-2024-23897';            // selected lifecycle vuln
+let WR_SEL     = 'WR-001';                      // selected war room incident
+let CJ_SEL     = 'CJ-001';                      // selected crown jewel
 
 // Apply persisted statuses
 VULNS.forEach(v => {
@@ -1522,6 +1558,295 @@ function smartgroup() {
   </div>`).join('')}
   </div>`;
 }
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  SPRINT 1 — ZERO-DAY WAR ROOM
+// ══════════════════════════════════════════════════════════════════════════════
+function warroom() {
+  const active = WAR_ROOM_INCIDENTS.filter(i => i.status === 'active');
+  const inc = WAR_ROOM_INCIDENTS.find(i => i.id === WR_SEL) || WAR_ROOM_INCIDENTS[0];
+  const done = inc.containment.filter(c => c.done).length;
+  const pct  = Math.round(done / inc.containment.length * 100);
+  const exposed = inc.affected_assets.filter(a => a.status === 'exposed').length;
+
+  // Elapsed timer
+  const elapsed = (() => {
+    const d = new Date(inc.detected);
+    const now = new Date('2024-05-21 09:30');
+    const diff = Math.floor((now - d) / 60000);
+    const h = Math.floor(diff / 60), m = diff % 60;
+    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+  })();
+
+  const assetStatus = s => ({
+    exposed:    { dot:'wr-exposed',    label:'EXPOSTO',     pill:'pc' },
+    workaround: { dot:'wr-workaround', label:'Workaround',  pill:'pm' },
+    patched:    { dot:'wr-patched',    label:'Corrigido',   pill:'pd' },
+    patching:   { dot:'wr-workaround', label:'Patchando...', pill:'pp' },
+  })[s] || { dot:'wr-exposed', label:s, pill:'pn' };
+
+  return `<div class="content">
+  <div class="wr-banner">
+    <i class="ti ti-alert-hexagon" style="font-size:28px;color:var(--crit);flex-shrink:0"></i>
+    <div style="flex:1">
+      <div style="font-size:11px;font-weight:700;color:var(--crit);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px">ZERO-DAY WAR ROOM ATIVO — ${inc.severity}</div>
+      <div style="font-size:14px;font-weight:700;color:var(--text)">${inc.cve} — ${inc.title}</div>
+      <div style="font-size:11px;color:var(--text2);margin-top:2px">Detectado: ${inc.detected} · ${inc.affected_count} ativos · Containment: ${done}/${inc.containment.length} etapas</div>
+    </div>
+    <div style="text-align:right;flex-shrink:0">
+      <div style="font-size:10px;color:var(--text3);margin-bottom:2px">TEMPO DECORRIDO</div>
+      <div class="wr-timer">${elapsed}</div>
+      <div style="font-size:10px;color:${exposed>0?'var(--crit)':'var(--success)'};font-weight:600;margin-top:3px">${exposed>0?exposed+' ativo(s) ainda exposto(s)':'Todos os ativos contidos'}</div>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    ${WAR_ROOM_INCIDENTS.filter(i=>i.status==='active').map(i => `<div class="wr-tab ${i.id===WR_SEL?'active':''}" onclick="wrSelect('${i.id}')"><strong>${i.id}</strong> — ${i.cve}</div>`).join('')}
+  </div>
+
+  <div class="g2">
+    <!-- LEFT: Assets + Containment -->
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="card">
+        <div class="card-hd"><i class="ti ti-server" style="color:var(--crit)"></i><div><div class="card-t">Ativos Afetados (${inc.affected_count})</div><div class="card-s">${exposed} expostos · Patch ETA: ${inc.patch_eta||'a definir'}</div></div></div>
+        <div class="card-bd" style="padding-top:6px">
+          ${inc.affected_assets.map(a => {
+            const st = assetStatus(a.status);
+            return `<div class="wr-asset">
+              <div class="wr-dot ${st.dot}"></div>
+              <div style="flex:1">
+                <div style="font-size:12px;font-weight:500">${a.name}</div>
+                <div style="font-size:10px;color:var(--text3)">${a.internet?'🌐 internet-facing':' rede interna'} · ${a.critical?'Crítico':'Standard'}</div>
+              </div>
+              <span class="pill ${st.pill}" style="font-size:9px">${st.label}</span>
+              ${a.status==='exposed'?`<button class="btn btn-s btn-d" onclick="wrContainAsset('${inc.id}','${a.name}')"><i class="ti ti-shield"></i></button>`:''}
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><i class="ti ti-list-check" style="color:var(--accent)"></i><div><div class="card-t">Checklist de Contenção</div><div class="card-s">${pct}% concluído — ${inc.containment.length-done} etapas pendentes</div></div></div>
+        <div class="card-bd" style="padding-top:6px">
+          <div class="pbar" style="height:5px;margin-bottom:12px"><div class="pbf" style="width:${pct}%;background:${pct===100?'var(--success)':pct>60?'var(--med)':'var(--high)'}"></div></div>
+          ${inc.containment.map(s => `<div class="pbs">
+            <div class="pb-num ${s.done?'pbs-done':s.n===inc.containment.find(x=>!x.done)?.n?'pbs-act':'pbs-idle'}">${s.n}</div>
+            <div style="flex:1"><div style="font-size:11px;color:${s.done?'var(--text2)':'var(--text)'};${s.done?'text-decoration:line-through':''}">${s.label}</div><div style="font-size:9px;color:var(--text3)">${s.auto?'🤖 Automático':'👤 Manual'}</div></div>
+            ${s.done?'<i class="ti ti-check" style="color:var(--success);font-size:14px"></i>':s.n===inc.containment.find(x=>!x.done)?.n?`<button class="btn btn-s btn-o" onclick="wrCompleteStep('${inc.id}',${s.n-1})"><i class="ti ti-check"></i></button>`:''}
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Timeline + Actions + IoCs -->
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div class="card">
+        <div class="card-hd"><i class="ti ti-activity" style="color:var(--accent)"></i><div><div class="card-t">Timeline do Incidente</div><div class="card-s">Cronologia de eventos — T+0 até agora</div></div></div>
+        <div class="card-bd" style="padding-top:8px">
+          ${inc.timeline.map(e => `<div class="wr-tl-row">
+            <div class="wr-tl-t">${e.t}</div>
+            <div style="flex-shrink:0;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--bg4);margin-top:0"><i class="ti ${e.icon}" style="color:${e.color};font-size:12px"></i></div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:11px;font-weight:500;line-height:1.4">${e.action}</div>
+              <div style="font-size:10px;color:var(--text3);margin-top:1px">${e.ts} · ${e.actor}</div>
+            </div>
+          </div>`).join('')}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><i class="ti ti-send" style="color:var(--accent)"></i><div><div class="card-t">Comunicação de Crise</div><div class="card-s">Templates pré-aprovados para cada canal</div></div></div>
+        <div class="card-bd">
+          <div class="btn-g">
+            <button class="btn btn-d" onclick="wrComm('${inc.id}','alert')"><i class="ti ti-alert-octagon"></i> Alerta Inicial P0</button>
+            <button class="btn btn-s" onclick="wrComm('${inc.id}','board')"><i class="ti ti-briefcase"></i> Board Update</button>
+            <button class="btn btn-s" onclick="wrComm('${inc.id}','technical')"><i class="ti ti-terminal"></i> Brief Técnico</button>
+            <button class="btn btn-s" onclick="quickMsg('Gere um comunicado de crise para o incidente ${inc.id} — ${inc.cve}: ${inc.title}. Inclua: status de contenção ${done}/${inc.containment.length} etapas, ${exposed} ativos ainda expostos, workaround: ${inc.workaround}, patch ETA: ${inc.patch_eta||'a definir'}. Tom: urgente mas controlado.')"><i class="ti ti-robot"></i> IA</button>
+          </div>
+          ${inc.patch_available?`<div class="nt nok" style="margin-top:10px"><i class="ti ti-package" style="font-size:14px;flex-shrink:0"></i>Patch disponível: ${inc.patch_note}</div>`:`<div class="nt nc-" style="margin-top:10px"><i class="ti ti-exclamation-mark" style="font-size:14px;flex-shrink:0"></i>Sem patch disponível ainda. Workaround obrigatório enquanto aguarda.</div>`}
+          <div style="margin-top:10px"><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Workaround Aplicar</div><div style="background:var(--bg4);border-radius:var(--r);padding:8px 12px;font-size:11px;color:var(--text2);font-family:var(--mono);line-height:1.5">${inc.workaround}</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><i class="ti ti-eye-off" style="color:var(--high)"></i><div><div class="card-t">Indicators of Compromise (IoCs)</div></div></div>
+        <div class="card-bd" style="padding-top:6px">
+          ${inc.iocs.map(ioc=>`<div style="display:flex;gap:8px;align-items:flex-start;padding:5px 0;border-bottom:1px solid var(--border)"><i class="ti ti-point-filled" style="color:var(--crit);font-size:10px;margin-top:3px;flex-shrink:0"></i><span style="font-size:11px;color:var(--text2)">${ioc}</span></div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>`;
+}
+window.wrSelect       = id => { WR_SEL = id; render(); };
+window.wrContainAsset = (incId, assetName) => {
+  const inc = WAR_ROOM_INCIDENTS.find(i=>i.id===incId);
+  const a = inc?.affected_assets.find(x=>x.name===assetName);
+  if(a){ a.status='workaround'; toast(`${assetName}: workaround aplicado — status atualizado`,'ts'); render(); }
+};
+window.wrCompleteStep = (incId, idx) => {
+  const inc = WAR_ROOM_INCIDENTS.find(i=>i.id===incId);
+  if(inc?.containment[idx]) { inc.containment[idx].done=true; toast(`Etapa ${idx+1} concluída ✓`,'ts'); render(); }
+};
+window.wrComm = (incId, type) => {
+  const inc = WAR_ROOM_INCIDENTS.find(i=>i.id===incId);
+  const msgs = {
+    alert: `🚨 *WAR ROOM P0 — ${inc?.cve}*
+
+*${inc?.title}*
+
+Detectado: ${inc?.detected}
+Ativos afetados: ${inc?.affected_count}
+Workaround: ${inc?.workaround}
+
+Ação imediata requerida de todos os times responsáveis.`,
+    board: `📊 *ATUALIZAÇÃO EXECUTIVA — ${inc?.id}*
+
+${inc?.title}
+
+Contenção: ${inc?.containment.filter(c=>c.done).length}/${inc?.containment.length} etapas
+Patch ETA: ${inc?.patch_eta||'a definir'}
+Risco residual: ${inc?.affected_assets.filter(a=>a.status==='exposed').length>0?'ALTO':'MÉDIO — workaround ativo'}`,
+    technical: `🔧 *BRIEF TÉCNICO — ${inc?.cve}*
+
+${inc?.summary}
+
+Workaround: ${inc?.workaround}
+Patch: ${inc?.patch_note}
+IoCs: ${inc?.iocs?.join(' | ')}`,
+  };
+  navigator.clipboard?.writeText(msgs[type]||'').catch(()=>{});
+  toast(`Comunicado copiado para clipboard — colar no Slack/Teams`,'ts');
+};
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  SPRINT 1 — CROWN JEWELS & ATTACK PATH ANALYSIS
+// ══════════════════════════════════════════════════════════════════════════════
+function attackPathSVG(path) {
+  const steps = path.steps;
+  const nW=110, nH=40, gap=48, pad=10;
+  const totalW = steps.length*(nW+gap)-gap+pad*2;
+  const totalH = nH+40+pad*2;
+  const colorOf = t => ({
+    entry:     {fill:'rgba(255,140,56,.12)',stroke:'var(--high)',text:'var(--high)'},
+    node:      {fill:'var(--bg4)',stroke:'var(--border2)',text:'var(--text)'},
+    technique: {fill:'rgba(255,76,76,.1)',stroke:'var(--crit)',text:'var(--crit)'},
+    target:    {fill:'rgba(255,76,76,.2)',stroke:'var(--crit)',text:'var(--crit)'},
+  }[t]||{fill:'var(--bg4)',stroke:'var(--border2)',text:'var(--text)'});
+
+  let s = `<svg viewBox="0 0 ${totalW} ${totalH}" style="width:100%;min-width:420px" xmlns="http://www.w3.org/2000/svg">`;
+  steps.forEach((step,i) => {
+    const x=pad+i*(nW+gap), y=pad+20;
+    const c=colorOf(step.type);
+    // Arrow from prev
+    if(i>0){
+      const ax=x-gap+2, ay=y+nH/2;
+      const dash = step.type==='technique'?'4,3':'none';
+      s+=`<line x1="${ax}" y1="${ay}" x2="${x-6}" y2="${ay}" stroke="var(--crit)" stroke-width="1.5" stroke-dasharray="${dash}" opacity=".7"/>`;
+      s+=`<polygon points="${x-6},${ay-4} ${x},${ay} ${x-6},${ay+4}" fill="var(--crit)" opacity=".7"/>`;
+    }
+    // Node rect
+    s+=`<rect x="${x}" y="${y}" width="${nW}" height="${nH}" rx="5" fill="${c.fill}" stroke="${c.stroke}" stroke-width="1.5"/>`;
+    // Step label (wrap at 14 chars)
+    const lbl = step.label; const mid = lbl.length>14?lbl.substring(0,14):null;
+    if(mid){
+      s+=`<text x="${x+nW/2}" y="${y+15}" text-anchor="middle" font-size="9.5" fill="${c.text}" font-family="system-ui" font-weight="600">${lbl.substring(0,14)}</text>`;
+      s+=`<text x="${x+nW/2}" y="${y+27}" text-anchor="middle" font-size="9.5" fill="${c.text}" font-family="system-ui" font-weight="600">${lbl.substring(14)}</text>`;
+    } else {
+      s+=`<text x="${x+nW/2}" y="${y+22}" text-anchor="middle" font-size="9.5" fill="${c.text}" font-family="system-ui" font-weight="600">${lbl}</text>`;
+    }
+    // Detail below
+    const det = step.detail.length>16?step.detail.substring(0,16)+'…':step.detail;
+    s+=`<text x="${x+nW/2}" y="${y+nH+12}" text-anchor="middle" font-size="8" fill="var(--text3)" font-family="system-ui">${det}</text>`;
+  });
+  s+='</svg>';
+  return s;
+}
+
+function protectionRing(score, color) {
+  const r=22, circ=2*Math.PI*r, fill=circ*(score/100);
+  return `<div class="cj-ring"><svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="${r}" fill="none" stroke="var(--bg4)" stroke-width="5"/><circle cx="28" cy="28" r="${r}" fill="none" stroke="${color}" stroke-width="5" stroke-dasharray="${fill} ${circ}" stroke-linecap="round"/></svg><div class="cj-ring-score" style="color:${color}">${score}</div></div>`;
+}
+
+function crownj() {
+  const sel = CROWN_JEWELS.find(c=>c.id===CJ_SEL)||CROWN_JEWELS[0];
+  const avgProt = Math.round(CROWN_JEWELS.reduce((s,c)=>s+c.protection_score,0)/CROWN_JEWELS.length);
+  const exposed = CROWN_JEWELS.filter(c=>c.open_vulns>0).length;
+  const ap = sel.attack_paths[0];
+
+  return `<div class="content">
+  <div class="g4">
+    <div class="mt"><div class="mt-l">Crown Jewels</div><div class="mt-v vi">${CROWN_JEWELS.length}</div><div class="mt-s">ativos críticos mapeados</div></div>
+    <div class="mt"><div class="mt-l">Com Vulnerabilidade</div><div class="mt-v vc">${exposed}</div><div class="mt-s">expõem crown jewels</div></div>
+    <div class="mt"><div class="mt-l">Proteção Média</div><div class="mt-v ${avgProt>=75?'vk':avgProt>=60?'vh':'vc'}">${avgProt}%</div><div class="mt-s">score de proteção</div></div>
+    <div class="mt"><div class="mt-l">Caminhos de Ataque</div><div class="mt-v vc">${CROWN_JEWELS.reduce((s,c)=>s+c.attack_paths.length,0)}</div><div class="mt-s">mapeados com MITRE</div></div>
+  </div>
+  <div class="nt nw"><i class="ti ti-crown" style="font-size:16px;flex-shrink:0"></i><strong>Crown Jewels</strong> são os ativos cuja comprometimento causaria dano catastrófico ao negócio, independente de qualquer SLA. Recebem tratamento de risco prioritário e revisão de ataque contínua.</div>
+
+  <div class="g2">
+    <!-- LEFT: Crown Jewels list -->
+    <div>
+      ${CROWN_JEWELS.map(cj => {
+        const c = getProtectionColor(cj.protection_score);
+        return `<div class="cj-card ${cj.id===CJ_SEL?'active':''}" onclick="cjSelect('${cj.id}')" style="margin-bottom:8px;${cj.id===CJ_SEL?'border-color:'+cj.color:''}">
+          <div style="display:flex;align-items:center;gap:12px">
+            ${protectionRing(cj.protection_score, c)}
+            <div style="flex:1;min-width:0">
+              <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+                <i class="ti ${cj.icon}" style="color:${cj.color};font-size:16px"></i>
+                <span style="font-size:13px;font-weight:600">${cj.name}</span>
+              </div>
+              <div style="font-size:10px;color:var(--text3)">${cj.category} · ${cj.attack_paths.length} caminho(s) de ataque</div>
+              <div style="display:flex;gap:6px;margin-top:5px;flex-wrap:wrap">
+                ${cj.open_vulns>0?`<span class="pill pc" style="font-size:9px">${cj.open_vulns} vuln expondo</span>`:'<span class="pill pd" style="font-size:9px">Sem vuln direta</span>'}
+                <span class="pill pn" style="font-size:9px">Proteção: ${cj.protection_score}%</span>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <!-- RIGHT: Crown Jewel detail -->
+    <div class="cj-detail">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <i class="ti ${sel.icon}" style="color:${sel.color};font-size:24px"></i>
+        <div><div style="font-size:15px;font-weight:700">${sel.name}</div><div style="font-size:11px;color:var(--text2)">${sel.category}</div></div>
+      </div>
+      <div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px">${sel.description}</div>
+
+      ${sel.open_vulns>0?`<div class="nt nc-" style="margin-bottom:12px"><i class="ti ti-alert-triangle" style="font-size:14px;flex-shrink:0"></i><strong>${sel.open_vulns} vulnerabilidade(s) expondo diretamente este crown jewel:</strong> ${sel.vuln_ids.map(id=>`<span class="pill pc" style="font-size:9px;margin-left:4px">${id}</span>`).join('')}<button class="btn btn-s btn-d" style="margin-left:auto" onclick="fBySev('ALL');setView('vulns')">Ver Vuln →</button></div>`:''}
+
+      <div class="ds">Caminho de Ataque — ${ap.name}</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <span class="pill ${ap.difficulty==='low'?'pc':ap.difficulty==='medium'?'ph':'pd'}" style="font-size:9px">${getDifficultyLabel(ap.difficulty)}</span>
+        ${ap.mitre.map(m=>`<span class="pill pai" style="font-size:9px">${m}</span>`).join('')}
+      </div>
+      <div class="ap-wrap">${attackPathSVG(ap)}</div>
+      <div class="ap-legend">
+        <span style="color:var(--high)">■ Entrada</span>
+        <span style="color:var(--text3)">■ Nó</span>
+        <span style="color:var(--crit)">■ Técnica MITRE</span>
+        <span style="color:var(--crit)">■ Crown Jewel</span>
+        <span style="color:var(--text3)">╌ Move lateral</span>
+      </div>
+
+      <div class="ds" style="margin-top:14px">Controles Ausentes que Habilitam este Caminho</div>
+      ${ap.gaps.map(g=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px"><i class="ti ti-x" style="color:var(--crit);font-size:12px;flex-shrink:0"></i><span style="color:var(--text2)">${g}</span></div>`).join('')}
+
+      <div class="ds" style="margin-top:14px">Blast Radius — Impacto se Comprometido</div>
+      ${sel.blast_radius.map((b,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:11px"><span style="color:var(--crit);font-weight:700;min-width:16px">${i+1}.</span><span style="color:var(--text2)">${b}</span></div>`).join('')}
+
+      <div class="ds" style="margin-top:14px">Recomendações de Proteção</div>
+      ${sel.recommendations.map(r=>`<div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px"><i class="ti ti-arrow-right" style="color:var(--accent);font-size:12px;flex-shrink:0;margin-top:1px"></i><span style="color:var(--text2)">${r}</span></div>`).join('')}
+
+      <div class="btn-g" style="margin-top:14px">
+        <button class="btn btn-p btn-s" onclick="quickMsg('Analise o crown jewel ${sel.name} (ID: ${sel.id}). Caminho de ataque ativo: ${ap.name}. Gaps identificados: ${ap.gaps.join(', ')}. Gere um plano de proteção priorizado com controles técnicos específicos, quick wins e roadmap de 90 dias.')"><i class="ti ti-robot"></i> Plano de Proteção via IA</button>
+        <button class="btn btn-s" onclick="quickMsg('Calcule o blast radius real do crown jewel ${sel.name} em nosso ambiente. Ativos conectados, dados em escopo, obrigações regulatórias impactadas e estimativa de dano financeiro caso comprometido.')"><i class="ti ti-ripple"></i> Blast Radius via IA</button>
+      </div>
+    </div>
+  </div>
+  </div>`;
+}
+window.cjSelect = id => { CJ_SEL = id; render(); };
+
 
 // ── START ─────────────────────────────────────────────────────────────────────
 render();
