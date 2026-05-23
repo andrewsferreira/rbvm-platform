@@ -1,0 +1,80 @@
+// =============================================================================
+// RBVM Platform — Zero-day War Room Data
+// © 2026 Andrews Ferreira. Todos os direitos reservados.
+// =============================================================================
+
+export const WAR_ROOM_INCIDENTS = [
+  {
+    id: 'WR-001', status: 'active', severity: 'P0',
+    cve: 'CVE-2024-6387', vuln_id: 'CVE-2024-6387',
+    title: 'OpenSSH regreSSHion — RCE sem autenticação em servidores Linux',
+    summary: 'Race condition no sshd permite Remote Code Execution como root, sem credenciais, em OpenSSH < 9.8p1. Exploração ativa confirmada por múltiplos grupos.',
+    detected: '2024-05-21 06:00', patch_available: true, patch_eta: '2024-05-22 02:00',
+    patch_note: 'OpenSSH 9.8p1 disponível — janela de manutenção emergencial agendada',
+    workaround: 'Definir LoginGraceTime 0 no sshd_config e reiniciar o daemon. Ativar regra WAF/IDS bloqueando exploit.',
+    affected_count: 8,
+    affected_assets: [
+      { name: 'ssh-bastion-01',   status: 'exposed',    internet: true,  critical: true  },
+      { name: 'jenkins-prod-01',  status: 'exposed',    internet: true,  critical: true  },
+      { name: 'linux-prod-01',    status: 'workaround', internet: false, critical: true  },
+      { name: 'linux-prod-02',    status: 'workaround', internet: false, critical: false },
+      { name: 'linux-prod-03',    status: 'patched',    internet: false, critical: false },
+      { name: 'data-workers-01',  status: 'workaround', internet: false, critical: false },
+      { name: 'k8s-node-01',      status: 'patched',    internet: false, critical: false },
+      { name: 'k8s-node-02',      status: 'workaround', internet: false, critical: false },
+    ],
+    timeline: [
+      { t:'T+0',    ts:'2024-05-21 06:00', actor:'CISA',             icon:'ti-satellite',  action:'CVE-2024-6387 publicado no CISA KEV. Exploração ativa confirmada.',                            color:'var(--crit)' },
+      { t:'T+8m',   ts:'2024-05-21 06:08', actor:'RBVM Engine',      icon:'ti-radar',      action:'8 ativos afetados identificados automaticamente via Qualys + CMDB.',                           color:'var(--accent)' },
+      { t:'T+10m',  ts:'2024-05-21 06:10', actor:'RBVM Engine',      icon:'ti-arrow-up',   action:'War Room P0 ativado. PagerDuty disparado. CISO + SOC + Linux SRE notificados.',               color:'var(--crit)' },
+      { t:'T+22m',  ts:'2024-05-21 06:22', actor:'Security Analyst', icon:'ti-user',       action:'Workaround validado: LoginGraceTime 0 + regra Suricata SID:9000001. Rollout iniciado.',       color:'var(--med)' },
+      { t:'T+45m',  ts:'2024-05-21 06:45', actor:'Linux SRE',        icon:'ti-terminal',   action:'Workaround aplicado em 6/8 ativos. 2 servidores internet-facing ainda expostos.',             color:'var(--high)' },
+      { t:'T+2h',   ts:'2024-05-21 08:00', actor:'Network Team',     icon:'ti-shield',     action:'WAF rule ativada bloqueando exploit conhecido. Risco residual reduzido em ativos expostos.', color:'var(--med)' },
+      { t:'Agora',  ts:'2024-05-21 09:30', actor:'Pendente',         icon:'ti-clock',      action:'Patch OpenSSH 9.8p1 agendado para janela emergencial — 22/05 02:00. 2 ativos ainda expostos.',color:'var(--text3)' },
+    ],
+    containment: [
+      { n:1, label:'Identificar todos os ativos afetados via Qualys + CMDB',     done:true,  auto:true  },
+      { n:2, label:'Notificar CISO + SOC + time responsável via PagerDuty',       done:true,  auto:true  },
+      { n:3, label:'Validar workaround disponível e testá-lo em sandbox',         done:true,  auto:false },
+      { n:4, label:'Aplicar LoginGraceTime 0 em todos os ativos críticos',        done:true,  auto:false },
+      { n:5, label:'Ativar regra WAF/IDS bloqueando vetores de exploração',       done:true,  auto:false },
+      { n:6, label:'Monitorar SIEM por tentativas de exploração (SID:9000001)',   done:true,  auto:false },
+      { n:7, label:'Isolar os 2 ativos internet-facing se necessário',            done:false, auto:false },
+      { n:8, label:'Aplicar patch OpenSSH 9.8p1 em janela de manutenção',        done:false, auto:false },
+      { n:9, label:'Rescan confirma patch em todos os 8 ativos',                  done:false, auto:true  },
+      { n:10,label:'Relatório pós-incidente e lições aprendidas para CISO',       done:false, auto:false },
+    ],
+    iocs: ['Exploit via porta 22 com race condition no processo filho do sshd','~10.000 tentativas de conexão por exploração bem-sucedida','Processo sshd.exe com child process anômalo pós-autenticação'],
+  },
+  {
+    id: 'WR-002', status: 'active', severity: 'P0',
+    cve: 'CVE-2024-21762', vuln_id: 'CVE-2024-21762',
+    title: 'Fortinet FortiOS SSL-VPN — Out-of-Bounds Write RCE',
+    summary: 'Escrita fora dos limites no serviço SSL-VPN permite RCE não autenticado. Grupos APT explorando ativamente. Mandatório CISA por regulação federal dos EUA.',
+    detected: '2024-05-19 06:12', patch_available: true, patch_eta: '2024-05-19 16:00',
+    patch_note: 'FortiOS 7.4.3+ disponível. Aplicação em andamento.',
+    workaround: 'Desabilitar a interface SSL-VPN (/vpn/ssl/settings/). ATENÇÃO: interrompe acesso remoto de usuários.',
+    affected_count: 2,
+    affected_assets: [
+      { name: 'fw-perimeter-01', status: 'patched',  internet: true, critical: true },
+      { name: 'fw-backup-01',    status: 'exposed',  internet: true, critical: true },
+    ],
+    timeline: [
+      { t:'T+0',   ts:'2024-05-19 06:12', actor:'Tenable VM',   icon:'ti-radar',    action:'Plugin 192777 detectou FortiOS vulnerável (7.2.x) nos 2 firewalls perimetrais.',       color:'var(--crit)' },
+      { t:'T+3m',  ts:'2024-05-19 06:15', actor:'RBVM Engine',  icon:'ti-arrow-up', action:'War Room P0 declarado. PagerDuty acordou o time de rede e o CISO às 06:15.',           color:'var(--crit)' },
+      { t:'T+30m', ts:'2024-05-19 06:45', actor:'Network Team', icon:'ti-network',  action:'SSL-VPN desabilitado no fw-perimeter-01 como workaround. Usuários remotos impactados.',color:'var(--med)' },
+      { t:'T+4h',  ts:'2024-05-19 10:12', actor:'Network Team', icon:'ti-shield',   action:'Patch FortiOS 7.4.3 aplicado em fw-perimeter-01. SSL-VPN reativado. Validado.',        color:'var(--success)' },
+      { t:'Agora', ts:'2024-05-19 10:30', actor:'Pendente',     icon:'ti-clock',    action:'fw-backup-01 aguardando janela de patch. Temporariamente isolado da internet.',         color:'var(--text3)' },
+    ],
+    containment: [
+      { n:1, label:'Identificar firewalls FortiOS afetados na rede',               done:true,  auto:true  },
+      { n:2, label:'Notificar time de rede + CISO via PagerDuty',                 done:true,  auto:true  },
+      { n:3, label:'Desabilitar SSL-VPN como workaround emergencial',             done:true,  auto:false },
+      { n:4, label:'Patch FortiOS 7.4.3+ em fw-perimeter-01',                    done:true,  auto:false },
+      { n:5, label:'Verificar logs de acesso por IoCs de exploração APT',         done:true,  auto:false },
+      { n:6, label:'Patch FortiOS 7.4.3+ em fw-backup-01',                       done:false, auto:false },
+      { n:7, label:'Rescan confirma patch em ambos os firewalls',                 done:false, auto:true  },
+    ],
+    iocs: ['POST para /remote/login com payload oversized','Acesso à mgmt interface sem autenticação prévia','Conexões de IPs classificados como APT em threat feeds'],
+  },
+];
