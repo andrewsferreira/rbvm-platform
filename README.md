@@ -1,123 +1,107 @@
-# RBVM Platform — Enterprise Vulnerability & Exposure Management
+# RBVM Platform
+### Enterprise Vulnerability & Exposure Management
 
-> **Enterprise Vulnerability & Exposure Management Platform powered by AI, risk-based prioritization, automated ticket orchestration, SLA governance, remediation validation and executive intelligence.**
+> **Plataforma proprietária de Gestão de Vulnerabilidades Baseada em Risco, concebida, arquitetada e desenvolvida por Andrews Ferreira.**
 
----
-
-## 🎯 Visão Geral
-
-Plataforma corporativa de **Gestão de Vulnerabilidades Baseada em Risco** e **Continuous Threat Exposure Management (CTEM)**, projetada para ambientes de grande porte, regulados e com alta criticidade operacional.
-
-A plataforma atua como **camada de inteligência, orquestração, governança e automação** acima de ferramentas como Tenable, Qualys, Rapid7, Veracode, Snyk, Wiz, Prisma Cloud, entre outras.
+🔗 **Demo:** [andrewsferreira.github.io/rbvm-platform](https://andrewsferreira.github.io/rbvm-platform)
 
 ---
 
-## ⚡ Funcionalidades Atuais (MVP v1)
+## Autoria e Propriedade Intelectual
 
-- **Dashboard Executivo** — risco global, KEVs abertas, SLA vencidos, tendência
-- **Gestão de Vulnerabilidades** — filtros, busca, detalhe completo, risk scoring multicritério
-- **Reclassificação de Risco** — ajuste contextual por exposição, dados sensíveis, ambiente e controles
-- **Gestão de SLA** — régua de cobrança, alertas preventivos, escalonamento automático
-- **Análise de Risco** — scoring por ativo, área, framework e tendência histórica
-- **Comunicados Automatizados** — templates por severidade e canal (Teams/Slack/e-mail)
-- **Integrações** — painel de status de conectores (Tenable, Veracode, Snyk, GitHub Actions)
-- **Agente IA (GenAI)** — Claude Sonnet com contexto real das vulnerabilidades ativas
-- **Módulo de Exceções** — aceite de risco com aprovação, evidência e expiração
-- **Gestão de Ativos** — inventário com owner, ambiente, criticidade e cobertura de scan
+**RBVM Platform** é um projeto proprietário criado por **Andrews Ferreira**.
+
+Este projeto representa uma plataforma conceitual e demonstrativa de **Enterprise Vulnerability & Exposure Management**, com foco em Risk-Based Vulnerability Management (RBVM), Continuous Threat Exposure Management (CTEM), automação de SLAs, orquestração de tickets, validação técnica de correção e inteligência executiva com IA generativa.
+
+Todo o conteúdo deste repositório — código, design, arquitetura, fluxos, documentação, telas, lógica de produto e organização funcional — é protegido por direitos autorais.
+
+O acesso público tem finalidade **exclusivamente demonstrativa e de portfólio profissional**.
+
+Nenhuma permissão é concedida para copiar, modificar, redistribuir, revender, explorar comercialmente, incorporar em produto de terceiros ou criar trabalhos derivados sem autorização expressa do autor.
+
+**© 2026 Andrews Ferreira. Todos os direitos reservados.**
+
+> *RBVM Platform is a proprietary cybersecurity product concept created by Andrews Ferreira.*
 
 ---
 
-## 🧱 Arquitetura
+## Disclaimer
+
+Este MVP utiliza **dados mockados** exclusivamente para demonstração:
+- Vulnerabilidades são exemplos públicos (CVEs) adaptados — não representam ambientes reais
+- Ativos, owners (`@corp.example`), squads, fornecedores, valores financeiros e tickets são simulados
+- A plataforma não está conectada a ambientes reais de produção
+- Estimativas financeiras são apenas ilustrativas
+- Qualquer integração real requer ambiente privado com controle de acesso adequado
+
+---
+
+## Visão Geral
+
+A plataforma demonstra o ciclo completo de orquestração de vulnerabilidades:
+
+```
+Detectar → Normalizar → Enriquecer → Priorizar → Ticketar →
+Cobrar → Escalar → Validar Tecnicamente → Evidenciar → Fechar → Reportar
+```
+
+### Diferencial: Criar ticket ≠ corrigido. Resolvido ≠ fechado. Validação técnica é obrigatória.
+
+---
+
+## Módulos (17 total)
+
+| Categoria | Módulo | Descrição |
+|-----------|--------|-----------|
+| Análise | Dashboard Executivo | Exposição financeira, KEVs, SLA, pipeline RBVM |
+| Análise | Threat Intelligence | CISA KEV, EPSS, exploits, MITRE ATT&CK |
+| Análise | Métricas & MTTR | MTTR por time/severidade, KRIs, tendência 6 meses |
+| Gestão | Vulnerabilidades | Score, EPSS, KEV, impacto BRL, filtros completos |
+| Gestão | Ativos | Inventário com owner, EOL, PCI/LGPD scope |
+| Gestão | Fornecedores | Supply chain Tier 1/2, assessments, SLA |
+| Orquestração | **Remediation Lifecycle** | Jornada visual completa com audit trail |
+| Orquestração | **Data Quality** | Indicadores de qualidade de dados |
+| Orquestração | **Exec Intelligence** | Decisões pendentes, plano executivo |
+| Orquestração | **Smart Grouping** | Agrupamento inteligente de tickets |
+| Automação | Playbooks | Workflows automatizados por tipo de ameaça |
+| Automação | Reclassificação | Ajuste contextual de score auditável |
+| Automação | Exceções | Aceite de risco formal com aprovação |
+| Automação | Gestão SLA | Escalonamento automático, MTTR, cobrança |
+| Dev Sec | CI/CD Security | Gates, secrets, SAST/SCA/IaC/container |
+| Governança | Compliance/GRC | NIST/PCI/ISO/LGPD/CMN 4.893 |
+| Plataforma | Agente IA | Claude Sonnet + fontes rastreáveis + guardrails |
+
+---
+
+## Ciclo de Status (Remediation)
+
+```
+New → Ticket Created → In Progress → Resolved by Team
+    → Awaiting Technical Validation → Rescan Requested
+    → Validation Running → Fixed Confirmed → Closed with Evidence
+                        ↘ Still Vulnerable → Reopened
+```
+
+---
+
+## Arquitetura
 
 ```
 rbvm-platform/
-├── index.html              # Entry point — SPA completo
+├── index.html          # SPA (1500+ linhas, 17 módulos)
+├── LICENSE             # Licença proprietária
 ├── src/
-│   ├── data/
-│   │   ├── vulns.js        # Dataset de vulnerabilidades
-│   │   ├── assets.js       # Inventário de ativos
-│   │   └── integrations.js # Configuração de integrações
-│   ├── modules/
-│   │   ├── dashboard.js    # View: Dashboard Executivo
-│   │   ├── vulns.js        # View: Vulnerabilidades
-│   │   ├── assets.js       # View: Gestão de Ativos
-│   │   ├── reclassify.js   # View: Reclassificação de Risco
-│   │   ├── sla.js          # View: Gestão de SLA
-│   │   ├── risk.js         # View: Análise de Risco
-│   │   ├── comms.js        # View: Comunicados
-│   │   ├── exceptions.js   # View: Exceções e Aceite de Risco
-│   │   ├── integrations.js # View: Integrações
-│   │   ├── agent.js        # View: Agente IA
-│   │   └── settings.js     # View: Configurações
-│   ├── utils/
-│   │   ├── scoring.js      # Motor de Risk Scoring multicritério
-│   │   ├── sla.js          # Lógica de SLA e escalonamento
-│   │   ├── notify.js       # Motor de notificações
-│   │   └── helpers.js      # Utilitários e formatação
-│   └── styles/
-│       └── main.css        # Design system completo
+│   ├── data/           # vulns, assets, cicd, suppliers, playbooks, trends, audit
+│   └── utils/          # scoring, sla, helpers, financial
 └── docs/
-    ├── ARCHITECTURE.md
-    ├── RISK_MODEL.md
-    └── SLA_POLICY.md
 ```
 
 ---
 
-## 🔧 Stack Técnica
+## Tecnologia
 
-| Camada | Tecnologia |
-|--------|-----------|
-| Frontend | HTML5 + CSS3 + JavaScript (ES Modules) |
-| IA | Claude Sonnet 4 via Anthropic API |
-| Ícones | Tabler Icons |
-| Storage | LocalStorage (MVP) → API REST (roadmap) |
-| Deploy | GitHub Pages / Nginx / Docker |
+HTML5 + CSS3 + JavaScript ES Modules · Claude Sonnet 4 · Tabler Icons · localStorage · GitHub Pages
 
 ---
 
-## 🚀 Como Executar
-
-### Opção 1 — Direto no browser
-Abra `index.html` em qualquer browser moderno. Sem dependências de build.
-
-### Opção 2 — Servidor local
-```bash
-# Python
-python3 -m http.server 8080
-
-# Node
-npx serve .
-```
-
-Acesse: `http://localhost:8080`
-
----
-
-## 🗺️ Roadmap
-
-| Fase | Status | Descrição |
-|------|--------|-----------|
-| MVP v1 | ✅ Concluído | Dashboard, Vulns, SLA, Agente IA |
-| v1.1 | 🔄 Em andamento | Ativos, Exceções, Risk Scoring v2 |
-| v1.2 | 📋 Planejado | Tickets Jira/ServiceNow (API real) |
-| v1.3 | 📋 Planejado | Enriquecimento EPSS/KEV/NVD ao vivo |
-| v2.0 | 📋 Planejado | Backend + persistência + RBAC |
-
----
-
-## 📐 Frameworks e Referências
-
-- NIST CSF 2.0 / SP 800-40 / SP 800-53
-- CIS Controls v8
-- OWASP Top 10 / ASVS / API Security / SAMM
-- MITRE ATT&CK / CVE
-- CVSS v3.1 e v4.0 / EPSS / CISA KEV
-- PCI DSS 4.0 / ISO 27001:2022 / LGPD
-- Resolução CMN 4.893/2021
-
----
-
-## 📄 Licença
-
-MIT — Uso corporativo, acadêmico e pessoal permitido.
+*© 2026 Andrews Ferreira. Todos os direitos reservados. Projeto proprietário. Acesso público apenas para fins demonstrativos.*
