@@ -1,0 +1,1159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>RBVM Platform — Enterprise Vulnerability & Exposure Management</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"/>
+<style>
+/* ============================================================
+   RBVM PLATFORM — DESIGN SYSTEM
+   ============================================================ */
+:root {
+  --bg:      #0d0f14;
+  --bg2:     #141720;
+  --bg3:     #1c2030;
+  --bg4:     #242840;
+  --border:  rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text:    #e8eaf0;
+  --text2:   #8b90a0;
+  --text3:   #555a6e;
+  --accent:  #4f7aff;
+  --accent2: #2c4fd6;
+  --crit:    #ff4c4c;
+  --critbg:  rgba(255,76,76,0.12);
+  --high:    #ff8c38;
+  --highbg:  rgba(255,140,56,0.12);
+  --med:     #f0c040;
+  --medbg:   rgba(240,192,64,0.12);
+  --low:     #40c87a;
+  --lowbg:   rgba(64,200,122,0.12);
+  --info:    #4f7aff;
+  --infobg:  rgba(79,122,255,0.12);
+  --success: #40c87a;
+  --successbg: rgba(64,200,122,0.12);
+  --ai:      #00d4d4;
+  --aibg:    rgba(0,212,212,0.1);
+  --font:    'Segoe UI', system-ui, sans-serif;
+  --mono:    'Cascadia Code', 'Fira Code', monospace;
+  --r:  8px;
+  --r2: 12px;
+  --sidebar-w: 224px;
+  --topbar-h:  48px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;line-height:1.5}
+
+/* LAYOUT */
+.app{display:grid;grid-template-rows:var(--topbar-h) 1fr;grid-template-columns:var(--sidebar-w) 1fr;height:100vh}
+.topbar{grid-column:1/-1;display:flex;align-items:center;gap:12px;padding:0 20px;background:var(--bg2);border-bottom:1px solid var(--border);z-index:10}
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;padding:12px 0}
+.main-area{overflow-y:auto;background:var(--bg)}
+
+/* TOPBAR */
+.logo{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;letter-spacing:-.3px;color:var(--text);white-space:nowrap}
+.logo i{font-size:20px;color:var(--accent)}
+.logo-badge{font-size:9px;font-weight:600;padding:1px 5px;border-radius:3px;background:var(--accent2);color:#fff;margin-left:2px}
+.topbar-mid{flex:1;display:flex;gap:8px;align-items:center}
+.tb-search-wrap{position:relative}
+.tb-search{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:5px 10px 5px 30px;color:var(--text);font-size:12px;width:280px;outline:none}
+.tb-search:focus{border-color:var(--accent)}
+.tb-search-wrap i{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px;pointer-events:none}
+.topbar-right{display:flex;gap:8px;align-items:center;margin-left:auto}
+.tb-pill{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:none}
+.tb-pill.crit{background:var(--critbg);color:var(--crit)}
+.tb-pill.warn{background:var(--highbg);color:var(--high)}
+.tb-icon-btn{width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:var(--r);background:var(--bg3);border:1px solid var(--border);cursor:pointer;color:var(--text2);font-size:16px;transition:all .15s}
+.tb-icon-btn:hover{background:var(--bg4);color:var(--text)}
+.avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#7c3aed);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;cursor:pointer}
+
+/* SIDEBAR */
+.sb-label{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;padding:10px 10px 4px}
+.sb-section{padding:0 8px 8px}
+.sb-item{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:var(--r);cursor:pointer;font-size:12px;color:var(--text2);transition:all .1s;border:1px solid transparent}
+.sb-item:hover{background:var(--bg3);color:var(--text)}
+.sb-item.active{background:rgba(79,122,255,0.12);color:var(--accent);border-color:rgba(79,122,255,0.2)}
+.sb-item i{font-size:15px;width:16px;flex-shrink:0}
+.sb-count{margin-left:auto;font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px}
+.sc-crit{background:var(--critbg);color:var(--crit)}
+.sc-high{background:var(--highbg);color:var(--high)}
+.sc-ok{background:var(--successbg);color:var(--success)}
+.sc-info{background:var(--infobg);color:var(--info)}
+.sb-divider{height:1px;background:var(--border);margin:6px 10px}
+
+/* CONTENT */
+.content{padding:20px;display:flex;flex-direction:column;gap:14px;min-height:100%}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2)}
+.card-header{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--border)}
+.card-title{font-size:13px;font-weight:600;color:var(--text)}
+.card-sub{font-size:11px;color:var(--text2)}
+.card-body{padding:16px}
+.card-actions{margin-left:auto;display:flex;gap:6px}
+
+/* METRICS */
+.metrics-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.metric{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:14px;transition:border-color .2s;cursor:default}
+.metric:hover{border-color:var(--border2)}
+.metric-label{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.metric-value{font-size:26px;font-weight:700;line-height:1}
+.metric-sub{font-size:10px;color:var(--text3);margin-top:4px}
+.metric-trend{font-size:10px;margin-top:3px}
+.trend-up{color:var(--crit)}
+.trend-down{color:var(--success)}
+.mv-crit{color:var(--crit)}
+.mv-high{color:var(--high)}
+.mv-ok{color:var(--success)}
+.mv-info{color:var(--info)}
+.mv-text{color:var(--text)}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{padding:8px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);background:var(--bg3);white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr.tbl-row{cursor:pointer;transition:background .1s}
+tr.tbl-row:hover td{background:var(--bg3)}
+
+/* PILLS */
+.pill{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.p-crit{background:var(--critbg);color:var(--crit)}
+.p-high{background:var(--highbg);color:var(--high)}
+.p-med{background:var(--medbg);color:var(--med)}
+.p-low{background:var(--lowbg);color:var(--low)}
+.p-info{background:var(--infobg);color:var(--info)}
+.p-new{background:var(--bg4);color:var(--text2)}
+.p-progress{background:rgba(79,122,255,0.15);color:var(--accent)}
+.p-done{background:var(--successbg);color:var(--success)}
+.p-breach{background:var(--critbg);color:var(--crit)}
+.p-nist{background:rgba(120,100,255,0.15);color:#a084ff}
+.p-owasp{background:rgba(255,80,150,0.12);color:#ff5096}
+.p-cve{background:rgba(255,160,50,0.12);color:#ffa032}
+.p-ai{background:var(--aibg);color:var(--ai)}
+.p-exception{background:rgba(255,200,0,0.12);color:#ffc800}
+
+/* SLA BAR */
+.sla-bar{height:4px;width:56px;background:var(--bg4);border-radius:2px;overflow:hidden;display:inline-block;vertical-align:middle;margin-right:4px}
+.sla-fill{height:100%;border-radius:2px}
+.sf-ok{background:var(--success)}
+.sf-warn{background:var(--high)}
+.sf-crit{background:var(--crit)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--r);border:1px solid var(--border2);background:var(--bg3);color:var(--text);font-size:12px;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:var(--font)}
+.btn:hover{background:var(--bg4);border-color:rgba(255,255,255,0.18)}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent2);border-color:var(--accent2)}
+.btn-danger{background:var(--critbg);border-color:rgba(255,76,76,0.3);color:var(--crit)}
+.btn-success{background:var(--successbg);border-color:rgba(64,200,122,0.3);color:var(--success)}
+.btn-sm{padding:4px 9px;font-size:11px}
+.btn i{font-size:14px}
+.btn-group{display:flex;gap:6px;flex-wrap:wrap}
+
+/* TABS */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);padding:0 16px}
+.tab{padding:10px 14px;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;white-space:nowrap}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+
+/* FILTER ROW */
+.filter-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--bg2)}
+.filter-chip{padding:4px 10px;border-radius:20px;font-size:11px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;color:var(--text2);transition:all .12s}
+.filter-chip.active{background:rgba(79,122,255,.15);border-color:rgba(79,122,255,.3);color:var(--accent)}
+.filter-chip:hover:not(.active){background:var(--bg4);color:var(--text)}
+
+/* DETAIL PANEL */
+.detail-overlay{position:fixed;top:var(--topbar-h);right:0;bottom:0;width:580px;background:var(--bg2);border-left:1px solid var(--border);z-index:50;display:none;flex-direction:column;overflow:hidden}
+.detail-overlay.open{display:flex}
+.detail-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
+.detail-scroll{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:14px}
+.detail-close{position:absolute;top:14px;right:16px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:16px}
+.detail-close:hover{color:var(--text);background:var(--bg4)}
+.d-section-title{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.d-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.d-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.d-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px}
+.d-item-label{font-size:10px;color:var(--text3);margin-bottom:3px}
+.d-item-val{font-size:13px;font-weight:600;color:var(--text)}
+
+/* PIPELINE VIS */
+.pipeline-vis{display:flex;align-items:center;gap:0;padding:12px 0}
+.pv-step{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1}
+.pv-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;border:2px solid var(--border2)}
+.pv-icon.done{background:rgba(64,200,122,0.15);border-color:var(--success);color:var(--success)}
+.pv-icon.active{background:rgba(79,122,255,0.15);border-color:var(--accent);color:var(--accent);animation:pulse3 2s ease-in-out infinite}
+.pv-icon.warn{background:rgba(255,140,56,0.15);border-color:var(--high);color:var(--high)}
+.pv-icon.idle{background:var(--bg3);border-color:var(--border);color:var(--text3)}
+@keyframes pulse3{0%,100%{box-shadow:0 0 0 0 rgba(79,122,255,.3)}50%{box-shadow:0 0 0 6px rgba(79,122,255,0)}}
+.pv-name{font-size:10px;color:var(--text2);font-weight:600;text-align:center}
+.pv-count{font-size:9px;color:var(--text3)}
+.pv-arrow{color:var(--text3);font-size:14px;flex-shrink:0}
+
+/* PROGRESS */
+.progress-bar{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden}
+.pb-fill{height:100%;border-radius:3px}
+
+/* FW TAGS */
+.fw-tag{display:inline-flex;align-items:center;font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600;cursor:default;margin:1px}
+
+/* NOTICE */
+.notice{display:flex;gap:8px;align-items:flex-start;padding:10px 12px;border-radius:var(--r);font-size:11px}
+.notice-info{background:var(--infobg);border:1px solid rgba(79,122,255,.2);color:var(--info)}
+.notice-warn{background:var(--highbg);border:1px solid rgba(255,140,56,.2);color:var(--high)}
+.notice-crit{background:var(--critbg);border:1px solid rgba(255,76,76,.2);color:var(--crit)}
+.notice-success{background:var(--successbg);border:1px solid rgba(64,200,122,.2);color:var(--success)}
+
+/* GRID HELPERS */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.flex{display:flex}
+.items-center{align-items:center}
+.justify-between{justify-content:space-between}
+.gap-6{gap:6px}
+.gap-8{gap:8px}
+.gap-12{gap:12px}
+.mt-8{margin-top:8px}
+.mt-12{margin-top:12px}
+.mb-8{margin-bottom:8px}
+
+/* AGENT CHAT */
+.agent-msgs{display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto;padding:4px 2px}
+.agent-msg{padding:10px 12px;border-radius:var(--r2);font-size:12px;line-height:1.6}
+.msg-ai{background:var(--bg3);border:1px solid var(--border2);color:var(--text)}
+.msg-user{background:rgba(79,122,255,0.1);border:1px solid rgba(79,122,255,0.2);color:var(--text);align-self:flex-end;max-width:85%}
+.msg-meta{font-size:9px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em}
+.agent-input-row{display:flex;gap:8px;margin-top:10px}
+.agent-input{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:8px 12px;color:var(--text);font-size:12px;outline:none;font-family:var(--font)}
+.agent-input:focus{border-color:var(--accent)}
+.quick-btns{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.qbtn{font-size:10px;padding:3px 9px;border-radius:20px;background:var(--bg3);border:1px solid var(--border2);color:var(--text2);cursor:pointer;transition:all .12s}
+.qbtn:hover{background:var(--bg4);color:var(--text);border-color:var(--accent)}
+
+/* TYPING */
+.typing-dots{display:flex;gap:3px;padding:4px 2px}
+.td{width:5px;height:5px;border-radius:50%;background:var(--text3);animation:tdanim .9s ease-in-out infinite}
+.td:nth-child(2){animation-delay:.15s}
+.td:nth-child(3){animation-delay:.3s}
+@keyframes tdanim{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+
+/* INT CARDS */
+.int-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.int-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:14px;display:flex;flex-direction:column;gap:8px;transition:border-color .2s}
+.int-card:hover{border-color:var(--border2)}
+.int-icon{width:36px;height:36px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:var(--bg4)}
+.int-dot{width:7px;height:7px;border-radius:50%}
+.dot-connected{background:var(--success);box-shadow:0 0 6px var(--success)}
+.dot-partial{background:var(--high);box-shadow:0 0 6px var(--high)}
+.dot-off{background:var(--text3)}
+
+/* RISK SCORE EXPLAIN */
+.score-explain-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px}
+.score-explain-row:last-child{border-bottom:none}
+.score-factor{color:var(--text2)}
+.score-pts{font-weight:700;font-family:var(--mono)}
+.score-pts.pos{color:var(--crit)}
+.score-pts.neg{color:var(--success)}
+
+/* EXCEPTION FORM */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-field{display:flex;flex-direction:column;gap:4px}
+.form-label{font-size:11px;color:var(--text2);font-weight:600}
+.form-input{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:7px 10px;color:var(--text);font-size:12px;outline:none;font-family:var(--font)}
+.form-input:focus{border-color:var(--accent)}
+textarea.form-input{resize:vertical;min-height:72px}
+
+/* MODAL */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;display:none;align-items:center;justify-content:center}
+.modal-backdrop.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r2);padding:24px;width:500px;max-height:85vh;overflow-y:auto}
+.modal-title{font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+
+/* TOAST */
+#toast{position:fixed;bottom:20px;right:20px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r2);padding:12px 16px;font-size:12px;display:none;gap:8px;align-items:center;z-index:999;max-width:340px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+#toast.show{display:flex;animation:slideUp .2s ease}
+#toast.toast-success{border-color:rgba(64,200,122,.3);color:var(--success)}
+#toast.toast-error{border-color:rgba(255,76,76,.3);color:var(--crit)}
+@keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--border2)}
+
+input[type=range]{-webkit-appearance:none;height:4px;border-radius:2px;background:var(--bg4);outline:none}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);cursor:pointer}
+
+.text-crit{color:var(--crit)}
+.text-high{color:var(--high)}
+.text-med{color:var(--med)}
+.text-low{color:var(--success)}
+.text-muted{color:var(--text2)}
+.fw-bold{font-weight:700}
+.font-mono{font-family:var(--mono);font-size:11px}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo">
+    <i class="ti ti-shield-search"></i>
+    RBVM Platform
+    <span class="logo-badge">AI</span>
+  </div>
+  <div class="topbar-mid">
+    <div class="tb-search-wrap">
+      <i class="ti ti-search"></i>
+      <input class="tb-search" placeholder="Buscar CVE, ativo, time, ticket..." id="global-search" oninput="globalSearch(this.value)"/>
+    </div>
+    <button class="tb-pill crit" id="pill-crit" onclick="filterBySev('CRITICAL')"><i class="ti ti-alert-triangle" style="font-size:12px"></i> <span id="pill-crit-n">—</span> Críticas</button>
+    <button class="tb-pill warn" id="pill-sla" onclick="setView('sla')"><i class="ti ti-clock-x" style="font-size:12px"></i> <span id="pill-sla-n">—</span> SLA vencidos</button>
+  </div>
+  <div class="topbar-right">
+    <div class="tb-icon-btn" onclick="openModal('report')" title="Exportar relatório"><i class="ti ti-file-analytics"></i></div>
+    <div class="tb-icon-btn" onclick="setView('settings')" title="Configurações"><i class="ti ti-settings"></i></div>
+    <div class="avatar" title="CISO">SC</div>
+  </div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sb-label">Principal</div>
+  <div class="sb-section">
+    <div class="sb-item active" id="nav-dashboard" onclick="setView('dashboard')"><i class="ti ti-layout-dashboard"></i> Dashboard</div>
+    <div class="sb-item" id="nav-vulns"      onclick="setView('vulns')">     <i class="ti ti-bug"></i>             Vulnerabilidades <span class="sb-count sc-crit" id="sb-total">—</span></div>
+    <div class="sb-item" id="nav-assets"     onclick="setView('assets')">    <i class="ti ti-server"></i>          Ativos</div>
+    <div class="sb-item" id="nav-reclassify" onclick="setView('reclassify')"><i class="ti ti-adjustments-horizontal"></i> Reclassificação</div>
+    <div class="sb-item" id="nav-exceptions" onclick="setView('exceptions')"><i class="ti ti-shield-x"></i>        Exceções <span class="sb-count sc-high" id="sb-exc">—</span></div>
+  </div>
+  <div class="sb-label">Gestão</div>
+  <div class="sb-section">
+    <div class="sb-item" id="nav-sla"        onclick="setView('sla')">    <i class="ti ti-clock"></i>          Gestão SLA <span class="sb-count sc-crit" id="sb-sla">—</span></div>
+    <div class="sb-item" id="nav-comms"      onclick="setView('comms')">  <i class="ti ti-send"></i>           Comunicados</div>
+    <div class="sb-item" id="nav-risk"       onclick="setView('risk')">   <i class="ti ti-chart-area"></i>     Análise de Risco</div>
+  </div>
+  <div class="sb-label">Plataforma</div>
+  <div class="sb-section">
+    <div class="sb-item" id="nav-integrations" onclick="setView('integrations')"><i class="ti ti-plug"></i>   Integrações</div>
+    <div class="sb-item" id="nav-agent"        onclick="setView('agent')">       <i class="ti ti-robot"></i>  Agente IA</div>
+    <div class="sb-item" id="nav-settings"     onclick="setView('settings')">    <i class="ti ti-settings"></i> Configurações</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main-area" id="main-area"></div>
+
+<!-- DETAIL OVERLAY -->
+<div class="detail-overlay" id="detail-overlay">
+  <div class="detail-close" onclick="closeDetail()"><i class="ti ti-x"></i></div>
+  <div id="detail-content" style="display:flex;flex-direction:column;height:100%;overflow:hidden"></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal"><div id="modal-content"></div></div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"><i class="ti ti-check" id="toast-icon"></i><span id="toast-msg"></span></div>
+
+<script type="module">
+import { VULNS }        from './src/data/vulns.js';
+import { ASSETS }       from './src/data/assets.js';
+import { INTEGRATIONS } from './src/data/integrations.js';
+import { computeRiskScore, getRiskColor, getScoreClass, explainScore, getRiskLabel } from './src/utils/scoring.js';
+import { getSlaClass, getSlaRemaining, getEscalationLevel, getNotificationMessage } from './src/utils/sla.js';
+import { sevPill, statusPill, fwTags, slaBar, envPill, assetTypeBadge, formatDate, toast } from './src/utils/helpers.js';
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+VULNS.forEach(v => {
+  if (v.final_score === null) v.final_score = computeRiskScore(v);
+});
+window._vulns    = VULNS;
+window._assets   = ASSETS;
+window._intgs    = INTEGRATIONS;
+
+let currentView = 'dashboard';
+let filterSev   = 'ALL';
+let filterType  = 'ALL';
+let filterSearch = '';
+let filterStatus = 'ALL';
+let agentHistory = [{ role:'ai', text:'Olá! Sou o Agente RBVM com acesso completo às vulnerabilidades, ativos e integrações da plataforma.\n\nPosso analisar riscos, gerar comunicados, comparar performance de times, criar sumários executivos, explicar priorização e muito mais.\n\n**Como posso ajudar?**' }];
+
+// Exceptions mock store
+let EXCEPTIONS = [
+  { id:'EXC-001', vuln_id:'SCA-2024-LOG4J', status:'approved', justification:'Sistema legado em processo de migração planejada para Q3 2024. Risco mitigado por WAF e isolamento de rede.', controls:'WAF + Network segmentation', owner:'fernanda.rocha@corp.com', approver:'ciso@corp.com', created:'2024-04-08', expires:'2024-07-08', risk_level:'accepted' },
+  { id:'EXC-002', vuln_id:'CVE-2024-27198', status:'approved', justification:'TeamCity em rede totalmente isolada com MFA obrigatório. Patch agendado para próxima janela.', controls:'Network isolation + MFA', owner:'camila.gomes@corp.com', approver:'infra-manager@corp.com', created:'2024-04-23', expires:'2024-06-23', risk_level:'accepted' },
+  { id:'EXC-003', vuln_id:'LOW-2024-002', status:'pending', justification:'Migração Python em andamento — aguarda aprovação de budget para Q2.', controls:'', owner:'juliana.campos@corp.com', approver:null, created:'2024-05-15', expires:'2024-08-15', risk_level:'temporary' },
+];
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function getFiltered() {
+  return VULNS.filter(v => {
+    if (filterSev    !== 'ALL' && v.sev !== filterSev)         return false;
+    if (filterStatus !== 'ALL' && v.status !== filterStatus)   return false;
+    if (filterType   !== 'ALL' && v.asset_type !== filterType) return false;
+    if (filterSearch) {
+      const s = filterSearch.toLowerCase();
+      if (![v.id,v.title,v.team,v.asset,v.owner,v.ticket,v.source].join(' ').toLowerCase().includes(s)) return false;
+    }
+    return true;
+  });
+}
+
+function updateTopbar() {
+  const crit    = VULNS.filter(v => v.sev === 'CRITICAL' && v.status !== 'Resolved').length;
+  const breached = VULNS.filter(v => v.sla_used >= v.sla_max && v.status !== 'Resolved').length;
+  const exc     = EXCEPTIONS.filter(e => e.status === 'pending').length;
+  const q = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+  q('pill-crit-n', crit);
+  q('pill-sla-n', breached);
+  q('sb-total', VULNS.filter(v => v.status !== 'Resolved').length);
+  q('sb-sla', breached);
+  q('sb-exc', exc);
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
+window.setView = function(v) {
+  currentView = v; filterSev = 'ALL'; filterSearch = ''; filterStatus = 'ALL'; filterType = 'ALL';
+  document.querySelectorAll('.sb-item').forEach(el => el.classList.remove('active'));
+  const nav = document.getElementById('nav-' + v);
+  if (nav) nav.classList.add('active');
+  renderMain();
+  closeDetail();
+};
+
+window.filterBySev = function(s) { filterSev = s; setView('vulns'); };
+window.globalSearch = function(s) { filterSearch = s; if (s.length > 1) renderMain(); };
+window.showBreached = function() { setView('sla'); };
+
+// ── RENDER MAIN ───────────────────────────────────────────────────────────────
+function renderMain() {
+  updateTopbar();
+  const el = document.getElementById('main-area');
+  const views = { dashboard:renderDashboard, vulns:renderVulns, assets:renderAssets,
+    reclassify:renderReclassify, exceptions:renderExceptions, sla:renderSLA,
+    comms:renderComms, risk:renderRisk, integrations:renderIntegrations,
+    agent:renderAgent, settings:renderSettings };
+  el.innerHTML = (views[currentView] || renderDashboard)();
+  bindAgentIfNeeded();
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+function renderDashboard() {
+  const active  = VULNS.filter(v => v.status !== 'Resolved');
+  const crit    = active.filter(v => v.sev === 'CRITICAL').length;
+  const high    = active.filter(v => v.sev === 'HIGH').length;
+  const breach  = active.filter(v => v.sla_used >= v.sla_max).length;
+  const kev     = active.filter(v => v.kev).length;
+  const exploit = active.filter(v => v.exploit).length;
+  const resolved= VULNS.filter(v => v.status === 'Resolved').length;
+  const reclassified = VULNS.filter(v => v.reclassify_reason).length;
+  const excPending = EXCEPTIONS.filter(e => e.status === 'pending').length;
+
+  const byBU = {};
+  active.forEach(v => { byBU[v.bu] = (byBU[v.bu]||0)+1; });
+  const buRows = Object.entries(byBU).sort((a,b)=>b[1]-a[1]);
+
+  return `<div class="content">
+    <div class="metrics-grid">
+      <div class="metric"><div class="metric-label">Vulnerabilidades Ativas</div><div class="metric-value mv-info">${active.length}</div><div class="metric-sub">${ASSETS.length} ativos rastreados</div></div>
+      <div class="metric"><div class="metric-label">Críticas</div><div class="metric-value mv-crit">${crit}</div><div class="metric-trend trend-up">↑ 3 esta semana</div></div>
+      <div class="metric"><div class="metric-label">CISA KEV Ativas</div><div class="metric-value mv-crit">${kev}</div><div class="metric-sub">Exploração confirmada</div></div>
+      <div class="metric"><div class="metric-label">SLA Vencido</div><div class="metric-value mv-crit">${breach}</div><div class="metric-trend trend-up">Ação imediata</div></div>
+      <div class="metric"><div class="metric-label">Com Exploit Ativo</div><div class="metric-value mv-high">${exploit}</div><div class="metric-sub">Prioridade máxima</div></div>
+      <div class="metric"><div class="metric-label">Resolvidas</div><div class="metric-value mv-ok">${resolved}</div><div class="metric-trend trend-down">↑ 2 esta semana</div></div>
+    </div>
+
+    ${kev > 0 ? `<div class="notice notice-crit"><i class="ti ti-alert-octagon" style="font-size:16px;flex-shrink:0"></i> <strong>${kev} vulnerabilidades CISA KEV ativas</strong> com exploração confirmada em ambiente real. Requerem ação imediata (SLA: 24h–72h). <button class="btn btn-sm btn-danger" style="margin-left:auto" onclick="filterBySev('CRITICAL')">Ver críticas →</button></div>` : ''}
+    ${excPending > 0 ? `<div class="notice notice-warn"><i class="ti ti-shield-x" style="font-size:16px;flex-shrink:0"></i> <strong>${excPending} solicitação(ões) de exceção pendente(s)</strong> aguardando aprovação. <button class="btn btn-sm" style="margin-left:auto" onclick="setView('exceptions')">Revisar →</button></div>` : ''}
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-header"><i class="ti ti-route" style="color:var(--accent)"></i><div><div class="card-title">Pipeline RBVM — Fluxo Operacional</div><div class="card-sub">Status atual do processo de gestão</div></div></div>
+        <div class="card-body">
+          <div class="pipeline-vis">
+            <div class="pv-step"><div class="pv-icon done"><i class="ti ti-radar"></i></div><div class="pv-name">Descoberta</div><div class="pv-count">${ASSETS.length} ativos</div></div>
+            <div class="pv-arrow"><i class="ti ti-chevron-right"></i></div>
+            <div class="pv-step"><div class="pv-icon done"><i class="ti ti-chart-bar"></i></div><div class="pv-name">Risk Scoring</div><div class="pv-count">Multicritério</div></div>
+            <div class="pv-arrow"><i class="ti ti-chevron-right"></i></div>
+            <div class="pv-step"><div class="pv-icon ${reclassified>0?'active':'done'}"><i class="ti ti-adjustments"></i></div><div class="pv-name">Reclassificação</div><div class="pv-count">${reclassified} ajustes</div></div>
+            <div class="pv-arrow"><i class="ti ti-chevron-right"></i></div>
+            <div class="pv-step"><div class="pv-icon ${breach>0?'warn':'done'}"><i class="ti ti-ticket"></i></div><div class="pv-name">Ticketing SLA</div><div class="pv-count">${breach} vencidos</div></div>
+            <div class="pv-arrow"><i class="ti ti-chevron-right"></i></div>
+            <div class="pv-step"><div class="pv-icon warn"><i class="ti ti-tools"></i></div><div class="pv-name">Remediação</div><div class="pv-count">Em progresso</div></div>
+            <div class="pv-arrow"><i class="ti ti-chevron-right"></i></div>
+            <div class="pv-step"><div class="pv-icon idle"><i class="ti ti-shield-check"></i></div><div class="pv-name">Validação API</div><div class="pv-count">${resolved} fechadas</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><i class="ti ti-building" style="color:var(--accent)"></i><div><div class="card-title">Risco por Business Unit</div><div class="card-sub">Vulnerabilidades ativas por área</div></div></div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:8px">
+          ${buRows.map(([bu, n]) => {
+            const pct = Math.round(n / active.length * 100);
+            return `<div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+                <span style="color:var(--text2)">${bu}</span>
+                <span style="color:var(--text3)">${n} vuln (${pct}%)</span>
+              </div>
+              <div class="progress-bar"><div class="pb-fill" style="width:${pct}%;background:${pct>40?'var(--crit)':pct>25?'var(--high)':'var(--accent)'}"></div></div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><i class="ti ti-alert-triangle" style="color:var(--crit)"></i><div><div class="card-title">Críticas — Ação Imediata</div><div class="card-sub">KEV, exploit ativo ou SLA vencendo</div></div><div class="card-actions"><button class="btn btn-sm" onclick="setView('vulns')"><i class="ti ti-arrow-right"></i> Ver todas</button></div></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Ticket</th><th>Vulnerabilidade</th><th>Score</th><th>Ativo</th><th>KEV</th><th>SLA</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          ${active.filter(v=>v.sev==='CRITICAL').slice(0,6).map(v=>`
+          <tr class="tbl-row" onclick="openDetail('${v.id}')">
+            <td class="font-mono">${v.ticket||v.id}</td>
+            <td style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500">${v.title}</td>
+            <td><span style="color:${getRiskColor(v.final_score)};font-weight:700">${v.final_score}</span></td>
+            <td style="color:var(--text2);font-size:11px">${v.asset}</td>
+            <td>${v.kev?'<span class="pill p-crit" style="font-size:9px">KEV</span>':'<span style="color:var(--text3)">—</span>'}</td>
+            <td>${slaBar(v)}</td>
+            <td>${statusPill(v.status)}</td>
+            <td><button class="btn btn-sm" onclick="event.stopPropagation();openDetail('${v.id}')"><i class="ti ti-arrow-right"></i></button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table></div>
+    </div>
+  </div>`;
+}
+
+// ── VULNS ─────────────────────────────────────────────────────────────────────
+function renderVulns() {
+  const filtered = getFiltered();
+  const sevs = ['CRITICAL','HIGH','MEDIUM','LOW'];
+  return `<div>
+    <div class="filter-row">
+      <span style="font-size:11px;color:var(--text3);font-weight:600">SEVERIDADE:</span>
+      ${['ALL',...sevs].map(s=>`<div class="filter-chip ${filterSev===s?'active':''}" onclick="setSevFilter('${s}')">${s==='ALL'?'Todas':s}</div>`).join('')}
+      <span style="font-size:11px;color:var(--text3);font-weight:600;margin-left:8px">STATUS:</span>
+      ${['ALL','New','In Progress','Resolved'].map(s=>`<div class="filter-chip ${filterStatus===s?'active':''}" onclick="setStatusFilter('${s}')">${s==='ALL'?'Todos':s}</div>`).join('')}
+      <span style="margin-left:auto;font-size:11px;color:var(--text3)">${filtered.length} resultado(s)</span>
+    </div>
+    <div style="padding:16px;display:flex;flex-direction:column;gap:0">
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Ticket</th><th>Vulnerabilidade</th><th>Sev.</th><th>Score</th><th>CVSS</th><th>KEV</th><th>Ativo</th><th>Fonte</th><th>SLA</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          ${filtered.map(v=>`
+          <tr class="tbl-row" onclick="openDetail('${v.id}')">
+            <td class="font-mono" style="color:var(--text3)">${v.ticket||'—'}</td>
+            <td style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500">${v.title}</td>
+            <td>${sevPill(v.sev)}</td>
+            <td><span style="color:${getRiskColor(v.final_score)};font-weight:700">${v.final_score}</span></td>
+            <td class="font-mono" style="color:var(--text2)">${v.cvss}</td>
+            <td>${v.kev?'<span class="pill p-crit" style="font-size:9px">KEV</span>':v.exploit?'<span class="pill p-high" style="font-size:9px">EXPLOIT</span>':'<span style="color:var(--text3);font-size:10px">—</span>'}</td>
+            <td style="font-size:11px;color:var(--text2)">${v.asset}</td>
+            <td style="font-size:11px;color:var(--text3)">${v.source}</td>
+            <td>${slaBar(v)}</td>
+            <td>${statusPill(v.status)}</td>
+            <td><button class="btn btn-sm" onclick="event.stopPropagation();openDetail('${v.id}')"><i class="ti ti-arrow-right"></i></button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table></div>
+    </div>
+  </div>`;
+}
+window.setSevFilter    = s => { filterSev = s; renderMain(); };
+window.setStatusFilter = s => { filterStatus = s; renderMain(); };
+window.setTypeFilter   = s => { filterType = s; renderMain(); };
+
+// ── ASSETS ────────────────────────────────────────────────────────────────────
+function renderAssets() {
+  return `<div class="content">
+    <div class="grid-3">
+      <div class="metric"><div class="metric-label">Total Ativos</div><div class="metric-value mv-info">${ASSETS.length}</div><div class="metric-sub">Rastreados</div></div>
+      <div class="metric"><div class="metric-label">Criticidade Alta+</div><div class="metric-value mv-crit">${ASSETS.filter(a=>a.criticality==='critical'||a.criticality==='high').length}</div><div class="metric-sub">Críticos e altos</div></div>
+      <div class="metric"><div class="metric-label">Internet Exposed</div><div class="metric-value mv-high">${ASSETS.filter(a=>a.internet_facing).length}</div><div class="metric-sub">Expostos à internet</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><i class="ti ti-server" style="color:var(--accent)"></i><div><div class="card-title">Inventário de Ativos</div><div class="card-sub">Catálogo com owner, criticidade e cobertura de scan</div></div></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>ID</th><th>Ativo</th><th>Tipo</th><th>Ambiente</th><th>Criticidade</th><th>Owner</th><th>Internet</th><th>PCI</th><th>Último Scan</th><th>Vulns</th><th>Score</th></tr></thead>
+        <tbody>
+          ${ASSETS.map(a=>`
+          <tr class="tbl-row">
+            <td class="font-mono" style="color:var(--text3)">${a.id}</td>
+            <td style="font-weight:500">${a.hostname}</td>
+            <td><span style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2)">${assetTypeBadge(a.type)} ${a.type}</span></td>
+            <td>${envPill(a.env)}</td>
+            <td>${sevPill({critical:'CRITICAL',high:'HIGH',medium:'MEDIUM',low:'LOW'}[a.criticality]||'LOW')}</td>
+            <td style="font-size:11px;color:var(--text2)">${a.owner}</td>
+            <td>${a.internet_facing?'<span class="pill p-crit" style="font-size:9px">SIM</span>':'<span style="color:var(--text3);font-size:10px">Não</span>'}</td>
+            <td>${a.pci_scope?'<span class="pill p-nist" style="font-size:9px">PCI</span>':'<span style="color:var(--text3);font-size:10px">—</span>'}</td>
+            <td style="font-size:11px;color:var(--text3)">${formatDate(a.last_scan)}</td>
+            <td style="font-weight:700;color:${a.open_vulns>0?'var(--crit)':'var(--success)'}">${a.open_vulns}</td>
+            <td><span style="color:${getRiskColor(a.risk_score)};font-weight:700">${a.risk_score}</span></td>
+          </tr>`).join('')}
+        </tbody>
+      </table></div>
+    </div>
+  </div>`;
+}
+
+// ── RECLASSIFY ────────────────────────────────────────────────────────────────
+function renderReclassify() {
+  const candidates = VULNS.filter(v => v.status !== 'Resolved');
+  return `<div class="content">
+    <div class="notice notice-info"><i class="ti ti-info-circle" style="font-size:16px;flex-shrink:0"></i> A reclassificação ajusta o risco contextual sem alterar a severidade original do scanner. Toda alteração requer justificativa técnica auditável.</div>
+    <div class="card">
+      <div class="card-header"><i class="ti ti-adjustments-horizontal" style="color:var(--accent)"></i><div><div class="card-title">Reclassificação de Risco</div><div class="card-sub">Ajuste contextual por exposição, controles e criticidade real</div></div></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>ID</th><th>Vulnerabilidade</th><th>Sev. Original</th><th>Score Original</th><th>Score Final</th><th>Fator de Ajuste</th><th>Justificativa</th><th></th></tr></thead>
+        <tbody>
+          ${candidates.map(v => {
+            const orig = Math.min(100, Math.round((v.cvss||0)/10*25 + (v.exploit?10:0)));
+            const final_s = v.final_score;
+            const diff = final_s - orig;
+            const hasReason = !!v.reclassify_reason;
+            return `<tr class="tbl-row" onclick="openReclassify('${v.id}')">
+              <td class="font-mono" style="color:var(--text3)">${v.ticket||v.id}</td>
+              <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500">${v.title}</td>
+              <td>${sevPill(v.sev)}</td>
+              <td style="font-family:var(--mono)">${orig}</td>
+              <td><span style="color:${getRiskColor(final_s)};font-weight:700;font-family:var(--mono)">${final_s}</span> <span style="font-size:10px;color:${diff>0?'var(--crit)':diff<0?'var(--success)':'var(--text3)'}">${diff>0?'+'+diff:diff}</span></td>
+              <td style="font-size:10px;color:var(--text2)">${v.kev?'KEV':''} ${v.internet_facing?'Internet':''} ${v.compensating_controls?'Control Comp.':''} ${v.pci_scope?'PCI':''}</td>
+              <td style="font-size:10px;color:${hasReason?'var(--text2)':'var(--text3)'};max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${hasReason?v.reclassify_reason:'Sem ajuste manual'}</td>
+              <td><button class="btn btn-sm" onclick="event.stopPropagation();openReclassify('${v.id}')"><i class="ti ti-edit"></i></button></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table></div>
+    </div>
+  </div>`;
+}
+
+// ── EXCEPTIONS ────────────────────────────────────────────────────────────────
+function renderExceptions() {
+  return `<div class="content">
+    <div class="notice notice-warn"><i class="ti ti-shield-x" style="font-size:16px;flex-shrink:0"></i> <strong>Atenção:</strong> Exceções não podem ser usadas para esconder descumprimento operacional. Toda exceção requer justificativa, controle compensatório, aprovação formal e data de expiração.</div>
+    <div class="card">
+      <div class="card-header"><i class="ti ti-shield-x" style="color:var(--high)"></i><div><div class="card-title">Gestão de Exceções e Aceite de Risco</div><div class="card-sub">Exceções formais com aprovação, evidência e prazo</div></div>
+      <div class="card-actions"><button class="btn btn-primary btn-sm" onclick="openModal('addexception')"><i class="ti ti-plus"></i> Nova Exceção</button></div></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>ID</th><th>Vulnerabilidade</th><th>Status</th><th>Owner</th><th>Aprovador</th><th>Controles</th><th>Criada</th><th>Expira</th></tr></thead>
+        <tbody>
+          ${EXCEPTIONS.map(e => {
+            const v = VULNS.find(x=>x.id===e.vuln_id)||{};
+            return `<tr class="tbl-row">
+              <td class="font-mono" style="color:var(--text3)">${e.id}</td>
+              <td style="font-weight:500;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.title||e.vuln_id}</td>
+              <td><span class="pill ${e.status==='approved'?'p-done':e.status==='pending'?'p-high':'p-info'}">${e.status==='approved'?'Aprovada':e.status==='pending'?'Pendente':'Expirada'}</span></td>
+              <td style="font-size:11px;color:var(--text2)">${e.owner}</td>
+              <td style="font-size:11px;color:var(--text2)">${e.approver||'—'}</td>
+              <td style="font-size:10px;color:var(--text3)">${e.controls||'—'}</td>
+              <td style="font-size:11px;color:var(--text3)">${formatDate(e.created)}</td>
+              <td style="font-size:11px;color:${new Date(e.expires)<new Date()?'var(--crit)':'var(--text3)'}">${formatDate(e.expires)}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table></div>
+    </div>
+  </div>`;
+}
+
+// ── SLA ───────────────────────────────────────────────────────────────────────
+function renderSLA() {
+  const active = VULNS.filter(v => v.status !== 'Resolved');
+  const breached = active.filter(v => v.sla_used >= v.sla_max);
+  const warning  = active.filter(v => v.sla_used / v.sla_max >= 0.75 && v.sla_used < v.sla_max);
+  const ontrack  = active.filter(v => v.sla_used / v.sla_max < 0.75);
+
+  return `<div class="content">
+    <div class="grid-3">
+      <div class="metric"><div class="metric-label">SLA Vencido</div><div class="metric-value mv-crit">${breached.length}</div><div class="metric-sub">Requer ação imediata</div></div>
+      <div class="metric"><div class="metric-label">Em Alerta (≥75%)</div><div class="metric-value mv-high">${warning.length}</div><div class="metric-sub">Vencendo em breve</div></div>
+      <div class="metric"><div class="metric-label">No Prazo</div><div class="metric-value mv-ok">${ontrack.length}</div><div class="metric-sub">Dentro do SLA</div></div>
+    </div>
+    ${breached.length > 0 ? `
+    <div class="card">
+      <div class="card-header"><i class="ti ti-clock-x" style="color:var(--crit)"></i><div><div class="card-title">SLA Vencido — Escalonamento Ativo</div><div class="card-sub">Vulnerabilidades que ultrapassaram o prazo de correção</div></div></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Ticket</th><th>Vulnerabilidade</th><th>Sev.</th><th>Owner</th><th>SLA</th><th>Dias Vencido</th><th>Escalonamento</th><th>Ações</th></tr></thead>
+        <tbody>
+          ${breached.map(v => {
+            const esc = getEscalationLevel(v);
+            return `<tr class="tbl-row">
+              <td class="font-mono">${v.ticket||v.id}</td>
+              <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500">${v.title}</td>
+              <td>${sevPill(v.sev)}</td>
+              <td style="font-size:11px;color:var(--text2)">${v.owner}</td>
+              <td>${slaBar(v)}</td>
+              <td style="color:var(--crit);font-weight:700">+${v.sla_used - v.sla_max}d</td>
+              <td><span style="font-size:10px;color:${esc.color}">${esc.label}</span></td>
+              <td><div class="btn-group">
+                <button class="btn btn-sm" onclick="notifyOwner('${v.id}')"><i class="ti ti-send"></i> Cobrar</button>
+                <button class="btn btn-sm btn-danger" onclick="escalateVuln('${v.id}')"><i class="ti ti-arrow-up"></i> Escalar</button>
+              </div></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table></div>
+    </div>` : ''}
+    <div class="card">
+      <div class="card-header"><i class="ti ti-clock" style="color:var(--high)"></i><div><div class="card-title">Próximos do Vencimento</div><div class="card-sub">≥75% do SLA consumido — alertas preventivos</div></div></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Ticket</th><th>Vulnerabilidade</th><th>Sev.</th><th>Owner</th><th>SLA</th><th>Restam</th></tr></thead>
+        <tbody>
+          ${warning.map(v=>`
+          <tr class="tbl-row" onclick="openDetail('${v.id}')">
+            <td class="font-mono">${v.ticket||v.id}</td>
+            <td style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500">${v.title}</td>
+            <td>${sevPill(v.sev)}</td>
+            <td style="font-size:11px;color:var(--text2)">${v.owner}</td>
+            <td>${slaBar(v)}</td>
+            <td style="color:var(--high);font-weight:700">${getSlaRemaining(v)}d</td>
+          </tr>`).join('')}
+        </tbody>
+      </table></div>
+    </div>
+  </div>`;
+}
+
+// ── RISK ──────────────────────────────────────────────────────────────────────
+function renderRisk() {
+  const byTeam = {};
+  VULNS.filter(v=>v.status!=='Resolved').forEach(v => {
+    if (!byTeam[v.team]) byTeam[v.team] = { total:0, crit:0, high:0, breach:0 };
+    byTeam[v.team].total++;
+    if (v.sev==='CRITICAL') byTeam[v.team].crit++;
+    if (v.sev==='HIGH')     byTeam[v.team].high++;
+    if (v.sla_used>=v.sla_max) byTeam[v.team].breach++;
+  });
+  const rows = Object.entries(byTeam).sort((a,b)=>b[1].total-a[1].total);
+
+  const bySrc = {};
+  VULNS.forEach(v => { bySrc[v.source]=(bySrc[v.source]||0)+1; });
+
+  return `<div class="content">
+    <div class="card">
+      <div class="card-header"><i class="ti ti-chart-area" style="color:var(--accent)"></i><div><div class="card-title">Risco por Time</div><div class="card-sub">Distribuição de vulnerabilidades ativas por área responsável</div></div></div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Time</th><th>Total</th><th>Críticas</th><th>Altas</th><th>SLA Vencido</th><th>Distribuição</th></tr></thead>
+        <tbody>
+          ${rows.map(([team,d])=>{
+            const max = Math.max(...Object.values(byTeam).map(x=>x.total));
+            return `<tr class="tbl-row">
+              <td style="font-weight:500">${team}</td>
+              <td style="font-weight:700">${d.total}</td>
+              <td style="color:var(--crit);font-weight:700">${d.crit}</td>
+              <td style="color:var(--high);font-weight:700">${d.high}</td>
+              <td style="color:${d.breach>0?'var(--crit)':'var(--text3)'};font-weight:700">${d.breach}</td>
+              <td style="width:160px"><div class="progress-bar"><div class="pb-fill" style="width:${Math.round(d.total/max*100)}%;background:${d.crit>0?'var(--crit)':'var(--high)'}"></div></div></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><i class="ti ti-chart-dots" style="color:var(--accent)"></i><div><div class="card-title">Findings por Fonte</div><div class="card-sub">Volume de vulnerabilidades detectadas por scanner</div></div></div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:8px">
+        ${Object.entries(bySrc).sort((a,b)=>b[1]-a[1]).map(([src,n])=>{
+          const pct = Math.round(n/VULNS.length*100);
+          return `<div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+              <span style="color:var(--text2)">${src}</span><span style="color:var(--text3)">${n} (${pct}%)</span>
+            </div>
+            <div class="progress-bar"><div class="pb-fill" style="width:${pct}%;background:var(--accent)"></div></div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── COMMS ─────────────────────────────────────────────────────────────────────
+function renderComms() {
+  const templates = [
+    { id:'friendly',  label:'Alerta Amigável (7 dias)',  icon:'ti-bell', color:'var(--med)',     desc:'Lembrete preventivo para owner técnico' },
+    { id:'reminder',  label:'Lembrete (3 dias)',         icon:'ti-bell-ringing', color:'var(--high)', desc:'Lembrete urgente com plano de ação' },
+    { id:'escalation',label:'Escalação (SLA Vencido)',   icon:'ti-alert-triangle', color:'var(--crit)', desc:'Notificação formal para liderança e GRC' },
+    { id:'executive', label:'Resumo Executivo',          icon:'ti-briefcase', color:'var(--accent)', desc:'Comunicado para CISO e comitê executivo' },
+  ];
+  return `<div class="content">
+    <div class="notice notice-info"><i class="ti ti-info-circle" style="font-size:16px;flex-shrink:0"></i> Os comunicados são gerados com dados reais das vulnerabilidades ativas. Use o Agente IA para personalizar ou adaptar mensagens para públicos específicos.</div>
+    <div class="grid-2">
+      ${templates.map(t=>`
+      <div class="card" style="cursor:pointer" onclick="quickMsg('Gere um comunicado ${t.label} com base nas vulnerabilidades mais críticas ativas. Use dados reais da plataforma.')">
+        <div class="card-header"><i class="ti ${t.icon}" style="color:${t.color}"></i><div><div class="card-title">${t.label}</div><div class="card-sub">${t.desc}</div></div>
+        <div class="card-actions"><button class="btn btn-sm"><i class="ti ti-robot"></i> Gerar via IA</button></div></div>
+        <div class="card-body" style="font-size:11px;color:var(--text2);line-height:1.6">
+          ${t.id==='friendly'?`Olá, time [SQUAD]. A vulnerabilidade [CVE] na aplicação [ATIVO] vence em <strong>7 dias</strong>. Ela afeta ambiente produtivo e possui exploit público. Recomendação: aplicar patch versão X.Y.Z.`
+          :t.id==='reminder'?`Time [SQUAD], a vulnerabilidade [CVE] vence em <strong>3 dias</strong> e ainda não possui evidência de correção. Favor atualizar o ticket com plano de ação ou previsão.`
+          :t.id==='escalation'?`🚨 A vulnerabilidade [CVE] <strong>venceu o SLA</strong>. Risco ativo em ambiente produtivo internet-facing. Escalado para liderança, Governança e GRC para decisão formal.`
+          :`📊 Sumário executivo: <strong>[N] vulnerabilidades críticas</strong> abertas, [N] KEVs ativas, MTTR médio [X] dias. Redução de risco no mês: [X]%.`}
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ── INTEGRATIONS ──────────────────────────────────────────────────────────────
+function renderIntegrations() {
+  return `<div class="content">
+    <div class="grid-3">
+      <div class="metric"><div class="metric-label">Conectadas</div><div class="metric-value mv-ok">${INTEGRATIONS.filter(i=>i.status==='connected').length}</div><div class="metric-sub">Ativas</div></div>
+      <div class="metric"><div class="metric-label">Parcial</div><div class="metric-value mv-high">${INTEGRATIONS.filter(i=>i.status==='partial').length}</div><div class="metric-sub">Atenção necessária</div></div>
+      <div class="metric"><div class="metric-label">Desconectadas</div><div class="metric-value mv-crit">${INTEGRATIONS.filter(i=>i.status==='off').length}</div><div class="metric-sub">Sem dados</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><i class="ti ti-plug" style="color:var(--accent)"></i><div><div class="card-title">Status das Integrações</div><div class="card-sub">Conectores ativos e última sincronização</div></div></div>
+      <div class="card-body">
+        <div class="int-grid">
+          ${INTEGRATIONS.map(i=>`
+          <div class="int-card">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="int-icon" style="color:${i.color}"><i class="ti ${i.icon}"></i></div>
+              <div style="flex:1;min-width:0">
+                <div style="font-size:13px;font-weight:600">${i.name}</div>
+                <div style="font-size:10px;color:var(--text3)">${i.type}</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:5px;font-size:11px">
+              <div class="int-dot dot-${i.status==='connected'?'connected':i.status==='partial'?'partial':'off'}"></div>
+              <span style="color:${i.status==='connected'?'var(--success)':i.status==='partial'?'var(--high)':'var(--text3)'}">${i.status==='connected'?'Conectada':i.status==='partial'?'Parcial':'Desconectada'}</span>
+            </div>
+            <div style="font-size:10px;color:var(--text3)">Última sync: ${i.last_sync||'—'}</div>
+            ${i.findings!=null?`<div style="font-size:10px;color:var(--text2)">${i.findings} findings ativos</div>`:''}
+            ${i.note?`<div style="font-size:10px;color:var(--high)">${i.note}</div>`:''}
+            <div class="btn-group">
+              <button class="btn btn-sm" onclick="syncNow('${i.name}')"><i class="ti ti-refresh"></i> Sync</button>
+              <button class="btn btn-sm" onclick="toast('Configurações de ${i.name}')"><i class="ti ti-settings"></i></button>
+            </div>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── AGENT ─────────────────────────────────────────────────────────────────────
+function renderAgent() {
+  const quick = [
+    'Explique os 5 maiores riscos ativos neste mês',
+    'Gere sumário executivo para o CISO',
+    'Compare performance dos times de segurança',
+    'Liste KEVs abertas e impacto de negócio',
+    'Quais vulnerabilidades devem ir para comitê de risco?',
+    'Crie plano de correção semanal priorizado',
+    'Identifique vulnerabilidades com SLA vencido e sugira escalonamento',
+    'Gere mensagem de cobrança para time com mais SLA vencido',
+  ];
+  return `<div class="content" style="height:calc(100vh - var(--topbar-h) - 40px);display:flex;flex-direction:column">
+    <div class="card" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+      <div class="card-header">
+        <i class="ti ti-robot" style="color:var(--ai)"></i>
+        <div><div class="card-title">Agente RBVM — IA Generativa</div><div class="card-sub">Claude Sonnet · Acesso completo aos dados da plataforma · Respostas rastreáveis</div></div>
+        <div class="card-actions"><button class="btn btn-sm" onclick="clearAgent()"><i class="ti ti-trash"></i> Limpar</button></div>
+      </div>
+      <div class="notice notice-info" style="margin:12px 16px 0;flex-shrink:0"><i class="ti ti-shield-check" style="font-size:14px;flex-shrink:0"></i> A IA responde com base nos dados reais da plataforma. Não inventa informações. Ações críticas requerem confirmação humana.</div>
+      <div class="card-body" style="flex:1;display:flex;flex-direction:column;overflow:hidden;gap:10px">
+        <div class="agent-msgs" id="agent-msgs" style="flex:1;max-height:none"></div>
+        <div class="quick-btns">${quick.map(q=>`<div class="qbtn" onclick="quickMsg('${q.replace(/'/g,"\\'")}')">${q}</div>`).join('')}</div>
+        <div class="agent-input-row">
+          <input class="agent-input" id="agent-input" placeholder="Pergunte sobre vulnerabilidades, riscos, SLAs, times, compliance..." onkeydown="if(event.key==='Enter')sendAgent()"/>
+          <button class="btn btn-primary" onclick="sendAgent()"><i class="ti ti-send"></i> Enviar</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── SETTINGS ──────────────────────────────────────────────────────────────────
+function renderSettings() {
+  return `<div class="content">
+    <div class="card">
+      <div class="card-header"><i class="ti ti-settings" style="color:var(--accent)"></i><div><div class="card-title">Configurações da Plataforma</div><div class="card-sub">Parâmetros gerais, SLAs e governança de IA</div></div></div>
+      <div class="card-body" style="display:flex;flex-direction:column;gap:16px">
+        <div><div class="d-section-title">Empresa</div>
+          <div class="d-grid">
+            <div class="d-item"><div class="d-item-label">Nome</div><div class="d-item-val">Corporação XPTO</div></div>
+            <div class="d-item"><div class="d-item-label">Setor</div><div class="d-item-val">Financeiro / Regulado</div></div>
+            <div class="d-item"><div class="d-item-label">Frameworks</div><div class="d-item-val">NIST CSF, ISO 27001, PCI DSS, LGPD</div></div>
+            <div class="d-item"><div class="d-item-label">CISO</div><div class="d-item-val">ciso@corp.com</div></div>
+          </div>
+        </div>
+        <div><div class="d-section-title">Política de SLA</div>
+          <div class="d-grid-3">
+            ${[['Crítico Emergencial (KEV)','3 dias'],['Crítico Internet-facing','7 dias'],['Crítico Interno','15 dias'],['Alto Internet-facing','15 dias'],['Alto Interno','30 dias'],['Médio','60 dias'],['Baixo','90 dias'],['Informativo','180 dias'],['Zero-day (sem patch)','Mitigação 24h'],].map(([l,v])=>`<div class="d-item"><div class="d-item-label">${l}</div><div class="d-item-val">${v}</div></div>`).join('')}
+          </div>
+        </div>
+        <div><div class="d-section-title">Governança de IA</div>
+          <div class="notice notice-success"><i class="ti ti-shield-check" style="font-size:14px;flex-shrink:0"></i> IA configurada com guardrails: não inventa dados, não fecha vulns sem evidência, não aprova exceções sozinha, não executa ações destrutivas sem aprovação humana.</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── DETAIL PANEL ──────────────────────────────────────────────────────────────
+window.openDetail = function(id) {
+  const v = VULNS.find(x => x.id === id);
+  if (!v) return;
+  const explain = explainScore(v);
+  const rl = getRiskLabel(v.final_score);
+
+  document.getElementById('detail-content').innerHTML = `
+    <div class="detail-head">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        ${sevPill(v.sev)} ${v.kev?'<span class="pill p-crit" style="font-size:9px">CISA KEV</span>':''} ${v.exploit?'<span class="pill p-high" style="font-size:9px">EXPLOIT ATIVO</span>':''}
+        ${v.rce?'<span class="pill p-crit" style="font-size:9px">RCE</span>':''} ${v.internet_facing?'<span class="pill p-high" style="font-size:9px">INTERNET-FACING</span>':''}
+      </div>
+      <div style="font-size:14px;font-weight:700;line-height:1.3">${v.title}</div>
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <span class="font-mono" style="color:var(--text3)">${v.id}</span>
+        <span style="font-size:11px;color:var(--text2)">Ticket: <strong>${v.ticket||'—'}</strong></span>
+        <span style="font-size:11px;color:var(--text2)">Fonte: ${v.source}</span>
+      </div>
+    </div>
+    <div class="detail-scroll">
+      <div class="d-grid-3">
+        <div class="d-item"><div class="d-item-label">Score de Risco</div><div class="d-item-val" style="color:${getRiskColor(v.final_score)};font-size:22px">${v.final_score}</div><div style="font-size:10px;color:var(--text3)">${rl.label}</div></div>
+        <div class="d-item"><div class="d-item-label">CVSS</div><div class="d-item-val">${v.cvss}</div></div>
+        <div class="d-item"><div class="d-item-label">EPSS</div><div class="d-item-val">${v.epss!=null?(v.epss*100).toFixed(0)+'%':'—'}</div></div>
+        <div class="d-item"><div class="d-item-label">Ambiente</div><div class="d-item-val">${envPill(v.env)}</div></div>
+        <div class="d-item"><div class="d-item-label">SLA</div><div class="d-item-val">${slaBar(v)}</div></div>
+        <div class="d-item"><div class="d-item-label">Status</div><div class="d-item-val">${statusPill(v.status)}</div></div>
+      </div>
+
+      <div>
+        <div class="d-section-title">Ativo Afetado</div>
+        <div class="d-grid">
+          <div class="d-item"><div class="d-item-label">Hostname / ID</div><div class="d-item-val">${v.asset}</div></div>
+          <div class="d-item"><div class="d-item-label">Tipo</div><div class="d-item-val">${v.asset_type}</div></div>
+          <div class="d-item"><div class="d-item-label">Owner</div><div class="d-item-val" style="font-size:11px">${v.owner}</div></div>
+          <div class="d-item"><div class="d-item-label">Time / Squad</div><div class="d-item-val">${v.team} · ${v.squad}</div></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="d-section-title">Explicação do Score Multicritério</div>
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px">
+          ${explain.map(e=>`<div class="score-explain-row">
+            <span class="score-factor">${e.factor}</span>
+            <span class="score-pts ${e.value>0?'pos':'neg'}">${e.value>0?'+'+e.value:e.value} pts</span>
+          </div>`).join('')}
+          <div class="score-explain-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:8px">
+            <span style="font-weight:700;color:var(--text)">Score Final</span>
+            <span class="score-pts pos" style="color:${getRiskColor(v.final_score)};font-size:14px">${v.final_score}</span>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="d-section-title">Descrição Técnica</div>
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;font-size:12px;color:var(--text2);line-height:1.6">${v.business_impact||'—'}</div>
+      </div>
+
+      <div>
+        <div class="d-section-title">Recomendação de Correção</div>
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;font-size:12px;color:var(--text2);line-height:1.6">${v.remediation||'—'}</div>
+      </div>
+
+      ${v.rescan_status ? `<div class="notice notice-success"><i class="ti ti-shield-check" style="font-size:14px;flex-shrink:0"></i> Rescan realizado em ${formatDate(v.rescan_date||'')}: vulnerabilidade <strong>não detectada</strong>. Correção validada.</div>` : ''}
+      ${v.reclassify_reason ? `<div class="notice notice-warn"><i class="ti ti-adjustments" style="font-size:14px;flex-shrink:0"></i> <strong>Reclassificação:</strong> ${v.reclassify_reason}</div>` : ''}
+
+      <div class="btn-group" style="padding-top:4px">
+        <button class="btn" onclick="aiCommunicate('${v.id}')"><i class="ti ti-robot"></i> Comunicado via IA</button>
+        <button class="btn" onclick="notifyOwner('${v.id}')"><i class="ti ti-send"></i> Notificar Owner</button>
+        <button class="btn btn-success" onclick="triggerRescan('${v.id}')"><i class="ti ti-refresh"></i> Solicitar Rescan</button>
+        <button class="btn btn-danger" onclick="markResolved('${v.id}')"><i class="ti ti-check"></i> Marcar Resolvido*</button>
+      </div>
+      <div style="font-size:9px;color:var(--text3)">*O encerramento definitivo requer validação técnica via rescan da ferramenta de origem.</div>
+    </div>`;
+
+  document.getElementById('detail-overlay').classList.add('open');
+};
+
+window.closeDetail = function() {
+  document.getElementById('detail-overlay').classList.remove('open');
+};
+
+// ── RECLASSIFY DETAIL ─────────────────────────────────────────────────────────
+window.openReclassify = function(id) {
+  const v = VULNS.find(x=>x.id===id);
+  if (!v) return;
+  openModal('reclassify', v);
+};
+
+// ── ACTIONS ───────────────────────────────────────────────────────────────────
+window.notifyOwner  = id => toast(`Notificação enviada para ${VULNS.find(x=>x.id===id)?.owner||id} via Slack/Teams`, 'success');
+window.escalateVuln = id => toast(`${id}: Escalado para CISO + Gerência + GRC via PagerDuty`, 'success');
+window.syncNow      = name => { toast(`Sincronizando com ${name}...`); setTimeout(()=>toast(`${name}: sincronização concluída`, 'success'), 1500); };
+window.clearAgent   = () => { agentHistory = [agentHistory[0]]; renderMain(); };
+window.markResolved = id => {
+  const v = VULNS.find(x=>x.id===id);
+  if(v){ v.status = 'Awaiting Validation'; }
+  toast(`${id} marcada como "Aguardando Validação Técnica". Rescan necessário para encerramento definitivo.`);
+  closeDetail(); renderMain();
+};
+window.triggerRescan = id => toast(`Rescan solicitado para ${id} na ferramenta de origem. Aguarde resultado.`);
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+window.openModal = function(type, data) {
+  const c = document.getElementById('modal-content');
+  if (type === 'reclassify' && data) {
+    c.innerHTML = `<div class="modal-title"><i class="ti ti-adjustments-horizontal" style="color:var(--accent)"></i> Reclassificação de Risco — ${data.id}</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:16px">${data.title}</div>
+      <div class="form-row">
+        <div class="form-field"><div class="form-label">Score Atual</div><div style="font-size:20px;font-weight:700;color:${getRiskColor(data.final_score)}">${data.final_score}</div></div>
+        <div class="form-field"><div class="form-label">Severidade Original</div>${sevPill(data.sev)}</div>
+      </div>
+      <div class="form-field" style="margin-bottom:12px"><div class="form-label">Justificativa de Reclassificação</div><textarea class="form-input" id="rc-reason" placeholder="Ex: Controle compensatório ativo (WAF), ambiente isolado, sem exploit disponível...">${data.reclassify_reason||''}</textarea></div>
+      <div class="form-field" style="margin-bottom:12px"><div class="form-label">Controles Compensatórios</div>
+        <select class="form-input" id="rc-controls"><option value="0">Nenhum</option><option value="1" ${data.compensating_controls?'selected':''}>Sim — controle ativo</option></select>
+      </div>
+      <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveReclassify('${data.id}')"><i class="ti ti-check"></i> Salvar</button></div>`;
+  } else if (type === 'report') {
+    c.innerHTML = `<div class="modal-title"><i class="ti ti-file-analytics" style="color:var(--accent)"></i> Gerar Relatório</div>
+      <div class="form-row">
+        <div class="form-field"><div class="form-label">Público-alvo</div><select class="form-input"><option>CISO / Executivo</option><option>Gestores de Tecnologia</option><option>Squads Técnicos</option><option>GRC / Auditoria</option></select></div>
+        <div class="form-field"><div class="form-label">Formato</div><select class="form-input"><option>PDF Executivo</option><option>PowerPoint</option><option>Excel/CSV</option><option>Dashboard Web</option></select></div>
+      </div>
+      <div class="form-field" style="margin-bottom:12px"><div class="form-label">Período</div><select class="form-input"><option>Últimos 30 dias</option><option>Últimos 90 dias</option><option>Mês atual</option></select></div>
+      <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="toast('Relatório gerado via IA — pronto para download','success');closeModal()"><i class="ti ti-send"></i> Gerar via IA</button></div>`;
+  } else if (type === 'addexception') {
+    c.innerHTML = `<div class="modal-title"><i class="ti ti-shield-x" style="color:var(--high)"></i> Solicitar Exceção de Risco</div>
+      <div class="form-row">
+        <div class="form-field"><div class="form-label">Vulnerabilidade</div><select class="form-input">${VULNS.map(v=>`<option value="${v.id}">${v.id} — ${v.title.substring(0,50)}</option>`).join('')}</select></div>
+        <div class="form-field"><div class="form-label">Tipo de Exceção</div><select class="form-input"><option>Aceite temporário</option><option>Aceite formal</option><option>Mitigação compensatória</option></select></div>
+      </div>
+      <div class="form-field" style="margin-bottom:12px"><div class="form-label">Justificativa técnica e de negócio</div><textarea class="form-input" placeholder="Descreva a razão técnica, impacto de negócio e plano de correção futuro..."></textarea></div>
+      <div class="form-field" style="margin-bottom:12px"><div class="form-label">Controles Compensatórios</div><input class="form-input" placeholder="Ex: WAF ativo, isolamento de rede, MFA obrigatório..."/></div>
+      <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="toast('Exceção solicitada — aguardando aprovação do CISO','success');closeModal()"><i class="ti ti-send"></i> Submeter para Aprovação</button></div>`;
+  }
+  document.getElementById('modal-backdrop').classList.add('open');
+};
+
+window.saveReclassify = function(id) {
+  const v = VULNS.find(x=>x.id===id);
+  if (!v) return;
+  v.reclassify_reason = document.getElementById('rc-reason').value;
+  v.compensating_controls = document.getElementById('rc-controls').value === '1';
+  v.final_score = computeRiskScore(v);
+  toast(`Reclassificação salva — novo score: ${v.final_score}`, 'success');
+  closeModal(); renderMain();
+};
+
+window.closeModal = () => document.getElementById('modal-backdrop').classList.remove('open');
+document.getElementById('modal-backdrop').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+window.toast = toast;
+
+// ── AGENT ─────────────────────────────────────────────────────────────────────
+function bindAgentIfNeeded() {
+  if (currentView !== 'agent') return;
+  renderAgentMsgs(false);
+}
+
+window.quickMsg = function(msg) {
+  if (currentView !== 'agent') setView('agent');
+  setTimeout(() => {
+    const input = document.getElementById('agent-input');
+    if (input) { input.value = msg; sendAgent(); }
+  }, 150);
+};
+
+window.aiCommunicate = function(id) {
+  const v = VULNS.find(x=>x.id===id);
+  closeDetail();
+  quickMsg(`Gere um comunicado profissional para o time ${v.team} sobre a vulnerabilidade ${v.id}: "${v.title}". Inclua: severidade ${v.sev}, score ${v.final_score}, CVSS ${v.cvss}, EPSS ${v.epss||'N/A'}, KEV: ${v.kev}, impacto de negócio, SLA restante (${getSlaRemaining(v)} dias) e próximos passos de remediação.`);
+};
+
+window.sendAgent = async function() {
+  const input = document.getElementById('agent-input');
+  const container = document.getElementById('agent-msgs');
+  const userText = input?.value.trim();
+  if (!userText || !container) return;
+  input.value = '';
+
+  agentHistory.push({ role:'user', text:userText });
+  renderAgentMsgs(true);
+
+  const vulnSummary = VULNS.map(v => ({
+    id:v.id, ticket:v.ticket, title:v.title, sev:v.sev, cvss:v.cvss, epss:v.epss,
+    kev:v.kev, exploit:v.exploit, rce:v.rce, risk_score:v.final_score,
+    team:v.team, squad:v.squad, bu:v.bu, owner:v.owner,
+    status:v.status, sla:`${v.sla_used}/${v.sla_max}d`, sla_breach:v.sla_used>=v.sla_max,
+    env:v.env, asset:v.asset, asset_type:v.asset_type, source:v.source,
+    internet_facing:v.internet_facing, pci_scope:v.pci_scope, lgpd_scope:v.lgpd_scope,
+    data_sensitive:v.data_sensitive, compensating_controls:v.compensating_controls,
+    fw:v.fw, nist:v.nist, owasp:v.owasp
+  }));
+
+  const systemPrompt = `Você é o Agente RBVM (Risk-Based Vulnerability Management) de uma plataforma enterprise de segurança corporativa.
+
+VULNERABILIDADES ATIVAS (${VULNS.length} total, ${VULNS.filter(v=>v.status!=='Resolved').length} abertas):
+${JSON.stringify(vulnSummary, null, 1)}
+
+EXCEÇÕES ATIVAS: ${EXCEPTIONS.length} exceções (${EXCEPTIONS.filter(e=>e.status==='pending').length} pendentes de aprovação)
+
+CONTEXTO:
+- Empresa: Corporação XPTO — Setor financeiro/regulado
+- Frameworks: NIST CSF 2.0, ISO 27001:2022, PCI DSS 4.0, LGPD, CMN 4.893
+- Risk Scoring: Multicritério (CVSS + EPSS + KEV + Exposição + Criticidade + Regulatório)
+- Times: AppSec, CloudOps, Infrastructure, Network, DevOps, MLPlatform
+- Integrações: Tenable, Qualys, Rapid7, Snyk, Wiz, GitHub Advanced Security, BloodHound, Microsoft Defender
+
+REGRAS DE GOVERNANÇA:
+- Responda com base nos dados reais acima. Não invente informações.
+- Cite IDs específicos (CVE-XXXX, SEC-XXXX) ao analisar.
+- Para comunicados: formato estruturado com severidade, impacto, SLA e próximos passos.
+- Para relatórios executivos: foque em risco de negócio, não em jargão técnico.
+- Não sugira fechar vulnerabilidades sem evidência de rescan.
+- Não aprove exceções — apenas sugira para revisão humana.
+- Máximo 500 palavras. Use markdown (negrito, listas).`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:systemPrompt,
+        messages:agentHistory.map(m=>({ role:m.role==='ai'?'assistant':'user', content:m.text }))
+      })
+    });
+    const data = await resp.json();
+    const reply = data.content?.map(b=>b.text||'').join('') || 'Não foi possível obter resposta.';
+    agentHistory.push({ role:'ai', text:reply });
+  } catch(e) {
+    agentHistory.push({ role:'ai', text:'Erro ao conectar ao agente. Verifique a configuração da API.' });
+  }
+  renderAgentMsgs(false);
+};
+
+function renderAgentMsgs(typing) {
+  const container = document.getElementById('agent-msgs');
+  if (!container) return;
+  container.innerHTML = agentHistory.map(m=>`
+    <div class="agent-msg ${m.role==='ai'?'msg-ai':'msg-user'}">
+      <div class="msg-meta">${m.role==='ai'?'RBVM Agent':'Você'}</div>
+      ${m.text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>')}
+    </div>`).join('');
+  if (typing) container.innerHTML += `<div class="agent-msg msg-ai"><div class="typing-dots"><div class="td"></div><div class="td"></div><div class="td"></div></div></div>`;
+  container.scrollTop = container.scrollHeight;
+}
+
+// ── START ─────────────────────────────────────────────────────────────────────
+renderMain();
+</script>
+</body>
+</html>
