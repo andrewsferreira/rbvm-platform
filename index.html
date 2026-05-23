@@ -2,1158 +2,965 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>RBVM Platform — Enterprise Vulnerability & Exposure Management</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"/>
 <style>
-/* ============================================================
-   RBVM PLATFORM — DESIGN SYSTEM
-   ============================================================ */
-:root {
-  --bg:      #0d0f14;
-  --bg2:     #141720;
-  --bg3:     #1c2030;
-  --bg4:     #242840;
-  --border:  rgba(255,255,255,0.07);
-  --border2: rgba(255,255,255,0.12);
-  --text:    #e8eaf0;
-  --text2:   #8b90a0;
-  --text3:   #555a6e;
-  --accent:  #4f7aff;
-  --accent2: #2c4fd6;
-  --crit:    #ff4c4c;
-  --critbg:  rgba(255,76,76,0.12);
-  --high:    #ff8c38;
-  --highbg:  rgba(255,140,56,0.12);
-  --med:     #f0c040;
-  --medbg:   rgba(240,192,64,0.12);
-  --low:     #40c87a;
-  --lowbg:   rgba(64,200,122,0.12);
-  --info:    #4f7aff;
-  --infobg:  rgba(79,122,255,0.12);
-  --success: #40c87a;
-  --successbg: rgba(64,200,122,0.12);
-  --ai:      #00d4d4;
-  --aibg:    rgba(0,212,212,0.1);
-  --font:    'Segoe UI', system-ui, sans-serif;
-  --mono:    'Cascadia Code', 'Fira Code', monospace;
-  --r:  8px;
-  --r2: 12px;
-  --sidebar-w: 224px;
-  --topbar-h:  48px;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;overflow:hidden}
-body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;line-height:1.5}
-
-/* LAYOUT */
-.app{display:grid;grid-template-rows:var(--topbar-h) 1fr;grid-template-columns:var(--sidebar-w) 1fr;height:100vh}
-.topbar{grid-column:1/-1;display:flex;align-items:center;gap:12px;padding:0 20px;background:var(--bg2);border-bottom:1px solid var(--border);z-index:10}
-.sidebar{background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;padding:12px 0}
+:root{--bg:#0d0f14;--bg2:#141720;--bg3:#1c2030;--bg4:#242840;--border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);--text:#e8eaf0;--text2:#8b90a0;--text3:#555a6e;--accent:#4f7aff;--accent2:#2c4fd6;--crit:#ff4c4c;--critbg:rgba(255,76,76,.12);--high:#ff8c38;--highbg:rgba(255,140,56,.12);--med:#f0c040;--medbg:rgba(240,192,64,.12);--low:#40c87a;--lowbg:rgba(64,200,122,.12);--success:#40c87a;--successbg:rgba(64,200,122,.12);--ai:#00d4d4;--aibg:rgba(0,212,212,.1);--font:'Segoe UI',system-ui,sans-serif;--mono:'Cascadia Code','Fira Code',monospace;--r:8px;--r2:12px;--sw:224px;--th:48px}
+*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%;overflow:hidden}body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:13px;line-height:1.5}
+.app{display:grid;grid-template-rows:var(--th) 1fr;grid-template-columns:var(--sw) 1fr;height:100vh}
+.topbar{grid-column:1/-1;display:flex;align-items:center;gap:10px;padding:0 20px;background:var(--bg2);border-bottom:1px solid var(--border);z-index:10}
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;padding:10px 0}
 .main-area{overflow-y:auto;background:var(--bg)}
-
-/* TOPBAR */
-.logo{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;letter-spacing:-.3px;color:var(--text);white-space:nowrap}
-.logo i{font-size:20px;color:var(--accent)}
-.logo-badge{font-size:9px;font-weight:600;padding:1px 5px;border-radius:3px;background:var(--accent2);color:#fff;margin-left:2px}
-.topbar-mid{flex:1;display:flex;gap:8px;align-items:center}
-.tb-search-wrap{position:relative}
-.tb-search{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:5px 10px 5px 30px;color:var(--text);font-size:12px;width:280px;outline:none}
-.tb-search:focus{border-color:var(--accent)}
-.tb-search-wrap i{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px;pointer-events:none}
+.logo{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;letter-spacing:-.3px;white-space:nowrap}.logo i{font-size:20px;color:var(--accent)}.logo-badge{font-size:9px;font-weight:600;padding:1px 5px;border-radius:3px;background:var(--accent2);color:#fff;margin-left:2px}
+.topbar-mid{flex:1;display:flex;gap:8px;align-items:center}.tb-sw{position:relative}.tb-search{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:5px 10px 5px 30px;color:var(--text);font-size:12px;width:260px;outline:none}.tb-search:focus{border-color:var(--accent)}.tb-sw i{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:14px;pointer-events:none}
+.tb-pill{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:none}.tb-pill.cr{background:var(--critbg);color:var(--crit)}.tb-pill.wa{background:var(--highbg);color:var(--high)}.tb-pill.md{background:var(--medbg);color:var(--med)}
 .topbar-right{display:flex;gap:8px;align-items:center;margin-left:auto}
-.tb-pill{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:none}
-.tb-pill.crit{background:var(--critbg);color:var(--crit)}
-.tb-pill.warn{background:var(--highbg);color:var(--high)}
-.tb-icon-btn{width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:var(--r);background:var(--bg3);border:1px solid var(--border);cursor:pointer;color:var(--text2);font-size:16px;transition:all .15s}
-.tb-icon-btn:hover{background:var(--bg4);color:var(--text)}
-.avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#7c3aed);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;cursor:pointer}
-
-/* SIDEBAR */
-.sb-label{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;padding:10px 10px 4px}
-.sb-section{padding:0 8px 8px}
-.sb-item{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:var(--r);cursor:pointer;font-size:12px;color:var(--text2);transition:all .1s;border:1px solid transparent}
-.sb-item:hover{background:var(--bg3);color:var(--text)}
-.sb-item.active{background:rgba(79,122,255,0.12);color:var(--accent);border-color:rgba(79,122,255,0.2)}
-.sb-item i{font-size:15px;width:16px;flex-shrink:0}
-.sb-count{margin-left:auto;font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px}
-.sc-crit{background:var(--critbg);color:var(--crit)}
-.sc-high{background:var(--highbg);color:var(--high)}
-.sc-ok{background:var(--successbg);color:var(--success)}
-.sc-info{background:var(--infobg);color:var(--info)}
-.sb-divider{height:1px;background:var(--border);margin:6px 10px}
-
-/* CONTENT */
+.tb-ic{width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:var(--r);background:var(--bg3);border:1px solid var(--border);cursor:pointer;color:var(--text2);font-size:16px;transition:all .15s}.tb-ic:hover{background:var(--bg4);color:var(--text)}
+.av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#7c3aed);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;cursor:pointer}
+.sb-lbl{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;padding:10px 10px 3px}
+.sb-sec{padding:0 8px 4px}
+.sb-it{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:var(--r);cursor:pointer;font-size:12px;color:var(--text2);transition:all .1s;border:1px solid transparent}.sb-it:hover{background:var(--bg3);color:var(--text)}.sb-it.active{background:rgba(79,122,255,.12);color:var(--accent);border-color:rgba(79,122,255,.2)}.sb-it i{font-size:15px;width:16px;flex-shrink:0}
+.sb-n{margin-left:auto;font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px}.nc{background:var(--critbg);color:var(--crit)}.nh{background:var(--highbg);color:var(--high)}.no{background:var(--successbg);color:var(--success)}.ni{background:rgba(79,122,255,.12);color:var(--accent)}
 .content{padding:20px;display:flex;flex-direction:column;gap:14px;min-height:100%}
-
-/* CARDS */
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2)}
-.card-header{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--border)}
-.card-title{font-size:13px;font-weight:600;color:var(--text)}
-.card-sub{font-size:11px;color:var(--text2)}
-.card-body{padding:16px}
-.card-actions{margin-left:auto;display:flex;gap:6px}
-
-/* METRICS */
-.metrics-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
-.metric{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:14px;transition:border-color .2s;cursor:default}
-.metric:hover{border-color:var(--border2)}
-.metric-label{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
-.metric-value{font-size:26px;font-weight:700;line-height:1}
-.metric-sub{font-size:10px;color:var(--text3);margin-top:4px}
-.metric-trend{font-size:10px;margin-top:3px}
-.trend-up{color:var(--crit)}
-.trend-down{color:var(--success)}
-.mv-crit{color:var(--crit)}
-.mv-high{color:var(--high)}
-.mv-ok{color:var(--success)}
-.mv-info{color:var(--info)}
-.mv-text{color:var(--text)}
-
-/* TABLE */
-.tbl-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:12px}
-th{padding:8px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);background:var(--bg3);white-space:nowrap}
-td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
-tr:last-child td{border-bottom:none}
-tr.tbl-row{cursor:pointer;transition:background .1s}
-tr.tbl-row:hover td{background:var(--bg3)}
-
-/* PILLS */
-.pill{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap}
-.p-crit{background:var(--critbg);color:var(--crit)}
-.p-high{background:var(--highbg);color:var(--high)}
-.p-med{background:var(--medbg);color:var(--med)}
-.p-low{background:var(--lowbg);color:var(--low)}
-.p-info{background:var(--infobg);color:var(--info)}
-.p-new{background:var(--bg4);color:var(--text2)}
-.p-progress{background:rgba(79,122,255,0.15);color:var(--accent)}
-.p-done{background:var(--successbg);color:var(--success)}
-.p-breach{background:var(--critbg);color:var(--crit)}
-.p-nist{background:rgba(120,100,255,0.15);color:#a084ff}
-.p-owasp{background:rgba(255,80,150,0.12);color:#ff5096}
-.p-cve{background:rgba(255,160,50,0.12);color:#ffa032}
-.p-ai{background:var(--aibg);color:var(--ai)}
-.p-exception{background:rgba(255,200,0,0.12);color:#ffc800}
-
-/* SLA BAR */
-.sla-bar{height:4px;width:56px;background:var(--bg4);border-radius:2px;overflow:hidden;display:inline-block;vertical-align:middle;margin-right:4px}
-.sla-fill{height:100%;border-radius:2px}
-.sf-ok{background:var(--success)}
-.sf-warn{background:var(--high)}
-.sf-crit{background:var(--crit)}
-
-/* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--r);border:1px solid var(--border2);background:var(--bg3);color:var(--text);font-size:12px;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:var(--font)}
-.btn:hover{background:var(--bg4);border-color:rgba(255,255,255,0.18)}
-.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
-.btn-primary:hover{background:var(--accent2);border-color:var(--accent2)}
-.btn-danger{background:var(--critbg);border-color:rgba(255,76,76,0.3);color:var(--crit)}
-.btn-success{background:var(--successbg);border-color:rgba(64,200,122,0.3);color:var(--success)}
-.btn-sm{padding:4px 9px;font-size:11px}
-.btn i{font-size:14px}
-.btn-group{display:flex;gap:6px;flex-wrap:wrap}
-
-/* TABS */
-.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);padding:0 16px}
-.tab{padding:10px 14px;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;white-space:nowrap}
-.tab:hover{color:var(--text)}
-.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
-
-/* FILTER ROW */
-.filter-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--bg2)}
-.filter-chip{padding:4px 10px;border-radius:20px;font-size:11px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;color:var(--text2);transition:all .12s}
-.filter-chip.active{background:rgba(79,122,255,.15);border-color:rgba(79,122,255,.3);color:var(--accent)}
-.filter-chip:hover:not(.active){background:var(--bg4);color:var(--text)}
-
-/* DETAIL PANEL */
-.detail-overlay{position:fixed;top:var(--topbar-h);right:0;bottom:0;width:580px;background:var(--bg2);border-left:1px solid var(--border);z-index:50;display:none;flex-direction:column;overflow:hidden}
-.detail-overlay.open{display:flex}
-.detail-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:8px}
-.detail-scroll{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:14px}
-.detail-close{position:absolute;top:14px;right:16px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:16px}
-.detail-close:hover{color:var(--text);background:var(--bg4)}
-.d-section-title{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
-.d-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.d-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-.d-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px}
-.d-item-label{font-size:10px;color:var(--text3);margin-bottom:3px}
-.d-item-val{font-size:13px;font-weight:600;color:var(--text)}
-
-/* PIPELINE VIS */
-.pipeline-vis{display:flex;align-items:center;gap:0;padding:12px 0}
-.pv-step{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1}
-.pv-icon{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;border:2px solid var(--border2)}
-.pv-icon.done{background:rgba(64,200,122,0.15);border-color:var(--success);color:var(--success)}
-.pv-icon.active{background:rgba(79,122,255,0.15);border-color:var(--accent);color:var(--accent);animation:pulse3 2s ease-in-out infinite}
-.pv-icon.warn{background:rgba(255,140,56,0.15);border-color:var(--high);color:var(--high)}
-.pv-icon.idle{background:var(--bg3);border-color:var(--border);color:var(--text3)}
-@keyframes pulse3{0%,100%{box-shadow:0 0 0 0 rgba(79,122,255,.3)}50%{box-shadow:0 0 0 6px rgba(79,122,255,0)}}
-.pv-name{font-size:10px;color:var(--text2);font-weight:600;text-align:center}
-.pv-count{font-size:9px;color:var(--text3)}
-.pv-arrow{color:var(--text3);font-size:14px;flex-shrink:0}
-
-/* PROGRESS */
-.progress-bar{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden}
-.pb-fill{height:100%;border-radius:3px}
-
-/* FW TAGS */
-.fw-tag{display:inline-flex;align-items:center;font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600;cursor:default;margin:1px}
-
-/* NOTICE */
-.notice{display:flex;gap:8px;align-items:flex-start;padding:10px 12px;border-radius:var(--r);font-size:11px}
-.notice-info{background:var(--infobg);border:1px solid rgba(79,122,255,.2);color:var(--info)}
-.notice-warn{background:var(--highbg);border:1px solid rgba(255,140,56,.2);color:var(--high)}
-.notice-crit{background:var(--critbg);border:1px solid rgba(255,76,76,.2);color:var(--crit)}
-.notice-success{background:var(--successbg);border:1px solid rgba(64,200,122,.2);color:var(--success)}
-
-/* GRID HELPERS */
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-.flex{display:flex}
-.items-center{align-items:center}
-.justify-between{justify-content:space-between}
-.gap-6{gap:6px}
-.gap-8{gap:8px}
-.gap-12{gap:12px}
-.mt-8{margin-top:8px}
-.mt-12{margin-top:12px}
-.mb-8{margin-bottom:8px}
-
-/* AGENT CHAT */
-.agent-msgs{display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto;padding:4px 2px}
-.agent-msg{padding:10px 12px;border-radius:var(--r2);font-size:12px;line-height:1.6}
-.msg-ai{background:var(--bg3);border:1px solid var(--border2);color:var(--text)}
-.msg-user{background:rgba(79,122,255,0.1);border:1px solid rgba(79,122,255,0.2);color:var(--text);align-self:flex-end;max-width:85%}
-.msg-meta{font-size:9px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em}
-.agent-input-row{display:flex;gap:8px;margin-top:10px}
-.agent-input{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:8px 12px;color:var(--text);font-size:12px;outline:none;font-family:var(--font)}
-.agent-input:focus{border-color:var(--accent)}
-.quick-btns{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
-.qbtn{font-size:10px;padding:3px 9px;border-radius:20px;background:var(--bg3);border:1px solid var(--border2);color:var(--text2);cursor:pointer;transition:all .12s}
-.qbtn:hover{background:var(--bg4);color:var(--text);border-color:var(--accent)}
-
-/* TYPING */
-.typing-dots{display:flex;gap:3px;padding:4px 2px}
-.td{width:5px;height:5px;border-radius:50%;background:var(--text3);animation:tdanim .9s ease-in-out infinite}
-.td:nth-child(2){animation-delay:.15s}
-.td:nth-child(3){animation-delay:.3s}
-@keyframes tdanim{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
-
-/* INT CARDS */
-.int-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.int-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:14px;display:flex;flex-direction:column;gap:8px;transition:border-color .2s}
-.int-card:hover{border-color:var(--border2)}
-.int-icon{width:36px;height:36px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:var(--bg4)}
-.int-dot{width:7px;height:7px;border-radius:50%}
-.dot-connected{background:var(--success);box-shadow:0 0 6px var(--success)}
-.dot-partial{background:var(--high);box-shadow:0 0 6px var(--high)}
-.dot-off{background:var(--text3)}
-
-/* RISK SCORE EXPLAIN */
-.score-explain-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px}
-.score-explain-row:last-child{border-bottom:none}
-.score-factor{color:var(--text2)}
-.score-pts{font-weight:700;font-family:var(--mono)}
-.score-pts.pos{color:var(--crit)}
-.score-pts.neg{color:var(--success)}
-
-/* EXCEPTION FORM */
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.form-field{display:flex;flex-direction:column;gap:4px}
-.form-label{font-size:11px;color:var(--text2);font-weight:600}
-.form-input{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:7px 10px;color:var(--text);font-size:12px;outline:none;font-family:var(--font)}
-.form-input:focus{border-color:var(--accent)}
-textarea.form-input{resize:vertical;min-height:72px}
-
-/* MODAL */
-.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;display:none;align-items:center;justify-content:center}
-.modal-backdrop.open{display:flex}
-.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r2);padding:24px;width:500px;max-height:85vh;overflow-y:auto}
-.modal-title{font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
-
-/* TOAST */
-#toast{position:fixed;bottom:20px;right:20px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r2);padding:12px 16px;font-size:12px;display:none;gap:8px;align-items:center;z-index:999;max-width:340px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
-#toast.show{display:flex;animation:slideUp .2s ease}
-#toast.toast-success{border-color:rgba(64,200,122,.3);color:var(--success)}
-#toast.toast-error{border-color:rgba(255,76,76,.3);color:var(--crit)}
-@keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-
-/* SCROLLBAR */
-::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
-::-webkit-scrollbar-thumb:hover{background:var(--border2)}
-
-input[type=range]{-webkit-appearance:none;height:4px;border-radius:2px;background:var(--bg4);outline:none}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);cursor:pointer}
-
-.text-crit{color:var(--crit)}
-.text-high{color:var(--high)}
-.text-med{color:var(--med)}
-.text-low{color:var(--success)}
-.text-muted{color:var(--text2)}
-.fw-bold{font-weight:700}
-.font-mono{font-family:var(--mono);font-size:11px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2)}.card-hd{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--border)}.card-t{font-size:13px;font-weight:600}.card-s{font-size:11px;color:var(--text2)}.card-ac{margin-left:auto;display:flex;gap:6px}.card-bd{padding:16px}
+.g6{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mt{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:14px}.mt-l{font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}.mt-v{font-size:26px;font-weight:700;line-height:1}.mt-s{font-size:10px;color:var(--text3);margin-top:4px}.mt-t{font-size:10px;margin-top:3px}
+.vc{color:var(--crit)}.vh{color:var(--high)}.vk{color:var(--success)}.vi{color:var(--accent)}.vt{color:var(--text)}.tu{color:var(--crit)}.td2{color:var(--success)}
+.tbl{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:12px}th{padding:8px 12px;text-align:left;font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);background:var(--bg3);white-space:nowrap}td{padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}tr:last-child td{border-bottom:none}tr.tr{cursor:pointer}tr.tr:hover td{background:var(--bg3)}
+.pill{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.pc{background:var(--critbg);color:var(--crit)}.ph{background:var(--highbg);color:var(--high)}.pm{background:var(--medbg);color:var(--med)}.pl{background:var(--lowbg);color:var(--low)}.pi{background:rgba(79,122,255,.12);color:var(--accent)}.pn{background:var(--bg4);color:var(--text2)}.pp{background:rgba(79,122,255,.15);color:var(--accent)}.pd{background:var(--successbg);color:var(--success)}.pnist{background:rgba(120,100,255,.15);color:#a084ff}.pai{background:var(--aibg);color:var(--ai)}
+.sl-bar{height:4px;width:56px;background:var(--bg4);border-radius:2px;overflow:hidden;display:inline-block;vertical-align:middle;margin-right:4px}.sl-f{height:100%;border-radius:2px}.sf-ok{background:var(--success)}.sf-wa{background:var(--high)}.sf-cr{background:var(--crit)}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:var(--r);border:1px solid var(--border2);background:var(--bg3);color:var(--text);font-size:12px;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:var(--font)}.btn:hover{background:var(--bg4)}.btn-p{background:var(--accent);border-color:var(--accent);color:#fff}.btn-p:hover{background:var(--accent2)}.btn-d{background:var(--critbg);border-color:rgba(255,76,76,.3);color:var(--crit)}.btn-o{background:var(--successbg);border-color:rgba(64,200,122,.3);color:var(--success)}.btn-s{padding:4px 9px;font-size:11px}.btn i{font-size:14px}.btn-g{display:flex;gap:6px;flex-wrap:wrap}
+.frow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--bg2)}.fc{padding:4px 10px;border-radius:20px;font-size:11px;background:var(--bg3);border:1px solid var(--border);cursor:pointer;color:var(--text2);transition:all .12s}.fc.act{background:rgba(79,122,255,.15);border-color:rgba(79,122,255,.3);color:var(--accent)}.fc:hover:not(.act){background:var(--bg4);color:var(--text)}
+.pb{height:6px;background:var(--bg4);border-radius:3px;overflow:hidden}.pbf{height:100%;border-radius:3px}
+.nt{display:flex;gap:8px;align-items:flex-start;padding:10px 12px;border-radius:var(--r);font-size:11px}.ni-{background:rgba(79,122,255,.1);border:1px solid rgba(79,122,255,.2);color:var(--accent)}.nw{background:var(--highbg);border:1px solid rgba(255,140,56,.2);color:var(--high)}.nc-{background:var(--critbg);border:1px solid rgba(255,76,76,.2);color:var(--crit)}.nok{background:var(--successbg);border:1px solid rgba(64,200,122,.2);color:var(--success)}
+.dov{position:fixed;top:var(--th);right:0;bottom:0;width:600px;background:var(--bg2);border-left:1px solid var(--border);z-index:50;display:none;flex-direction:column;overflow:hidden}.dov.open{display:flex}
+.dov-hd{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:8px}.dov-sc{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:14px}
+.dov-cl{position:absolute;top:14px;right:16px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);font-size:16px}.dov-cl:hover{background:var(--bg4);color:var(--text)}
+.ds{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.dg{display:grid;grid-template-columns:1fr 1fr;gap:8px}.dg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.di{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px}.di-l{font-size:10px;color:var(--text3);margin-bottom:3px}.di-v{font-size:13px;font-weight:600}
+.ser{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px}.ser:last-child{border-bottom:none}.sef{color:var(--text2)}.sep{font-weight:700;font-family:var(--mono)}.pos{color:var(--crit)}.neg{color:var(--success)}
+.pv{display:flex;align-items:center;padding:12px 0}.pvs{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1}.pvi{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;border:2px solid var(--border2)}.done{background:rgba(64,200,122,.15);border-color:var(--success);color:var(--success)}.act_{background:rgba(79,122,255,.15);border-color:var(--accent);color:var(--accent);animation:puls 2s ease-in-out infinite}.wrn{background:rgba(255,140,56,.15);border-color:var(--high);color:var(--high)}.idle{background:var(--bg3);border-color:var(--border);color:var(--text3)}.pvn{font-size:10px;color:var(--text2);font-weight:600;text-align:center}.pvc{font-size:9px;color:var(--text3)}.pva{color:var(--text3);font-size:14px;flex-shrink:0}
+@keyframes puls{0%,100%{box-shadow:0 0 0 0 rgba(79,122,255,.3)}50%{box-shadow:0 0 0 6px rgba(79,122,255,0)}}
+.int-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.int-c{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:14px;display:flex;flex-direction:column;gap:8px}.idd{width:7px;height:7px;border-radius:50%}.d-on{background:var(--success);box-shadow:0 0 6px var(--success)}.d-pt{background:var(--high);box-shadow:0 0 6px var(--high)}.d-off{background:var(--text3)}
+.am{display:flex;flex-direction:column;gap:8px;overflow-y:auto;padding:4px 2px}.ag-msg{padding:10px 12px;border-radius:var(--r2);font-size:12px;line-height:1.6}.msg-ai{background:var(--bg3);border:1px solid var(--border2)}.msg-u{background:rgba(79,122,255,.1);border:1px solid rgba(79,122,255,.2);align-self:flex-end;max-width:85%}.ag-meta{font-size:9px;color:var(--text3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em}.ag-in{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:8px 12px;color:var(--text);font-size:12px;outline:none;font-family:var(--font)}.ag-in:focus{border-color:var(--accent)}.qb{font-size:10px;padding:3px 9px;border-radius:20px;background:var(--bg3);border:1px solid var(--border2);color:var(--text2);cursor:pointer;transition:all .12s}.qb:hover{background:var(--bg4);color:var(--text);border-color:var(--accent)}
+.tdots{display:flex;gap:3px;padding:4px 2px}.td{width:5px;height:5px;border-radius:50%;background:var(--text3);animation:tda .9s ease-in-out infinite}.td:nth-child(2){animation-delay:.15s}.td:nth-child(3){animation-delay:.3s}
+@keyframes tda{0%,80%,100%{transform:scale(.6);opacity:.4}40%{transform:scale(1);opacity:1}}
+.pbs{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}.pbs:last-child{border-bottom:none}.pbn{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}.pb-d{background:var(--successbg);color:var(--success)}.pb-a{background:rgba(79,122,255,.2);color:var(--accent)}.pb-i{background:var(--bg4);color:var(--text3)}
+.kri{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--r);background:var(--bg3);border:1px solid var(--border)}.kri.breach{border-color:rgba(255,76,76,.25);background:var(--critbg)}.kri.warn{border-color:rgba(255,140,56,.25);background:var(--highbg)}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:100;display:none;align-items:center;justify-content:center}.modal-bg.open{display:flex}.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r2);padding:24px;width:520px;max-height:85vh;overflow-y:auto}.modal-t{font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}.modal-ft{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+.ff{display:flex;flex-direction:column;gap:4px}.fl{font-size:11px;color:var(--text2);font-weight:600}.fi{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:7px 10px;color:var(--text);font-size:12px;outline:none;font-family:var(--font)}.fi:focus{border-color:var(--accent)}textarea.fi{resize:vertical;min-height:72px}.fr{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+#toast{position:fixed;bottom:20px;right:20px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r2);padding:12px 16px;font-size:12px;display:none;gap:8px;align-items:center;z-index:999;max-width:340px;box-shadow:0 8px 24px rgba(0,0,0,.4)}#toast.show{display:flex;animation:sU .2s ease}#toast.ts{border-color:rgba(64,200,122,.3);color:var(--success)}#toast.te{border-color:rgba(255,76,76,.3);color:var(--crit)}
+@keyframes sU{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
+.mono{font-family:var(--mono);font-size:11px}
 </style>
 </head>
 <body>
 <div class="app">
 
-<!-- TOPBAR -->
 <div class="topbar">
-  <div class="logo">
-    <i class="ti ti-shield-search"></i>
-    RBVM Platform
-    <span class="logo-badge">AI</span>
-  </div>
+  <div class="logo"><i class="ti ti-shield-search"></i>RBVM Platform<span class="logo-badge">AI</span></div>
   <div class="topbar-mid">
-    <div class="tb-search-wrap">
-      <i class="ti ti-search"></i>
-      <input class="tb-search" placeholder="Buscar CVE, ativo, time, ticket..." id="global-search" oninput="globalSearch(this.value)"/>
-    </div>
-    <button class="tb-pill crit" id="pill-crit" onclick="filterBySev('CRITICAL')"><i class="ti ti-alert-triangle" style="font-size:12px"></i> <span id="pill-crit-n">—</span> Críticas</button>
-    <button class="tb-pill warn" id="pill-sla" onclick="setView('sla')"><i class="ti ti-clock-x" style="font-size:12px"></i> <span id="pill-sla-n">—</span> SLA vencidos</button>
+    <div class="tb-sw"><i class="ti ti-search"></i><input class="tb-search" id="gs" placeholder="Buscar CVE, ativo, time, ticket..." oninput="gS(this.value)"/></div>
+    <button class="tb-pill cr" onclick="fBySev('CRITICAL')"><i class="ti ti-alert-triangle" style="font-size:12px"></i><span id="pc-n">—</span> Críticas</button>
+    <button class="tb-pill wa" onclick="setView('sla')"><i class="ti ti-clock-x" style="font-size:12px"></i><span id="ps-n">—</span> SLA vencidos</button>
+    <button class="tb-pill md" onclick="setView('cicd')"><i class="ti ti-player-stop" style="font-size:12px"></i><span id="pb-n">—</span> Bloqueados</button>
   </div>
   <div class="topbar-right">
-    <div class="tb-icon-btn" onclick="openModal('report')" title="Exportar relatório"><i class="ti ti-file-analytics"></i></div>
-    <div class="tb-icon-btn" onclick="setView('settings')" title="Configurações"><i class="ti ti-settings"></i></div>
-    <div class="avatar" title="CISO">SC</div>
+    <div class="tb-ic" onclick="openModal('report')" title="Relatório"><i class="ti ti-file-analytics"></i></div>
+    <div class="tb-ic" onclick="setView('settings')"><i class="ti ti-settings"></i></div>
+    <div class="av" title="CISO">SC</div>
   </div>
 </div>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
-  <div class="sb-label">Principal</div>
-  <div class="sb-section">
-    <div class="sb-item active" id="nav-dashboard" onclick="setView('dashboard')"><i class="ti ti-layout-dashboard"></i> Dashboard</div>
-    <div class="sb-item" id="nav-vulns"      onclick="setView('vulns')">     <i class="ti ti-bug"></i>             Vulnerabilidades <span class="sb-count sc-crit" id="sb-total">—</span></div>
-    <div class="sb-item" id="nav-assets"     onclick="setView('assets')">    <i class="ti ti-server"></i>          Ativos</div>
-    <div class="sb-item" id="nav-reclassify" onclick="setView('reclassify')"><i class="ti ti-adjustments-horizontal"></i> Reclassificação</div>
-    <div class="sb-item" id="nav-exceptions" onclick="setView('exceptions')"><i class="ti ti-shield-x"></i>        Exceções <span class="sb-count sc-high" id="sb-exc">—</span></div>
+  <div class="sb-lbl">Análise</div>
+  <div class="sb-sec">
+    <div class="sb-it active" id="nav-dashboard"   onclick="setView('dashboard')">  <i class="ti ti-layout-dashboard"></i>Dashboard</div>
+    <div class="sb-it" id="nav-threatintel" onclick="setView('threatintel')"><i class="ti ti-radar-2"></i>Threat Intelligence<span class="sb-n nc" id="sb-kev">—</span></div>
+    <div class="sb-it" id="nav-metrics"    onclick="setView('metrics')">    <i class="ti ti-chart-line"></i>Métricas &amp; MTTR</div>
   </div>
-  <div class="sb-label">Gestão</div>
-  <div class="sb-section">
-    <div class="sb-item" id="nav-sla"        onclick="setView('sla')">    <i class="ti ti-clock"></i>          Gestão SLA <span class="sb-count sc-crit" id="sb-sla">—</span></div>
-    <div class="sb-item" id="nav-comms"      onclick="setView('comms')">  <i class="ti ti-send"></i>           Comunicados</div>
-    <div class="sb-item" id="nav-risk"       onclick="setView('risk')">   <i class="ti ti-chart-area"></i>     Análise de Risco</div>
+  <div class="sb-lbl">Gestão</div>
+  <div class="sb-sec">
+    <div class="sb-it" id="nav-vulns"      onclick="setView('vulns')">     <i class="ti ti-bug"></i>Vulnerabilidades<span class="sb-n nc" id="sb-tot">—</span></div>
+    <div class="sb-it" id="nav-assets"     onclick="setView('assets')">    <i class="ti ti-server"></i>Ativos</div>
+    <div class="sb-it" id="nav-suppliers"  onclick="setView('suppliers')"> <i class="ti ti-building-factory-2"></i>Fornecedores<span class="sb-n nh" id="sb-sup">—</span></div>
   </div>
-  <div class="sb-label">Plataforma</div>
-  <div class="sb-section">
-    <div class="sb-item" id="nav-integrations" onclick="setView('integrations')"><i class="ti ti-plug"></i>   Integrações</div>
-    <div class="sb-item" id="nav-agent"        onclick="setView('agent')">       <i class="ti ti-robot"></i>  Agente IA</div>
-    <div class="sb-item" id="nav-settings"     onclick="setView('settings')">    <i class="ti ti-settings"></i> Configurações</div>
+  <div class="sb-lbl">Automação</div>
+  <div class="sb-sec">
+    <div class="sb-it" id="nav-playbooks"  onclick="setView('playbooks')"> <i class="ti ti-player-play"></i>Playbooks<span class="sb-n ni" id="sb-pb">—</span></div>
+    <div class="sb-it" id="nav-reclassify" onclick="setView('reclassify')"><i class="ti ti-adjustments-horizontal"></i>Reclassificação</div>
+    <div class="sb-it" id="nav-exceptions" onclick="setView('exceptions')"><i class="ti ti-shield-x"></i>Exceções<span class="sb-n nh" id="sb-exc">—</span></div>
+    <div class="sb-it" id="nav-sla"        onclick="setView('sla')">       <i class="ti ti-clock"></i>Gestão SLA<span class="sb-n nc" id="sb-sla">—</span></div>
+  </div>
+  <div class="sb-lbl">Segurança Dev</div>
+  <div class="sb-sec">
+    <div class="sb-it" id="nav-cicd"       onclick="setView('cicd')"><i class="ti ti-git-branch"></i>CI/CD Security<span class="sb-n nc" id="sb-cicd">—</span></div>
+  </div>
+  <div class="sb-lbl">Governança</div>
+  <div class="sb-sec">
+    <div class="sb-it" id="nav-compliance" onclick="setView('compliance')"><i class="ti ti-certificate"></i>Compliance / GRC</div>
+    <div class="sb-it" id="nav-comms"      onclick="setView('comms')">     <i class="ti ti-send"></i>Comunicados</div>
+    <div class="sb-it" id="nav-risk"       onclick="setView('risk')">      <i class="ti ti-chart-area"></i>Análise de Risco</div>
+  </div>
+  <div class="sb-lbl">Plataforma</div>
+  <div class="sb-sec">
+    <div class="sb-it" id="nav-integrations" onclick="setView('integrations')"><i class="ti ti-plug"></i>Integrações</div>
+    <div class="sb-it" id="nav-agent"        onclick="setView('agent')">       <i class="ti ti-robot"></i>Agente IA</div>
+    <div class="sb-it" id="nav-settings"     onclick="setView('settings')">    <i class="ti ti-settings"></i>Configurações</div>
   </div>
 </div>
 
-<!-- MAIN -->
-<div class="main-area" id="main-area"></div>
+<div class="main-area" id="main"></div>
 
-<!-- DETAIL OVERLAY -->
-<div class="detail-overlay" id="detail-overlay">
-  <div class="detail-close" onclick="closeDetail()"><i class="ti ti-x"></i></div>
-  <div id="detail-content" style="display:flex;flex-direction:column;height:100%;overflow:hidden"></div>
+<div class="dov" id="dov">
+  <div class="dov-cl" onclick="closeDov()"><i class="ti ti-x"></i></div>
+  <div id="dov-c" style="display:flex;flex-direction:column;height:100%;overflow:hidden"></div>
 </div>
 
-<!-- MODAL -->
-<div class="modal-backdrop" id="modal-backdrop">
-  <div class="modal"><div id="modal-content"></div></div>
+<div class="modal-bg" id="mbg">
+  <div class="modal"><div id="mc"></div></div>
 </div>
 
-<!-- TOAST -->
-<div id="toast"><i class="ti ti-check" id="toast-icon"></i><span id="toast-msg"></span></div>
+<div id="toast"><i class="ti ti-check"></i><span id="tm"></span></div>
 
 <script type="module">
 import { VULNS }        from './src/data/vulns.js';
 import { ASSETS }       from './src/data/assets.js';
 import { INTEGRATIONS } from './src/data/integrations.js';
-import { computeRiskScore, getRiskColor, getScoreClass, explainScore, getRiskLabel } from './src/utils/scoring.js';
-import { getSlaClass, getSlaRemaining, getEscalationLevel, getNotificationMessage } from './src/utils/sla.js';
-import { sevPill, statusPill, fwTags, slaBar, envPill, assetTypeBadge, formatDate, toast } from './src/utils/helpers.js';
+import { CICD_FINDINGS, PIPELINE_GATES }  from './src/data/cicd.js';
+import { SUPPLIERS, SUPPLIER_VULNS }      from './src/data/suppliers.js';
+import { COMPLIANCE_CONTROLS, PLAYBOOKS } from './src/data/playbooks.js';
+import { MONTHLY_TRENDS, MTTR_BY_TEAM, KRI_ALERTS } from './src/data/trends.js';
+import { computeRiskScore, getRiskColor, explainScore, getRiskLabel } from './src/utils/scoring.js';
+import { getSlaRemaining, getEscalationLevel }          from './src/utils/sla.js';
+import { sevPill, statusPill, slaBar, envPill, formatDate } from './src/utils/helpers.js';
+import { estimateFinancialImpact, totalFinancialExposure, formatBRL } from './src/utils/financial.js';
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 VULNS.forEach(v => {
-  if (v.final_score === null) v.final_score = computeRiskScore(v);
+  if (!v.final_score) v.final_score = computeRiskScore(v);
+  v._fin = estimateFinancialImpact(v);
 });
-window._vulns    = VULNS;
-window._assets   = ASSETS;
-window._intgs    = INTEGRATIONS;
+const RC = s => getRiskColor(s), FMT = formatBRL;
 
-let currentView = 'dashboard';
-let filterSev   = 'ALL';
-let filterType  = 'ALL';
-let filterSearch = '';
-let filterStatus = 'ALL';
-let agentHistory = [{ role:'ai', text:'Olá! Sou o Agente RBVM com acesso completo às vulnerabilidades, ativos e integrações da plataforma.\n\nPosso analisar riscos, gerar comunicados, comparar performance de times, criar sumários executivos, explicar priorização e muito mais.\n\n**Como posso ajudar?**' }];
-
-// Exceptions mock store
-let EXCEPTIONS = [
-  { id:'EXC-001', vuln_id:'SCA-2024-LOG4J', status:'approved', justification:'Sistema legado em processo de migração planejada para Q3 2024. Risco mitigado por WAF e isolamento de rede.', controls:'WAF + Network segmentation', owner:'fernanda.rocha@corp.com', approver:'ciso@corp.com', created:'2024-04-08', expires:'2024-07-08', risk_level:'accepted' },
-  { id:'EXC-002', vuln_id:'CVE-2024-27198', status:'approved', justification:'TeamCity em rede totalmente isolada com MFA obrigatório. Patch agendado para próxima janela.', controls:'Network isolation + MFA', owner:'camila.gomes@corp.com', approver:'infra-manager@corp.com', created:'2024-04-23', expires:'2024-06-23', risk_level:'accepted' },
-  { id:'EXC-003', vuln_id:'LOW-2024-002', status:'pending', justification:'Migração Python em andamento — aguarda aprovação de budget para Q2.', controls:'', owner:'juliana.campos@corp.com', approver:null, created:'2024-05-15', expires:'2024-08-15', risk_level:'temporary' },
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let VIEW='dashboard', FS='ALL', FST='ALL', FSQ='';
+let EXCS = [
+  {id:'EXC-001',vid:'SCA-2024-LOG4J',st:'approved', owner:'fernanda.rocha@corp.com',appr:'ciso@corp.com',ctrl:'WAF + Network isolation',just:'Migração Q3/2024 planejada.',cr:'2024-04-08',exp:'2024-07-08'},
+  {id:'EXC-002',vid:'CVE-2024-27198',st:'approved', owner:'camila.gomes@corp.com',appr:'infra-mgr@corp.com',ctrl:'Network isolation + MFA',just:'TeamCity isolado + MFA.',cr:'2024-04-23',exp:'2024-06-23'},
+  {id:'EXC-003',vid:'LOW-2024-002',  st:'pending',  owner:'juliana.campos@corp.com',appr:null,ctrl:'',just:'Budget Q2 pendente.',cr:'2024-05-15',exp:'2024-08-15'},
 ];
+let AH = [{role:'ai',text:'Olá! Sou o **Agente RBVM** com acesso completo à plataforma.\n\nVisibilidade: vulnerabilidades, ativos, SLAs, compliance (NIST, PCI, ISO, LGPD, CMN 4.893), CI/CD, fornecedores, MTTR e KRIs.\n\n**Como posso ajudar?**'}];
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
-function getFiltered() {
-  return VULNS.filter(v => {
-    if (filterSev    !== 'ALL' && v.sev !== filterSev)         return false;
-    if (filterStatus !== 'ALL' && v.status !== filterStatus)   return false;
-    if (filterType   !== 'ALL' && v.asset_type !== filterType) return false;
-    if (filterSearch) {
-      const s = filterSearch.toLowerCase();
-      if (![v.id,v.title,v.team,v.asset,v.owner,v.ticket,v.source].join(' ').toLowerCase().includes(s)) return false;
-    }
-    return true;
-  });
-}
+const filt = () => VULNS.filter(v => {
+  if (FS !=='ALL' && v.sev!==FS) return false;
+  if (FST!=='ALL' && v.status!==FST) return false;
+  if (FSQ) { const s=FSQ.toLowerCase(); if(![v.id,v.title,v.team,v.asset,v.owner,v.ticket||'',v.source].join(' ').toLowerCase().includes(s)) return false; }
+  return true;
+});
 
-function updateTopbar() {
-  const crit    = VULNS.filter(v => v.sev === 'CRITICAL' && v.status !== 'Resolved').length;
-  const breached = VULNS.filter(v => v.sla_used >= v.sla_max && v.status !== 'Resolved').length;
-  const exc     = EXCEPTIONS.filter(e => e.status === 'pending').length;
-  const q = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
-  q('pill-crit-n', crit);
-  q('pill-sla-n', breached);
-  q('sb-total', VULNS.filter(v => v.status !== 'Resolved').length);
-  q('sb-sla', breached);
-  q('sb-exc', exc);
+const q = (id,v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+function upd() {
+  const a=VULNS.filter(v=>v.status!=='Resolved');
+  q('pc-n',a.filter(v=>v.sev==='CRITICAL').length); q('ps-n',a.filter(v=>v.sla_used>=v.sla_max).length);
+  q('pb-n',PIPELINE_GATES.filter(g=>g.status==='blocked').length);
+  q('sb-kev',a.filter(v=>v.kev).length); q('sb-tot',a.length);
+  q('sb-sla',a.filter(v=>v.sla_used>=v.sla_max).length);
+  q('sb-exc',EXCS.filter(e=>e.st==='pending').length);
+  q('sb-cicd',CICD_FINDINGS.filter(f=>f.status==='open').length);
+  q('sb-sup',SUPPLIER_VULNS.filter(v=>v.status==='Overdue'||v.status==='New').length);
+  q('sb-pb',PLAYBOOKS.filter(p=>p.status==='active').length);
 }
 
 // ── NAVIGATION ────────────────────────────────────────────────────────────────
-window.setView = function(v) {
-  currentView = v; filterSev = 'ALL'; filterSearch = ''; filterStatus = 'ALL'; filterType = 'ALL';
-  document.querySelectorAll('.sb-item').forEach(el => el.classList.remove('active'));
-  const nav = document.getElementById('nav-' + v);
-  if (nav) nav.classList.add('active');
-  renderMain();
-  closeDetail();
-};
+window.setView = v => { VIEW=v; FS='ALL'; FST='ALL'; FSQ=''; document.querySelectorAll('.sb-it').forEach(e=>e.classList.remove('active')); const n=document.getElementById('nav-'+v); if(n)n.classList.add('active'); render(); closeDov(); };
+window.fBySev = s => { FS=s; setView('vulns'); };
+window.gS = s => { FSQ=s; if(s.length>1) render(); };
+window.sf  = s => { FS=s;  render(); };
+window.sft = s => { FST=s; render(); };
 
-window.filterBySev = function(s) { filterSev = s; setView('vulns'); };
-window.globalSearch = function(s) { filterSearch = s; if (s.length > 1) renderMain(); };
-window.showBreached = function() { setView('sla'); };
-
-// ── RENDER MAIN ───────────────────────────────────────────────────────────────
-function renderMain() {
-  updateTopbar();
-  const el = document.getElementById('main-area');
-  const views = { dashboard:renderDashboard, vulns:renderVulns, assets:renderAssets,
-    reclassify:renderReclassify, exceptions:renderExceptions, sla:renderSLA,
-    comms:renderComms, risk:renderRisk, integrations:renderIntegrations,
-    agent:renderAgent, settings:renderSettings };
-  el.innerHTML = (views[currentView] || renderDashboard)();
-  bindAgentIfNeeded();
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function render() {
+  upd();
+  const M={dashboard,threatintel,metrics,vulns,assets,suppliers,playbooks,reclassify,exceptions,sla,cicd,compliance,comms,risk,integrations,agent,settings};
+  document.getElementById('main').innerHTML=(M[VIEW]||dashboard)();
+  if(VIEW==='agent') rMsgs(false);
 }
 
-// ── DASHBOARD ─────────────────────────────────────────────────────────────────
-function renderDashboard() {
-  const active  = VULNS.filter(v => v.status !== 'Resolved');
-  const crit    = active.filter(v => v.sev === 'CRITICAL').length;
-  const high    = active.filter(v => v.sev === 'HIGH').length;
-  const breach  = active.filter(v => v.sla_used >= v.sla_max).length;
-  const kev     = active.filter(v => v.kev).length;
-  const exploit = active.filter(v => v.exploit).length;
-  const resolved= VULNS.filter(v => v.status === 'Resolved').length;
-  const reclassified = VULNS.filter(v => v.reclassify_reason).length;
-  const excPending = EXCEPTIONS.filter(e => e.status === 'pending').length;
+// ── SHARED HTML HELPERS ───────────────────────────────────────────────────────
+const SP  = s => sevPill(s);
+const STP = s => statusPill(s);
+const SB  = v => slaBar(v);
+const EP  = e => envPill(e);
+const FD  = d => formatDate(d);
+const rpill = (cls,txt) => `<span class="pill ${cls}" style="font-size:9px">${txt}</span>`;
+const kevBadge = v => v.kev ? rpill('pc','KEV') : v.exploit ? rpill('ph','EXPLOIT') : '<span style="color:var(--text3)">—</span>';
+const epss = v => v.epss!=null ? `<span style="color:${v.epss>=.9?'var(--crit)':v.epss>=.7?'var(--high)':'var(--text3)'};font-weight:700">${(v.epss*100).toFixed(0)}%</span>` : '—';
 
-  const byBU = {};
-  active.forEach(v => { byBU[v.bu] = (byBU[v.bu]||0)+1; });
-  const buRows = Object.entries(byBU).sort((a,b)=>b[1]-a[1]);
+// ── SVG BAR CHART ─────────────────────────────────────────────────────────────
+function barChart(data,h=60){
+  const mx=Math.max(...data.map(m=>m.opened)),bw=32,gap=8,tot=data.length*(bw*2+gap+4);
+  const bars=data.map((m,i)=>{
+    const x=i*(bw*2+gap+4),h1=Math.max(2,(m.opened/mx)*h),h2=Math.max(2,(m.closed/mx)*h);
+    return `<rect x="${x}" y="${h-h1}" width="${bw-2}" height="${h1}" rx="2" fill="var(--crit)" opacity=".75"/>
+            <rect x="${x+bw+2}" y="${h-h2}" width="${bw-2}" height="${h2}" rx="2" fill="var(--success)" opacity=".75"/>
+            <text x="${x+bw}" y="${h+14}" text-anchor="middle" font-size="9" fill="var(--text3)">${m.label}</text>`;
+  }).join('');
+  return `<svg viewBox="0 0 ${tot} ${h+18}" style="width:100%" xmlns="http://www.w3.org/2000/svg">${bars}</svg>`;
+}
 
+// ══════════════════════════════════════════════════════════════════════════════
+//  MÓDULO 1 — DASHBOARD EXECUTIVO
+// ══════════════════════════════════════════════════════════════════════════════
+function dashboard() {
+  const a=VULNS.filter(v=>v.status!=='Resolved');
+  const crit=a.filter(v=>v.sev==='CRITICAL').length, kev=a.filter(v=>v.kev).length;
+  const br=a.filter(v=>v.sla_used>=v.sla_max).length, expl=a.filter(v=>v.exploit).length;
+  const res=VULNS.filter(v=>v.status==='Resolved').length, rc=VULNS.filter(v=>v.reclassify_reason).length;
+  const totalFin=FMT(totalFinancialExposure(VULNS));
+  const byBU={}; a.forEach(v=>{byBU[v.bu]=(byBU[v.bu]||0)+1;});
+  const blk=PIPELINE_GATES.filter(g=>g.status==='blocked').length;
   return `<div class="content">
-    <div class="metrics-grid">
-      <div class="metric"><div class="metric-label">Vulnerabilidades Ativas</div><div class="metric-value mv-info">${active.length}</div><div class="metric-sub">${ASSETS.length} ativos rastreados</div></div>
-      <div class="metric"><div class="metric-label">Críticas</div><div class="metric-value mv-crit">${crit}</div><div class="metric-trend trend-up">↑ 3 esta semana</div></div>
-      <div class="metric"><div class="metric-label">CISA KEV Ativas</div><div class="metric-value mv-crit">${kev}</div><div class="metric-sub">Exploração confirmada</div></div>
-      <div class="metric"><div class="metric-label">SLA Vencido</div><div class="metric-value mv-crit">${breach}</div><div class="metric-trend trend-up">Ação imediata</div></div>
-      <div class="metric"><div class="metric-label">Com Exploit Ativo</div><div class="metric-value mv-high">${exploit}</div><div class="metric-sub">Prioridade máxima</div></div>
-      <div class="metric"><div class="metric-label">Resolvidas</div><div class="metric-value mv-ok">${resolved}</div><div class="metric-trend trend-down">↑ 2 esta semana</div></div>
-    </div>
-
-    ${kev > 0 ? `<div class="notice notice-crit"><i class="ti ti-alert-octagon" style="font-size:16px;flex-shrink:0"></i> <strong>${kev} vulnerabilidades CISA KEV ativas</strong> com exploração confirmada em ambiente real. Requerem ação imediata (SLA: 24h–72h). <button class="btn btn-sm btn-danger" style="margin-left:auto" onclick="filterBySev('CRITICAL')">Ver críticas →</button></div>` : ''}
-    ${excPending > 0 ? `<div class="notice notice-warn"><i class="ti ti-shield-x" style="font-size:16px;flex-shrink:0"></i> <strong>${excPending} solicitação(ões) de exceção pendente(s)</strong> aguardando aprovação. <button class="btn btn-sm" style="margin-left:auto" onclick="setView('exceptions')">Revisar →</button></div>` : ''}
-
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-header"><i class="ti ti-route" style="color:var(--accent)"></i><div><div class="card-title">Pipeline RBVM — Fluxo Operacional</div><div class="card-sub">Status atual do processo de gestão</div></div></div>
-        <div class="card-body">
-          <div class="pipeline-vis">
-            <div class="pv-step"><div class="pv-icon done"><i class="ti ti-radar"></i></div><div class="pv-name">Descoberta</div><div class="pv-count">${ASSETS.length} ativos</div></div>
-            <div class="pv-arrow"><i class="ti ti-chevron-right"></i></div>
-            <div class="pv-step"><div class="pv-icon done"><i class="ti ti-chart-bar"></i></div><div class="pv-name">Risk Scoring</div><div class="pv-count">Multicritério</div></div>
-            <div class="pv-arrow"><i class="ti ti-chevron-right"></i></div>
-            <div class="pv-step"><div class="pv-icon ${reclassified>0?'active':'done'}"><i class="ti ti-adjustments"></i></div><div class="pv-name">Reclassificação</div><div class="pv-count">${reclassified} ajustes</div></div>
-            <div class="pv-arrow"><i class="ti ti-chevron-right"></i></div>
-            <div class="pv-step"><div class="pv-icon ${breach>0?'warn':'done'}"><i class="ti ti-ticket"></i></div><div class="pv-name">Ticketing SLA</div><div class="pv-count">${breach} vencidos</div></div>
-            <div class="pv-arrow"><i class="ti ti-chevron-right"></i></div>
-            <div class="pv-step"><div class="pv-icon warn"><i class="ti ti-tools"></i></div><div class="pv-name">Remediação</div><div class="pv-count">Em progresso</div></div>
-            <div class="pv-arrow"><i class="ti ti-chevron-right"></i></div>
-            <div class="pv-step"><div class="pv-icon idle"><i class="ti ti-shield-check"></i></div><div class="pv-name">Validação API</div><div class="pv-count">${resolved} fechadas</div></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header"><i class="ti ti-building" style="color:var(--accent)"></i><div><div class="card-title">Risco por Business Unit</div><div class="card-sub">Vulnerabilidades ativas por área</div></div></div>
-        <div class="card-body" style="display:flex;flex-direction:column;gap:8px">
-          ${buRows.map(([bu, n]) => {
-            const pct = Math.round(n / active.length * 100);
-            return `<div>
-              <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
-                <span style="color:var(--text2)">${bu}</span>
-                <span style="color:var(--text3)">${n} vuln (${pct}%)</span>
-              </div>
-              <div class="progress-bar"><div class="pb-fill" style="width:${pct}%;background:${pct>40?'var(--crit)':pct>25?'var(--high)':'var(--accent)'}"></div></div>
-            </div>`;
-          }).join('')}
-        </div>
-      </div>
-    </div>
-
+  <div class="g6">
+    <div class="mt"><div class="mt-l">Exposição Financeira</div><div class="mt-v vc" style="font-size:18px">${totalFin}</div><div class="mt-s">Risco ativo estimado</div></div>
+    <div class="mt"><div class="mt-l">Críticas Ativas</div><div class="mt-v vc">${crit}</div><div class="mt-t tu">↑ 3 esta semana</div></div>
+    <div class="mt"><div class="mt-l">CISA KEV</div><div class="mt-v vc">${kev}</div><div class="mt-s">Exploração confirmada</div></div>
+    <div class="mt"><div class="mt-l">SLA Vencido</div><div class="mt-v vc">${br}</div><div class="mt-t tu">Ação imediata</div></div>
+    <div class="mt"><div class="mt-l">Exploit Ativo</div><div class="mt-v vh">${expl}</div><div class="mt-s">Prioridade máxima</div></div>
+    <div class="mt"><div class="mt-l">Resolvidas</div><div class="mt-v vk">${res}</div><div class="mt-t td2">↑ 2 esta semana</div></div>
+  </div>
+  ${kev>0?`<div class="nt nc-"><i class="ti ti-alert-octagon" style="font-size:16px;flex-shrink:0"></i><strong>${kev} CISA KEV ativas</strong> — exploração confirmada. SLA emergencial 72h.<button class="btn btn-s btn-d" style="margin-left:auto" onclick="setView('threatintel')">Threat Intel →</button></div>`:''}
+  ${blk>0?`<div class="nt nw"><i class="ti ti-git-branch" style="font-size:16px;flex-shrink:0"></i><strong>${blk} pipelines bloqueados</strong> por vulnerabilidades críticas.<button class="btn btn-s" style="margin-left:auto" onclick="setView('cicd')">CI/CD →</button></div>`:''}
+  <div class="g2">
     <div class="card">
-      <div class="card-header"><i class="ti ti-alert-triangle" style="color:var(--crit)"></i><div><div class="card-title">Críticas — Ação Imediata</div><div class="card-sub">KEV, exploit ativo ou SLA vencendo</div></div><div class="card-actions"><button class="btn btn-sm" onclick="setView('vulns')"><i class="ti ti-arrow-right"></i> Ver todas</button></div></div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>Ticket</th><th>Vulnerabilidade</th><th>Score</th><th>Ativo</th><th>KEV</th><th>SLA</th><th>Status</th><th></th></tr></thead>
-        <tbody>
-          ${active.filter(v=>v.sev==='CRITICAL').slice(0,6).map(v=>`
-          <tr class="tbl-row" onclick="openDetail('${v.id}')">
-            <td class="font-mono">${v.ticket||v.id}</td>
-            <td style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500">${v.title}</td>
-            <td><span style="color:${getRiskColor(v.final_score)};font-weight:700">${v.final_score}</span></td>
-            <td style="color:var(--text2);font-size:11px">${v.asset}</td>
-            <td>${v.kev?'<span class="pill p-crit" style="font-size:9px">KEV</span>':'<span style="color:var(--text3)">—</span>'}</td>
-            <td>${slaBar(v)}</td>
-            <td>${statusPill(v.status)}</td>
-            <td><button class="btn btn-sm" onclick="event.stopPropagation();openDetail('${v.id}')"><i class="ti ti-arrow-right"></i></button></td>
-          </tr>`).join('')}
-        </tbody>
-      </table></div>
+      <div class="card-hd"><i class="ti ti-route" style="color:var(--accent)"></i><div><div class="card-t">Pipeline RBVM</div><div class="card-s">Ciclo de vida das vulnerabilidades</div></div></div>
+      <div class="card-bd">
+        <div class="pv">
+          <div class="pvs"><div class="pvi done"><i class="ti ti-radar"></i></div><div class="pvn">Descoberta</div><div class="pvc">${ASSETS.length} ativos</div></div>
+          <div class="pva"><i class="ti ti-chevron-right"></i></div>
+          <div class="pvs"><div class="pvi done"><i class="ti ti-chart-bar"></i></div><div class="pvn">Risk Scoring</div><div class="pvc">Multicritério</div></div>
+          <div class="pva"><i class="ti ti-chevron-right"></i></div>
+          <div class="pvs"><div class="pvi ${rc>0?'act_':'done'}"><i class="ti ti-adjustments"></i></div><div class="pvn">Enriquecimento</div><div class="pvc">${rc} ajustes</div></div>
+          <div class="pva"><i class="ti ti-chevron-right"></i></div>
+          <div class="pvs"><div class="pvi ${br>0?'wrn':'done'}"><i class="ti ti-ticket"></i></div><div class="pvn">Ticketing SLA</div><div class="pvc">${br} vencidos</div></div>
+          <div class="pva"><i class="ti ti-chevron-right"></i></div>
+          <div class="pvs"><div class="pvi wrn"><i class="ti ti-tools"></i></div><div class="pvn">Remediação</div><div class="pvc">Em progresso</div></div>
+          <div class="pva"><i class="ti ti-chevron-right"></i></div>
+          <div class="pvs"><div class="pvi idle"><i class="ti ti-shield-check"></i></div><div class="pvn">Validação API</div><div class="pvc">${res} fechadas</div></div>
+        </div>
+      </div>
     </div>
+    <div class="card">
+      <div class="card-hd"><i class="ti ti-building" style="color:var(--accent)"></i><div><div class="card-t">Risco por Business Unit</div><div class="card-s">Vulnerabilidades ativas</div></div></div>
+      <div class="card-bd" style="display:flex;flex-direction:column;gap:8px">
+        ${Object.entries(byBU).sort((a,b)=>b[1]-a[1]).map(([bu,n])=>{const p=Math.round(n/a.length*100);return`<div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span style="color:var(--text2)">${bu}</span><span style="color:var(--text3)">${n} (${p}%)</span></div><div class="pb"><div class="pbf" style="width:${p}%;background:${p>40?'var(--crit)':p>25?'var(--high)':'var(--accent)'}"></div></div></div>`;}).join('')}
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hd"><i class="ti ti-alert-triangle" style="color:var(--crit)"></i><div><div class="card-t">Críticas — Ação Imediata</div><div class="card-s">Por score, impacto financeiro e SLA</div></div><div class="card-ac"><button class="btn btn-s" onclick="setView('vulns')">Ver todas →</button></div></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Ticket</th><th>Vulnerabilidade</th><th>Score</th><th>Impacto</th><th>KEV</th><th>MITRE</th><th>SLA</th><th>Status</th><th></th></tr></thead>
+      <tbody>${VULNS.filter(v=>v.status!=='Resolved'&&v.sev==='CRITICAL').sort((a,b)=>b.final_score-a.final_score).slice(0,6).map(v=>`
+      <tr class="tr" onclick="openDov('${v.id}')">
+        <td class="mono">${v.ticket||v.id}</td>
+        <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500">${v.title}</td>
+        <td><span style="color:${RC(v.final_score)};font-weight:700">${v.final_score}</span></td>
+        <td style="font-size:11px;font-weight:600;color:${v._fin.category==='Crítico'?'var(--crit)':v._fin.category==='Alto'?'var(--high)':'var(--text2)'}">${v._fin.label}</td>
+        <td>${kevBadge(v)}</td>
+        <td style="font-size:10px;color:var(--text3)">${v.mitre_technique||'—'}</td>
+        <td>${SB(v)}</td>
+        <td>${STP(v.status)}</td>
+        <td><button class="btn btn-s" onclick="event.stopPropagation();openDov('${v.id}')"><i class="ti ti-arrow-right"></i></button></td>
+      </tr>`).join('')}</tbody>
+    </table></div>
+  </div>
   </div>`;
 }
 
-// ── VULNS ─────────────────────────────────────────────────────────────────────
-function renderVulns() {
-  const filtered = getFiltered();
-  const sevs = ['CRITICAL','HIGH','MEDIUM','LOW'];
+// ══════════════════════════════════════════════════════════════════════════════
+//  MÓDULO 2 — THREAT INTELLIGENCE
+// ══════════════════════════════════════════════════════════════════════════════
+function threatintel() {
+  const kevs=VULNS.filter(v=>v.kev&&v.status!=='Resolved');
+  const hi=VULNS.filter(v=>v.epss>=0.7&&!v.kev&&v.status!=='Resolved').sort((a,b)=>b.epss-a.epss);
+  return `<div class="content">
+  <div class="g6">
+    <div class="mt"><div class="mt-l">CISA KEV Ativas</div><div class="mt-v vc">${kevs.length}</div><div class="mt-s">Exploração confirmada</div></div>
+    <div class="mt"><div class="mt-l">EPSS ≥ 70%</div><div class="mt-v vh">${hi.length}</div><div class="mt-s">Alta prob. exploração</div></div>
+    <div class="mt"><div class="mt-l">Com Exploit</div><div class="mt-v vh">${VULNS.filter(v=>v.exploit&&v.status!=='Resolved').length}</div><div class="mt-s">Exploit público</div></div>
+    <div class="mt"><div class="mt-l">RCE Ativas</div><div class="mt-v vc">${VULNS.filter(v=>v.rce&&v.status!=='Resolved').length}</div><div class="mt-s">Remote Code Exec.</div></div>
+    <div class="mt"><div class="mt-l">Internet-Facing</div><div class="mt-v vh">${VULNS.filter(v=>v.internet_facing&&v.status!=='Resolved').length}</div><div class="mt-s">Expostas externamente</div></div>
+    <div class="mt"><div class="mt-l">Exposição KEVs</div><div class="mt-v vc" style="font-size:16px">${FMT(totalFinancialExposure(kevs))}</div><div class="mt-s">Risco estimado</div></div>
+  </div>
+  <div class="nt ni-"><i class="ti ti-satellite" style="font-size:16px;flex-shrink:0"></i><strong>Fontes ativas:</strong> CISA KEV · EPSS/FIRST · NVD · MITRE ATT&amp;CK · GreyNoise · VulnCheck · Microsoft TI · Vendor Advisories</div>
+  <div class="card">
+    <div class="card-hd"><i class="ti ti-alert-octagon" style="color:var(--crit)"></i><div><div class="card-t">CISA KEV — Known Exploited Vulnerabilities</div><div class="card-s">Exploração ativa confirmada em ambiente real — SLA emergencial: 72h internet-facing</div></div></div>
+    <div class="tbl"><table>
+      <thead><tr><th>CVE</th><th>Vulnerabilidade</th><th>EPSS</th><th>RCE</th><th>Ativo</th><th>Impacto (BRL)</th><th>MITRE</th><th>SLA</th><th>Ações</th></tr></thead>
+      <tbody>${kevs.map(v=>`<tr class="tr" onclick="openDov('${v.id}')">
+        <td class="mono" style="color:var(--crit)">${v.id}</td>
+        <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500">${v.title}</td>
+        <td>${epss(v)}</td>
+        <td>${v.rce?rpill('pc','RCE'):'<span style="color:var(--text3)">—</span>'}</td>
+        <td style="font-size:11px;color:var(--text2)">${v.asset}</td>
+        <td style="color:var(--crit);font-size:11px;font-weight:600">${v._fin.label}</td>
+        <td style="font-size:10px;color:var(--text3)">${v.mitre_technique||'—'}</td>
+        <td>${SB(v)}</td>
+        <td><div class="btn-g">
+          <button class="btn btn-s btn-d" onclick="event.stopPropagation();escalate('${v.id}')"><i class="ti ti-arrow-up"></i>Escalar</button>
+          <button class="btn btn-s" onclick="event.stopPropagation();triggerPB('${v.id}')"><i class="ti ti-player-play"></i></button>
+        </div></td>
+      </tr>`).join('')}</tbody>
+    </table></div>
+  </div>
+  ${hi.length>0?`<div class="card">
+    <div class="card-hd"><i class="ti ti-eye" style="color:var(--high)"></i><div><div class="card-t">EPSS Alto — Não estão no KEV (≥ 70%)</div><div class="card-s">Monitorar — risco crescente de exploração</div></div></div>
+    <div class="tbl"><table>
+      <thead><tr><th>CVE</th><th>Vulnerabilidade</th><th>CVSS</th><th>EPSS</th><th>Ativo</th><th>SLA</th></tr></thead>
+      <tbody>${hi.slice(0,5).map(v=>`<tr class="tr" onclick="openDov('${v.id}')">
+        <td class="mono" style="color:var(--high)">${v.id}</td>
+        <td style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.title}</td>
+        <td class="mono">${v.cvss}</td>
+        <td><span style="color:var(--high);font-weight:700">${(v.epss*100).toFixed(0)}%</span></td>
+        <td style="font-size:11px;color:var(--text2)">${v.asset}</td>
+        <td>${SB(v)}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>
+  </div>`:''}
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  MÓDULO 3 — MÉTRICAS & MTTR
+// ══════════════════════════════════════════════════════════════════════════════
+function metrics() {
+  const lm=MONTHLY_TRENDS[MONTHLY_TRENDS.length-1], pm=MONTHLY_TRENDS[MONTHLY_TRENDS.length-2];
+  const dt=((lm.mttr_crit-pm.mttr_crit)/pm.mttr_crit*100).toFixed(1);
+  return `<div class="content">
+  <div class="g6">
+    <div class="mt"><div class="mt-l">MTTR — Críticas</div><div class="mt-v vh">${lm.mttr_crit}d</div><div class="mt-t ${lm.mttr_crit<pm.mttr_crit?'td2':'tu'}">${dt<0?'↓':'↑'} ${Math.abs(dt)}% vs mês anterior</div></div>
+    <div class="mt"><div class="mt-l">MTTR — Altas</div><div class="mt-v vh">${lm.mttr_high}d</div><div class="mt-s">Meta: ≤20d</div></div>
+    <div class="mt"><div class="mt-l">SLA Compliance</div><div class="mt-v vk">${Math.round(lm.sla_compliance*100)}%</div><div class="mt-t td2">↑ ${Math.round((lm.sla_compliance-pm.sla_compliance)*100)}pp mês</div></div>
+    <div class="mt"><div class="mt-l">Ativos Cobertos</div><div class="mt-v vk">89%</div><div class="mt-s">187/210</div></div>
+    <div class="mt"><div class="mt-l">Pipelines com Gate</div><div class="mt-v vh">74%</div><div class="mt-s">28/38</div></div>
+    <div class="mt"><div class="mt-l">Sem Owner</div><div class="mt-v vc">14</div><div class="mt-s">Requer ação</div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-hd"><i class="ti ti-chart-bar" style="color:var(--accent)"></i><div><div class="card-t">Abertas vs Fechadas — 6 meses</div><div class="card-s"><span style="color:var(--crit)">■</span> Abertas &nbsp;<span style="color:var(--success)">■</span> Fechadas</div></div></div>
+      <div class="card-bd">${barChart(MONTHLY_TRENDS)}</div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><i class="ti ti-clock-play" style="color:var(--accent)"></i><div><div class="card-t">MTTR por Time</div><div class="card-s">Dias para remediar críticas · meta ≤7d</div></div></div>
+      <div class="card-bd" style="display:flex;flex-direction:column;gap:8px">
+        ${MTTR_BY_TEAM.sort((a,b)=>b.mttr_crit-a.mttr_crit).map(t=>{const mx=Math.max(...MTTR_BY_TEAM.map(x=>x.mttr_crit)); return`<div><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px"><span style="color:var(--text2)">${t.team}</span><span style="color:${t.mttr_crit>10?'var(--high)':'var(--success)'};font-weight:700">${t.mttr_crit}d · ${Math.round(t.sla_rate*100)}% SLA</span></div><div class="pb"><div class="pbf" style="width:${Math.round(t.mttr_crit/mx*100)}%;background:${t.mttr_crit>12?'var(--crit)':t.mttr_crit>8?'var(--high)':'var(--success)'}"></div></div></div>`;}).join('')}
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hd"><i class="ti ti-urgent" style="color:var(--crit)"></i><div><div class="card-t">Key Risk Indicators (KRIs)</div><div class="card-s">BREACH = ação imediata da liderança · WARN = monitorar</div></div></div>
+    <div class="card-bd" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      ${KRI_ALERTS.map(k=>`<div class="kri ${k.status}"><div style="flex:1"><div style="font-size:11px;font-weight:600">${k.label}</div><div style="font-size:10px;color:var(--text3)">Threshold: ${k.threshold} · Atual: ${k.value} ${k.unit}</div></div><span class="pill ${k.status==='breach'?'pc':'ph'}" style="font-size:9px">${k.status.toUpperCase()}</span></div>`).join('')}
+    </div>
+  </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  MÓDULO 4 — VULNERABILIDADES
+// ══════════════════════════════════════════════════════════════════════════════
+function vulns() {
+  const f=filt();
   return `<div>
-    <div class="filter-row">
-      <span style="font-size:11px;color:var(--text3);font-weight:600">SEVERIDADE:</span>
-      ${['ALL',...sevs].map(s=>`<div class="filter-chip ${filterSev===s?'active':''}" onclick="setSevFilter('${s}')">${s==='ALL'?'Todas':s}</div>`).join('')}
-      <span style="font-size:11px;color:var(--text3);font-weight:600;margin-left:8px">STATUS:</span>
-      ${['ALL','New','In Progress','Resolved'].map(s=>`<div class="filter-chip ${filterStatus===s?'active':''}" onclick="setStatusFilter('${s}')">${s==='ALL'?'Todos':s}</div>`).join('')}
-      <span style="margin-left:auto;font-size:11px;color:var(--text3)">${filtered.length} resultado(s)</span>
-    </div>
-    <div style="padding:16px;display:flex;flex-direction:column;gap:0">
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>Ticket</th><th>Vulnerabilidade</th><th>Sev.</th><th>Score</th><th>CVSS</th><th>KEV</th><th>Ativo</th><th>Fonte</th><th>SLA</th><th>Status</th><th></th></tr></thead>
-        <tbody>
-          ${filtered.map(v=>`
-          <tr class="tbl-row" onclick="openDetail('${v.id}')">
-            <td class="font-mono" style="color:var(--text3)">${v.ticket||'—'}</td>
-            <td style="max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500">${v.title}</td>
-            <td>${sevPill(v.sev)}</td>
-            <td><span style="color:${getRiskColor(v.final_score)};font-weight:700">${v.final_score}</span></td>
-            <td class="font-mono" style="color:var(--text2)">${v.cvss}</td>
-            <td>${v.kev?'<span class="pill p-crit" style="font-size:9px">KEV</span>':v.exploit?'<span class="pill p-high" style="font-size:9px">EXPLOIT</span>':'<span style="color:var(--text3);font-size:10px">—</span>'}</td>
-            <td style="font-size:11px;color:var(--text2)">${v.asset}</td>
-            <td style="font-size:11px;color:var(--text3)">${v.source}</td>
-            <td>${slaBar(v)}</td>
-            <td>${statusPill(v.status)}</td>
-            <td><button class="btn btn-sm" onclick="event.stopPropagation();openDetail('${v.id}')"><i class="ti ti-arrow-right"></i></button></td>
-          </tr>`).join('')}
-        </tbody>
-      </table></div>
-    </div>
-  </div>`;
+  <div class="frow">
+    <span style="font-size:11px;color:var(--text3);font-weight:600">SEV:</span>
+    ${['ALL','CRITICAL','HIGH','MEDIUM','LOW'].map(s=>`<div class="fc ${FS===s?'act':''}" onclick="sf('${s}')">${s==='ALL'?'Todas':s}</div>`).join('')}
+    <span style="font-size:11px;color:var(--text3);font-weight:600;margin-left:8px">STATUS:</span>
+    ${['ALL','New','In Progress','Resolved','Awaiting Validation'].map(s=>`<div class="fc ${FST===s?'act':''}" onclick="sft('${s}')">${s==='ALL'?'Todos':s}</div>`).join('')}
+    <span style="margin-left:auto;font-size:11px;color:var(--text3)">${f.length} resultado(s)</span>
+  </div>
+  <div style="padding:12px 16px">
+    <div class="tbl"><table>
+      <thead><tr><th>Ticket</th><th>Vulnerabilidade</th><th>Sev.</th><th>Score</th><th>CVSS</th><th>EPSS</th><th>KEV</th><th>Ativo</th><th>Impacto (BRL)</th><th>Fonte</th><th>SLA</th><th>Status</th><th></th></tr></thead>
+      <tbody>${f.map(v=>`<tr class="tr" onclick="openDov('${v.id}')">
+        <td class="mono" style="color:var(--text3)">${v.ticket||'—'}</td>
+        <td style="max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500">${v.title}</td>
+        <td>${SP(v.sev)}</td>
+        <td><span style="color:${RC(v.final_score)};font-weight:700">${v.final_score}</span></td>
+        <td class="mono" style="color:var(--text2)">${v.cvss}</td>
+        <td>${epss(v)}</td>
+        <td>${kevBadge(v)}</td>
+        <td style="font-size:11px;color:var(--text2)">${v.asset}</td>
+        <td style="font-size:10px;font-weight:600;color:${v._fin.category==='Crítico'?'var(--crit)':v._fin.category==='Alto'?'var(--high)':'var(--text3)'}">${v._fin.label}</td>
+        <td style="font-size:10px;color:var(--text3)">${v.source}</td>
+        <td>${SB(v)}</td>
+        <td>${STP(v.status)}</td>
+        <td><button class="btn btn-s" onclick="event.stopPropagation();openDov('${v.id}')"><i class="ti ti-arrow-right"></i></button></td>
+      </tr>`).join('')}</tbody>
+    </table></div>
+  </div></div>`;
 }
-window.setSevFilter    = s => { filterSev = s; renderMain(); };
-window.setStatusFilter = s => { filterStatus = s; renderMain(); };
-window.setTypeFilter   = s => { filterType = s; renderMain(); };
 
-// ── ASSETS ────────────────────────────────────────────────────────────────────
-function renderAssets() {
+// ══════════════════════════════════════════════════════════════════════════════
+//  MÓDULO 5 — ATIVOS
+// ══════════════════════════════════════════════════════════════════════════════
+function assets() {
   return `<div class="content">
-    <div class="grid-3">
-      <div class="metric"><div class="metric-label">Total Ativos</div><div class="metric-value mv-info">${ASSETS.length}</div><div class="metric-sub">Rastreados</div></div>
-      <div class="metric"><div class="metric-label">Criticidade Alta+</div><div class="metric-value mv-crit">${ASSETS.filter(a=>a.criticality==='critical'||a.criticality==='high').length}</div><div class="metric-sub">Críticos e altos</div></div>
-      <div class="metric"><div class="metric-label">Internet Exposed</div><div class="metric-value mv-high">${ASSETS.filter(a=>a.internet_facing).length}</div><div class="metric-sub">Expostos à internet</div></div>
-    </div>
-    <div class="card">
-      <div class="card-header"><i class="ti ti-server" style="color:var(--accent)"></i><div><div class="card-title">Inventário de Ativos</div><div class="card-sub">Catálogo com owner, criticidade e cobertura de scan</div></div></div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>ID</th><th>Ativo</th><th>Tipo</th><th>Ambiente</th><th>Criticidade</th><th>Owner</th><th>Internet</th><th>PCI</th><th>Último Scan</th><th>Vulns</th><th>Score</th></tr></thead>
-        <tbody>
-          ${ASSETS.map(a=>`
-          <tr class="tbl-row">
-            <td class="font-mono" style="color:var(--text3)">${a.id}</td>
-            <td style="font-weight:500">${a.hostname}</td>
-            <td><span style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2)">${assetTypeBadge(a.type)} ${a.type}</span></td>
-            <td>${envPill(a.env)}</td>
-            <td>${sevPill({critical:'CRITICAL',high:'HIGH',medium:'MEDIUM',low:'LOW'}[a.criticality]||'LOW')}</td>
-            <td style="font-size:11px;color:var(--text2)">${a.owner}</td>
-            <td>${a.internet_facing?'<span class="pill p-crit" style="font-size:9px">SIM</span>':'<span style="color:var(--text3);font-size:10px">Não</span>'}</td>
-            <td>${a.pci_scope?'<span class="pill p-nist" style="font-size:9px">PCI</span>':'<span style="color:var(--text3);font-size:10px">—</span>'}</td>
-            <td style="font-size:11px;color:var(--text3)">${formatDate(a.last_scan)}</td>
-            <td style="font-weight:700;color:${a.open_vulns>0?'var(--crit)':'var(--success)'}">${a.open_vulns}</td>
-            <td><span style="color:${getRiskColor(a.risk_score)};font-weight:700">${a.risk_score}</span></td>
-          </tr>`).join('')}
-        </tbody>
-      </table></div>
-    </div>
-  </div>`;
+  <div class="g4">
+    <div class="mt"><div class="mt-l">Total Ativos</div><div class="mt-v vi">${ASSETS.length}</div><div class="mt-s">187 com scan recente</div></div>
+    <div class="mt"><div class="mt-l">Internet-Facing</div><div class="mt-v vc">${ASSETS.filter(a=>a.internet_facing).length}</div></div>
+    <div class="mt"><div class="mt-l">PCI Scope</div><div class="mt-v vh">${ASSETS.filter(a=>a.pci_scope).length}</div></div>
+    <div class="mt"><div class="mt-l">EOL / EOS</div><div class="mt-v vc">${ASSETS.filter(a=>a.eol).length}</div><div class="mt-s">Em produção</div></div>
+  </div>
+  <div class="card">
+    <div class="card-hd"><i class="ti ti-server" style="color:var(--accent)"></i><div><div class="card-t">Inventário de Ativos</div><div class="card-s">Owner · criticidade · exposição · cobertura de scan</div></div></div>
+    <div class="tbl"><table>
+      <thead><tr><th>ID</th><th>Ativo</th><th>Tipo</th><th>Ambiente</th><th>Crit.</th><th>Owner</th><th>Internet</th><th>PCI</th><th>LGPD</th><th>Scan</th><th>Vulns</th><th>Score</th></tr></thead>
+      <tbody>${ASSETS.map(a=>`<tr class="tr">
+        <td class="mono" style="color:var(--text3)">${a.id}</td>
+        <td style="font-weight:500">${a.hostname}${a.eol?rpill('pc','EOL')+" ":''}</td>
+        <td style="font-size:11px;color:var(--text2)">${a.type}</td>
+        <td>${EP(a.env)}</td>
+        <td>${SP({critical:'CRITICAL',high:'HIGH',medium:'MEDIUM',low:'LOW'}[a.criticality]||'LOW')}</td>
+        <td style="font-size:10px;color:var(--text2)">${a.owner}</td>
+        <td>${a.internet_facing?rpill('pc','SIM'):'<span style="color:var(--text3)">—</span>'}</td>
+        <td>${a.pci_scope?rpill('pnist','PCI'):'—'}</td>
+        <td>${a.lgpd_scope?rpill('pai','LGPD'):'—'}</td>
+        <td style="font-size:10px;color:var(--text3)">${FD(a.last_scan)}</td>
+        <td style="font-weight:700;color:${a.open_vulns>0?'var(--crit)':'var(--success)'}">${a.open_vulns}</td>
+        <td><span style="color:${RC(a.risk_score)};font-weight:700">${a.risk_score}</span></td>
+      </tr>`).join('')}</tbody>
+    </table></div>
+  </div></div>`;
 }
 
-// ── RECLASSIFY ────────────────────────────────────────────────────────────────
-function renderReclassify() {
-  const candidates = VULNS.filter(v => v.status !== 'Resolved');
+// ══════════════════════════════════════════════════════════════════════════════
+//  MÓDULO 6 — FORNECEDORES
+// ══════════════════════════════════════════════════════════════════════════════
+function suppliers() {
+  const rm={critical:'pc',high:'ph',medium:'pm',low:'pl'};
   return `<div class="content">
-    <div class="notice notice-info"><i class="ti ti-info-circle" style="font-size:16px;flex-shrink:0"></i> A reclassificação ajusta o risco contextual sem alterar a severidade original do scanner. Toda alteração requer justificativa técnica auditável.</div>
-    <div class="card">
-      <div class="card-header"><i class="ti ti-adjustments-horizontal" style="color:var(--accent)"></i><div><div class="card-title">Reclassificação de Risco</div><div class="card-sub">Ajuste contextual por exposição, controles e criticidade real</div></div></div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>ID</th><th>Vulnerabilidade</th><th>Sev. Original</th><th>Score Original</th><th>Score Final</th><th>Fator de Ajuste</th><th>Justificativa</th><th></th></tr></thead>
-        <tbody>
-          ${candidates.map(v => {
-            const orig = Math.min(100, Math.round((v.cvss||0)/10*25 + (v.exploit?10:0)));
-            const final_s = v.final_score;
-            const diff = final_s - orig;
-            const hasReason = !!v.reclassify_reason;
-            return `<tr class="tbl-row" onclick="openReclassify('${v.id}')">
-              <td class="font-mono" style="color:var(--text3)">${v.ticket||v.id}</td>
-              <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500">${v.title}</td>
-              <td>${sevPill(v.sev)}</td>
-              <td style="font-family:var(--mono)">${orig}</td>
-              <td><span style="color:${getRiskColor(final_s)};font-weight:700;font-family:var(--mono)">${final_s}</span> <span style="font-size:10px;color:${diff>0?'var(--crit)':diff<0?'var(--success)':'var(--text3)'}">${diff>0?'+'+diff:diff}</span></td>
-              <td style="font-size:10px;color:var(--text2)">${v.kev?'KEV':''} ${v.internet_facing?'Internet':''} ${v.compensating_controls?'Control Comp.':''} ${v.pci_scope?'PCI':''}</td>
-              <td style="font-size:10px;color:${hasReason?'var(--text2)':'var(--text3)'};max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${hasReason?v.reclassify_reason:'Sem ajuste manual'}</td>
-              <td><button class="btn btn-sm" onclick="event.stopPropagation();openReclassify('${v.id}')"><i class="ti ti-edit"></i></button></td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table></div>
-    </div>
-  </div>`;
+  <div class="g4">
+    <div class="mt"><div class="mt-l">Tier 1 Críticos</div><div class="mt-v vh">${SUPPLIERS.filter(s=>s.tier===1).length}</div></div>
+    <div class="mt"><div class="mt-l">Risco Crítico/Alto</div><div class="mt-v vc">${SUPPLIERS.filter(s=>s.risk==='critical'||s.risk==='high').length}</div></div>
+    <div class="mt"><div class="mt-l">Vulns em Fornecedores</div><div class="mt-v vh">${SUPPLIER_VULNS.filter(v=>v.status!=='Resolved').length}</div></div>
+    <div class="mt"><div class="mt-l">Assessments Vencidos</div><div class="mt-v vc">${SUPPLIERS.filter(s=>new Date(s.next_assessment)<new Date()).length}</div></div>
+  </div>
+  <div class="card">
+    <div class="card-hd"><i class="ti ti-building-factory-2" style="color:var(--accent)"></i><div><div class="card-t">Supply Chain Risk — Fornecedores Críticos</div><div class="card-s">Tier 1/2 · PCI · LGPD · dados compartilhados</div></div></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Fornecedor</th><th>Categoria</th><th>Tier</th><th>Risco</th><th>Score</th><th>Vulns</th><th>PCI</th><th>LGPD</th><th>Próx. Assess.</th><th>SLA</th></tr></thead>
+      <tbody>${SUPPLIERS.map(s=>`<tr class="tr">
+        <td style="font-weight:500">${s.name}</td>
+        <td style="font-size:11px;color:var(--text2)">${s.category}</td>
+        <td style="font-size:11px;color:var(--text3)">Tier ${s.tier}</td>
+        <td>${rpill(rm[s.risk]||'pi',s.risk.toUpperCase())}</td>
+        <td><span style="color:${RC(s.score)};font-weight:700">${s.score}</span></td>
+        <td style="color:${s.vulns_critical>0?'var(--crit)':s.vulns_open>0?'var(--high)':'var(--success)'};font-weight:700">${s.vulns_open} (${s.vulns_critical} crit)</td>
+        <td>${s.pci_scope?rpill('pnist','PCI'):'—'}</td>
+        <td>${s.lgpd_scope?rpill('pai','LGPD'):'—'}</td>
+        <td style="font-size:11px;color:${new Date(s.next_assessment)<new Date()?'var(--crit)':'var(--text3)'}">${FD(s.next_assessment)}</td>
+        <td style="font-size:11px;color:var(--text3)">${s.sla_days}d</td>
+      </tr>`).join('')}</tbody>
+    </table></div>
+  </div>
+  <div class="card">
+    <div class="card-hd"><i class="ti ti-bug" style="color:var(--high)"></i><div><div class="card-t">Vulnerabilidades em Fornecedores</div><div class="card-s">Plano formal · SLA · acompanhamento · impacto</div></div></div>
+    <div class="tbl"><table>
+      <thead><tr><th>ID</th><th>Fornecedor</th><th>Vulnerabilidade</th><th>Sev.</th><th>Reportada</th><th>SLA</th><th>Status</th><th>Impacto</th></tr></thead>
+      <tbody>${SUPPLIER_VULNS.map(sv=>{const sup=SUPPLIERS.find(s=>s.id===sv.supplier_id)||{};return`<tr class="tr"><td class="mono" style="color:var(--text3)">${sv.vuln_id}</td><td style="font-size:11px">${sup.name||sv.supplier_id}</td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${sv.title}</td><td>${SP(sv.sev)}</td><td style="font-size:11px;color:var(--text3)">${FD(sv.reported)}</td><td style="font-size:11px;color:${new Date(sv.sla)<new Date()?'var(--crit)':'var(--text3)'}">${FD(sv.sla)}</td><td>${rpill(sv.status==='Overdue'?'pc':sv.status==='In Progress'?'pp':'pn',sv.status)}</td><td style="color:var(--high);font-size:11px;font-weight:600">${sv.financial_impact}</td></tr>`;}).join('')}</tbody>
+    </table></div>
+  </div></div>`;
 }
 
-// ── EXCEPTIONS ────────────────────────────────────────────────────────────────
-function renderExceptions() {
+// ══════════════════════════════════════════════════════════════════════════════
+//  MÓDULO 7 — PLAYBOOKS
+// ══════════════════════════════════════════════════════════════════════════════
+function playbooks() {
   return `<div class="content">
-    <div class="notice notice-warn"><i class="ti ti-shield-x" style="font-size:16px;flex-shrink:0"></i> <strong>Atenção:</strong> Exceções não podem ser usadas para esconder descumprimento operacional. Toda exceção requer justificativa, controle compensatório, aprovação formal e data de expiração.</div>
-    <div class="card">
-      <div class="card-header"><i class="ti ti-shield-x" style="color:var(--high)"></i><div><div class="card-title">Gestão de Exceções e Aceite de Risco</div><div class="card-sub">Exceções formais com aprovação, evidência e prazo</div></div>
-      <div class="card-actions"><button class="btn btn-primary btn-sm" onclick="openModal('addexception')"><i class="ti ti-plus"></i> Nova Exceção</button></div></div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>ID</th><th>Vulnerabilidade</th><th>Status</th><th>Owner</th><th>Aprovador</th><th>Controles</th><th>Criada</th><th>Expira</th></tr></thead>
-        <tbody>
-          ${EXCEPTIONS.map(e => {
-            const v = VULNS.find(x=>x.id===e.vuln_id)||{};
-            return `<tr class="tbl-row">
-              <td class="font-mono" style="color:var(--text3)">${e.id}</td>
-              <td style="font-weight:500;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.title||e.vuln_id}</td>
-              <td><span class="pill ${e.status==='approved'?'p-done':e.status==='pending'?'p-high':'p-info'}">${e.status==='approved'?'Aprovada':e.status==='pending'?'Pendente':'Expirada'}</span></td>
-              <td style="font-size:11px;color:var(--text2)">${e.owner}</td>
-              <td style="font-size:11px;color:var(--text2)">${e.approver||'—'}</td>
-              <td style="font-size:10px;color:var(--text3)">${e.controls||'—'}</td>
-              <td style="font-size:11px;color:var(--text3)">${formatDate(e.created)}</td>
-              <td style="font-size:11px;color:${new Date(e.expires)<new Date()?'var(--crit)':'var(--text3)'}">${formatDate(e.expires)}</td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table></div>
-    </div>
-  </div>`;
-}
-
-// ── SLA ───────────────────────────────────────────────────────────────────────
-function renderSLA() {
-  const active = VULNS.filter(v => v.status !== 'Resolved');
-  const breached = active.filter(v => v.sla_used >= v.sla_max);
-  const warning  = active.filter(v => v.sla_used / v.sla_max >= 0.75 && v.sla_used < v.sla_max);
-  const ontrack  = active.filter(v => v.sla_used / v.sla_max < 0.75);
-
-  return `<div class="content">
-    <div class="grid-3">
-      <div class="metric"><div class="metric-label">SLA Vencido</div><div class="metric-value mv-crit">${breached.length}</div><div class="metric-sub">Requer ação imediata</div></div>
-      <div class="metric"><div class="metric-label">Em Alerta (≥75%)</div><div class="metric-value mv-high">${warning.length}</div><div class="metric-sub">Vencendo em breve</div></div>
-      <div class="metric"><div class="metric-label">No Prazo</div><div class="metric-value mv-ok">${ontrack.length}</div><div class="metric-sub">Dentro do SLA</div></div>
-    </div>
-    ${breached.length > 0 ? `
-    <div class="card">
-      <div class="card-header"><i class="ti ti-clock-x" style="color:var(--crit)"></i><div><div class="card-title">SLA Vencido — Escalonamento Ativo</div><div class="card-sub">Vulnerabilidades que ultrapassaram o prazo de correção</div></div></div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>Ticket</th><th>Vulnerabilidade</th><th>Sev.</th><th>Owner</th><th>SLA</th><th>Dias Vencido</th><th>Escalonamento</th><th>Ações</th></tr></thead>
-        <tbody>
-          ${breached.map(v => {
-            const esc = getEscalationLevel(v);
-            return `<tr class="tbl-row">
-              <td class="font-mono">${v.ticket||v.id}</td>
-              <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500">${v.title}</td>
-              <td>${sevPill(v.sev)}</td>
-              <td style="font-size:11px;color:var(--text2)">${v.owner}</td>
-              <td>${slaBar(v)}</td>
-              <td style="color:var(--crit);font-weight:700">+${v.sla_used - v.sla_max}d</td>
-              <td><span style="font-size:10px;color:${esc.color}">${esc.label}</span></td>
-              <td><div class="btn-group">
-                <button class="btn btn-sm" onclick="notifyOwner('${v.id}')"><i class="ti ti-send"></i> Cobrar</button>
-                <button class="btn btn-sm btn-danger" onclick="escalateVuln('${v.id}')"><i class="ti ti-arrow-up"></i> Escalar</button>
-              </div></td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table></div>
-    </div>` : ''}
-    <div class="card">
-      <div class="card-header"><i class="ti ti-clock" style="color:var(--high)"></i><div><div class="card-title">Próximos do Vencimento</div><div class="card-sub">≥75% do SLA consumido — alertas preventivos</div></div></div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>Ticket</th><th>Vulnerabilidade</th><th>Sev.</th><th>Owner</th><th>SLA</th><th>Restam</th></tr></thead>
-        <tbody>
-          ${warning.map(v=>`
-          <tr class="tbl-row" onclick="openDetail('${v.id}')">
-            <td class="font-mono">${v.ticket||v.id}</td>
-            <td style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500">${v.title}</td>
-            <td>${sevPill(v.sev)}</td>
-            <td style="font-size:11px;color:var(--text2)">${v.owner}</td>
-            <td>${slaBar(v)}</td>
-            <td style="color:var(--high);font-weight:700">${getSlaRemaining(v)}d</td>
-          </tr>`).join('')}
-        </tbody>
-      </table></div>
-    </div>
-  </div>`;
-}
-
-// ── RISK ──────────────────────────────────────────────────────────────────────
-function renderRisk() {
-  const byTeam = {};
-  VULNS.filter(v=>v.status!=='Resolved').forEach(v => {
-    if (!byTeam[v.team]) byTeam[v.team] = { total:0, crit:0, high:0, breach:0 };
-    byTeam[v.team].total++;
-    if (v.sev==='CRITICAL') byTeam[v.team].crit++;
-    if (v.sev==='HIGH')     byTeam[v.team].high++;
-    if (v.sla_used>=v.sla_max) byTeam[v.team].breach++;
-  });
-  const rows = Object.entries(byTeam).sort((a,b)=>b[1].total-a[1].total);
-
-  const bySrc = {};
-  VULNS.forEach(v => { bySrc[v.source]=(bySrc[v.source]||0)+1; });
-
-  return `<div class="content">
-    <div class="card">
-      <div class="card-header"><i class="ti ti-chart-area" style="color:var(--accent)"></i><div><div class="card-title">Risco por Time</div><div class="card-sub">Distribuição de vulnerabilidades ativas por área responsável</div></div></div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>Time</th><th>Total</th><th>Críticas</th><th>Altas</th><th>SLA Vencido</th><th>Distribuição</th></tr></thead>
-        <tbody>
-          ${rows.map(([team,d])=>{
-            const max = Math.max(...Object.values(byTeam).map(x=>x.total));
-            return `<tr class="tbl-row">
-              <td style="font-weight:500">${team}</td>
-              <td style="font-weight:700">${d.total}</td>
-              <td style="color:var(--crit);font-weight:700">${d.crit}</td>
-              <td style="color:var(--high);font-weight:700">${d.high}</td>
-              <td style="color:${d.breach>0?'var(--crit)':'var(--text3)'};font-weight:700">${d.breach}</td>
-              <td style="width:160px"><div class="progress-bar"><div class="pb-fill" style="width:${Math.round(d.total/max*100)}%;background:${d.crit>0?'var(--crit)':'var(--high)'}"></div></div></td>
-            </tr>`;
-          }).join('')}
-        </tbody>
-      </table></div>
-    </div>
-    <div class="card">
-      <div class="card-header"><i class="ti ti-chart-dots" style="color:var(--accent)"></i><div><div class="card-title">Findings por Fonte</div><div class="card-sub">Volume de vulnerabilidades detectadas por scanner</div></div></div>
-      <div class="card-body" style="display:flex;flex-direction:column;gap:8px">
-        ${Object.entries(bySrc).sort((a,b)=>b[1]-a[1]).map(([src,n])=>{
-          const pct = Math.round(n/VULNS.length*100);
-          return `<div>
-            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
-              <span style="color:var(--text2)">${src}</span><span style="color:var(--text3)">${n} (${pct}%)</span>
-            </div>
-            <div class="progress-bar"><div class="pb-fill" style="width:${pct}%;background:var(--accent)"></div></div>
-          </div>`;
-        }).join('')}
+  <div class="g4">
+    <div class="mt"><div class="mt-l">Ativos</div><div class="mt-v vi">${PLAYBOOKS.filter(p=>p.status==='active').length}</div></div>
+    <div class="mt"><div class="mt-l">Standby</div><div class="mt-v vt">${PLAYBOOKS.filter(p=>p.status==='standby').length}</div></div>
+    <div class="mt"><div class="mt-l">Passos Automáticos</div><div class="mt-v vk">${PLAYBOOKS.flatMap(p=>p.steps).filter(s=>s.auto).length}</div></div>
+    <div class="mt"><div class="mt-l">Vulns Cobertas</div><div class="mt-v vh">${[...new Set(PLAYBOOKS.flatMap(p=>p.vulns))].length}</div></div>
+  </div>
+  ${PLAYBOOKS.map(pb=>{
+    const dn=pb.steps.filter(s=>s.done).length, tot=pb.steps.length, pct=Math.round(dn/tot*100);
+    return `<div class="card">
+      <div class="card-hd"><i class="ti ${pb.icon}" style="color:${pb.color}"></i><div><div class="card-t">${pb.name}</div><div class="card-s" style="font-size:10px"><code style="color:var(--accent);font-size:10px">${pb.trigger}</code></div></div>
+        <div class="card-ac">${rpill(pb.status==='active'?'ph':'pn',pb.status.toUpperCase())}<span style="font-size:11px;color:var(--text3);margin-left:8px">${dn}/${tot} passos · SLA ${pb.sla}</span></div></div>
+      <div class="card-bd">
+        ${pb.triggered?`<div style="font-size:11px;color:var(--text2);margin-bottom:8px">Acionado ${FD(pb.triggered)} · Vulns: ${pb.vulns.join(', ')||'—'}</div>`:''}
+        <div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:3px"><span>Progresso</span><span>${pct}%</span></div><div class="pb" style="height:4px"><div class="pbf" style="width:${pct}%;background:${pct===100?'var(--success)':pb.status==='active'?'var(--accent)':'var(--text3)'}"></div></div></div>
+        ${pb.steps.map(s=>{const isN=!s.done&&pb.steps.filter(x=>!x.done)[0]===s;return`<div class="pbs"><div class="pbn ${s.done?'pb-d':isN?'pb-a':'pb-i'}">${s.n}</div><div style="flex:1"><div style="font-size:11px;color:${s.done?'var(--text2)':'var(--text)'};${s.done?'text-decoration:line-through':''}">${s.label}</div><div style="font-size:9px;color:var(--text3)">${s.auto?'🤖 Automático':'👤 Manual'}</div></div>${s.done?'<i class="ti ti-check" style="color:var(--success);font-size:14px"></i>':''}</div>`;}).join('')}
       </div>
-    </div>
-  </div>`;
-}
-
-// ── COMMS ─────────────────────────────────────────────────────────────────────
-function renderComms() {
-  const templates = [
-    { id:'friendly',  label:'Alerta Amigável (7 dias)',  icon:'ti-bell', color:'var(--med)',     desc:'Lembrete preventivo para owner técnico' },
-    { id:'reminder',  label:'Lembrete (3 dias)',         icon:'ti-bell-ringing', color:'var(--high)', desc:'Lembrete urgente com plano de ação' },
-    { id:'escalation',label:'Escalação (SLA Vencido)',   icon:'ti-alert-triangle', color:'var(--crit)', desc:'Notificação formal para liderança e GRC' },
-    { id:'executive', label:'Resumo Executivo',          icon:'ti-briefcase', color:'var(--accent)', desc:'Comunicado para CISO e comitê executivo' },
-  ];
-  return `<div class="content">
-    <div class="notice notice-info"><i class="ti ti-info-circle" style="font-size:16px;flex-shrink:0"></i> Os comunicados são gerados com dados reais das vulnerabilidades ativas. Use o Agente IA para personalizar ou adaptar mensagens para públicos específicos.</div>
-    <div class="grid-2">
-      ${templates.map(t=>`
-      <div class="card" style="cursor:pointer" onclick="quickMsg('Gere um comunicado ${t.label} com base nas vulnerabilidades mais críticas ativas. Use dados reais da plataforma.')">
-        <div class="card-header"><i class="ti ${t.icon}" style="color:${t.color}"></i><div><div class="card-title">${t.label}</div><div class="card-sub">${t.desc}</div></div>
-        <div class="card-actions"><button class="btn btn-sm"><i class="ti ti-robot"></i> Gerar via IA</button></div></div>
-        <div class="card-body" style="font-size:11px;color:var(--text2);line-height:1.6">
-          ${t.id==='friendly'?`Olá, time [SQUAD]. A vulnerabilidade [CVE] na aplicação [ATIVO] vence em <strong>7 dias</strong>. Ela afeta ambiente produtivo e possui exploit público. Recomendação: aplicar patch versão X.Y.Z.`
-          :t.id==='reminder'?`Time [SQUAD], a vulnerabilidade [CVE] vence em <strong>3 dias</strong> e ainda não possui evidência de correção. Favor atualizar o ticket com plano de ação ou previsão.`
-          :t.id==='escalation'?`🚨 A vulnerabilidade [CVE] <strong>venceu o SLA</strong>. Risco ativo em ambiente produtivo internet-facing. Escalado para liderança, Governança e GRC para decisão formal.`
-          :`📊 Sumário executivo: <strong>[N] vulnerabilidades críticas</strong> abertas, [N] KEVs ativas, MTTR médio [X] dias. Redução de risco no mês: [X]%.`}
-        </div>
-      </div>`).join('')}
-    </div>
-  </div>`;
-}
-
-// ── INTEGRATIONS ──────────────────────────────────────────────────────────────
-function renderIntegrations() {
-  return `<div class="content">
-    <div class="grid-3">
-      <div class="metric"><div class="metric-label">Conectadas</div><div class="metric-value mv-ok">${INTEGRATIONS.filter(i=>i.status==='connected').length}</div><div class="metric-sub">Ativas</div></div>
-      <div class="metric"><div class="metric-label">Parcial</div><div class="metric-value mv-high">${INTEGRATIONS.filter(i=>i.status==='partial').length}</div><div class="metric-sub">Atenção necessária</div></div>
-      <div class="metric"><div class="metric-label">Desconectadas</div><div class="metric-value mv-crit">${INTEGRATIONS.filter(i=>i.status==='off').length}</div><div class="metric-sub">Sem dados</div></div>
-    </div>
-    <div class="card">
-      <div class="card-header"><i class="ti ti-plug" style="color:var(--accent)"></i><div><div class="card-title">Status das Integrações</div><div class="card-sub">Conectores ativos e última sincronização</div></div></div>
-      <div class="card-body">
-        <div class="int-grid">
-          ${INTEGRATIONS.map(i=>`
-          <div class="int-card">
-            <div style="display:flex;align-items:center;gap:10px">
-              <div class="int-icon" style="color:${i.color}"><i class="ti ${i.icon}"></i></div>
-              <div style="flex:1;min-width:0">
-                <div style="font-size:13px;font-weight:600">${i.name}</div>
-                <div style="font-size:10px;color:var(--text3)">${i.type}</div>
-              </div>
-            </div>
-            <div style="display:flex;align-items:center;gap:5px;font-size:11px">
-              <div class="int-dot dot-${i.status==='connected'?'connected':i.status==='partial'?'partial':'off'}"></div>
-              <span style="color:${i.status==='connected'?'var(--success)':i.status==='partial'?'var(--high)':'var(--text3)'}">${i.status==='connected'?'Conectada':i.status==='partial'?'Parcial':'Desconectada'}</span>
-            </div>
-            <div style="font-size:10px;color:var(--text3)">Última sync: ${i.last_sync||'—'}</div>
-            ${i.findings!=null?`<div style="font-size:10px;color:var(--text2)">${i.findings} findings ativos</div>`:''}
-            ${i.note?`<div style="font-size:10px;color:var(--high)">${i.note}</div>`:''}
-            <div class="btn-group">
-              <button class="btn btn-sm" onclick="syncNow('${i.name}')"><i class="ti ti-refresh"></i> Sync</button>
-              <button class="btn btn-sm" onclick="toast('Configurações de ${i.name}')"><i class="ti ti-settings"></i></button>
-            </div>
-          </div>`).join('')}
-        </div>
-      </div>
-    </div>
-  </div>`;
-}
-
-// ── AGENT ─────────────────────────────────────────────────────────────────────
-function renderAgent() {
-  const quick = [
-    'Explique os 5 maiores riscos ativos neste mês',
-    'Gere sumário executivo para o CISO',
-    'Compare performance dos times de segurança',
-    'Liste KEVs abertas e impacto de negócio',
-    'Quais vulnerabilidades devem ir para comitê de risco?',
-    'Crie plano de correção semanal priorizado',
-    'Identifique vulnerabilidades com SLA vencido e sugira escalonamento',
-    'Gere mensagem de cobrança para time com mais SLA vencido',
-  ];
-  return `<div class="content" style="height:calc(100vh - var(--topbar-h) - 40px);display:flex;flex-direction:column">
-    <div class="card" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
-      <div class="card-header">
-        <i class="ti ti-robot" style="color:var(--ai)"></i>
-        <div><div class="card-title">Agente RBVM — IA Generativa</div><div class="card-sub">Claude Sonnet · Acesso completo aos dados da plataforma · Respostas rastreáveis</div></div>
-        <div class="card-actions"><button class="btn btn-sm" onclick="clearAgent()"><i class="ti ti-trash"></i> Limpar</button></div>
-      </div>
-      <div class="notice notice-info" style="margin:12px 16px 0;flex-shrink:0"><i class="ti ti-shield-check" style="font-size:14px;flex-shrink:0"></i> A IA responde com base nos dados reais da plataforma. Não inventa informações. Ações críticas requerem confirmação humana.</div>
-      <div class="card-body" style="flex:1;display:flex;flex-direction:column;overflow:hidden;gap:10px">
-        <div class="agent-msgs" id="agent-msgs" style="flex:1;max-height:none"></div>
-        <div class="quick-btns">${quick.map(q=>`<div class="qbtn" onclick="quickMsg('${q.replace(/'/g,"\\'")}')">${q}</div>`).join('')}</div>
-        <div class="agent-input-row">
-          <input class="agent-input" id="agent-input" placeholder="Pergunte sobre vulnerabilidades, riscos, SLAs, times, compliance..." onkeydown="if(event.key==='Enter')sendAgent()"/>
-          <button class="btn btn-primary" onclick="sendAgent()"><i class="ti ti-send"></i> Enviar</button>
-        </div>
-      </div>
-    </div>
-  </div>`;
-}
-
-// ── SETTINGS ──────────────────────────────────────────────────────────────────
-function renderSettings() {
-  return `<div class="content">
-    <div class="card">
-      <div class="card-header"><i class="ti ti-settings" style="color:var(--accent)"></i><div><div class="card-title">Configurações da Plataforma</div><div class="card-sub">Parâmetros gerais, SLAs e governança de IA</div></div></div>
-      <div class="card-body" style="display:flex;flex-direction:column;gap:16px">
-        <div><div class="d-section-title">Empresa</div>
-          <div class="d-grid">
-            <div class="d-item"><div class="d-item-label">Nome</div><div class="d-item-val">Corporação XPTO</div></div>
-            <div class="d-item"><div class="d-item-label">Setor</div><div class="d-item-val">Financeiro / Regulado</div></div>
-            <div class="d-item"><div class="d-item-label">Frameworks</div><div class="d-item-val">NIST CSF, ISO 27001, PCI DSS, LGPD</div></div>
-            <div class="d-item"><div class="d-item-label">CISO</div><div class="d-item-val">ciso@corp.com</div></div>
-          </div>
-        </div>
-        <div><div class="d-section-title">Política de SLA</div>
-          <div class="d-grid-3">
-            ${[['Crítico Emergencial (KEV)','3 dias'],['Crítico Internet-facing','7 dias'],['Crítico Interno','15 dias'],['Alto Internet-facing','15 dias'],['Alto Interno','30 dias'],['Médio','60 dias'],['Baixo','90 dias'],['Informativo','180 dias'],['Zero-day (sem patch)','Mitigação 24h'],].map(([l,v])=>`<div class="d-item"><div class="d-item-label">${l}</div><div class="d-item-val">${v}</div></div>`).join('')}
-          </div>
-        </div>
-        <div><div class="d-section-title">Governança de IA</div>
-          <div class="notice notice-success"><i class="ti ti-shield-check" style="font-size:14px;flex-shrink:0"></i> IA configurada com guardrails: não inventa dados, não fecha vulns sem evidência, não aprova exceções sozinha, não executa ações destrutivas sem aprovação humana.</div>
-        </div>
-      </div>
-    </div>
-  </div>`;
-}
-
-// ── DETAIL PANEL ──────────────────────────────────────────────────────────────
-window.openDetail = function(id) {
-  const v = VULNS.find(x => x.id === id);
-  if (!v) return;
-  const explain = explainScore(v);
-  const rl = getRiskLabel(v.final_score);
-
-  document.getElementById('detail-content').innerHTML = `
-    <div class="detail-head">
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-        ${sevPill(v.sev)} ${v.kev?'<span class="pill p-crit" style="font-size:9px">CISA KEV</span>':''} ${v.exploit?'<span class="pill p-high" style="font-size:9px">EXPLOIT ATIVO</span>':''}
-        ${v.rce?'<span class="pill p-crit" style="font-size:9px">RCE</span>':''} ${v.internet_facing?'<span class="pill p-high" style="font-size:9px">INTERNET-FACING</span>':''}
-      </div>
-      <div style="font-size:14px;font-weight:700;line-height:1.3">${v.title}</div>
-      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-        <span class="font-mono" style="color:var(--text3)">${v.id}</span>
-        <span style="font-size:11px;color:var(--text2)">Ticket: <strong>${v.ticket||'—'}</strong></span>
-        <span style="font-size:11px;color:var(--text2)">Fonte: ${v.source}</span>
-      </div>
-    </div>
-    <div class="detail-scroll">
-      <div class="d-grid-3">
-        <div class="d-item"><div class="d-item-label">Score de Risco</div><div class="d-item-val" style="color:${getRiskColor(v.final_score)};font-size:22px">${v.final_score}</div><div style="font-size:10px;color:var(--text3)">${rl.label}</div></div>
-        <div class="d-item"><div class="d-item-label">CVSS</div><div class="d-item-val">${v.cvss}</div></div>
-        <div class="d-item"><div class="d-item-label">EPSS</div><div class="d-item-val">${v.epss!=null?(v.epss*100).toFixed(0)+'%':'—'}</div></div>
-        <div class="d-item"><div class="d-item-label">Ambiente</div><div class="d-item-val">${envPill(v.env)}</div></div>
-        <div class="d-item"><div class="d-item-label">SLA</div><div class="d-item-val">${slaBar(v)}</div></div>
-        <div class="d-item"><div class="d-item-label">Status</div><div class="d-item-val">${statusPill(v.status)}</div></div>
-      </div>
-
-      <div>
-        <div class="d-section-title">Ativo Afetado</div>
-        <div class="d-grid">
-          <div class="d-item"><div class="d-item-label">Hostname / ID</div><div class="d-item-val">${v.asset}</div></div>
-          <div class="d-item"><div class="d-item-label">Tipo</div><div class="d-item-val">${v.asset_type}</div></div>
-          <div class="d-item"><div class="d-item-label">Owner</div><div class="d-item-val" style="font-size:11px">${v.owner}</div></div>
-          <div class="d-item"><div class="d-item-label">Time / Squad</div><div class="d-item-val">${v.team} · ${v.squad}</div></div>
-        </div>
-      </div>
-
-      <div>
-        <div class="d-section-title">Explicação do Score Multicritério</div>
-        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px">
-          ${explain.map(e=>`<div class="score-explain-row">
-            <span class="score-factor">${e.factor}</span>
-            <span class="score-pts ${e.value>0?'pos':'neg'}">${e.value>0?'+'+e.value:e.value} pts</span>
-          </div>`).join('')}
-          <div class="score-explain-row" style="border-top:2px solid var(--border);margin-top:4px;padding-top:8px">
-            <span style="font-weight:700;color:var(--text)">Score Final</span>
-            <span class="score-pts pos" style="color:${getRiskColor(v.final_score)};font-size:14px">${v.final_score}</span>
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <div class="d-section-title">Descrição Técnica</div>
-        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;font-size:12px;color:var(--text2);line-height:1.6">${v.business_impact||'—'}</div>
-      </div>
-
-      <div>
-        <div class="d-section-title">Recomendação de Correção</div>
-        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;font-size:12px;color:var(--text2);line-height:1.6">${v.remediation||'—'}</div>
-      </div>
-
-      ${v.rescan_status ? `<div class="notice notice-success"><i class="ti ti-shield-check" style="font-size:14px;flex-shrink:0"></i> Rescan realizado em ${formatDate(v.rescan_date||'')}: vulnerabilidade <strong>não detectada</strong>. Correção validada.</div>` : ''}
-      ${v.reclassify_reason ? `<div class="notice notice-warn"><i class="ti ti-adjustments" style="font-size:14px;flex-shrink:0"></i> <strong>Reclassificação:</strong> ${v.reclassify_reason}</div>` : ''}
-
-      <div class="btn-group" style="padding-top:4px">
-        <button class="btn" onclick="aiCommunicate('${v.id}')"><i class="ti ti-robot"></i> Comunicado via IA</button>
-        <button class="btn" onclick="notifyOwner('${v.id}')"><i class="ti ti-send"></i> Notificar Owner</button>
-        <button class="btn btn-success" onclick="triggerRescan('${v.id}')"><i class="ti ti-refresh"></i> Solicitar Rescan</button>
-        <button class="btn btn-danger" onclick="markResolved('${v.id}')"><i class="ti ti-check"></i> Marcar Resolvido*</button>
-      </div>
-      <div style="font-size:9px;color:var(--text3)">*O encerramento definitivo requer validação técnica via rescan da ferramenta de origem.</div>
     </div>`;
+  }).join('')}
+  </div>`;
+}
 
-  document.getElementById('detail-overlay').classList.add('open');
-};
+// ══════════════════════════════════════════════════════════════════════════════
+//  MÓDULO 8 — RECLASSIFICAÇÃO
+// ══════════════════════════════════════════════════════════════════════════════
+function reclassify() {
+  return `<div class="content">
+  <div class="nt ni-"><i class="ti ti-info-circle" style="font-size:16px;flex-shrink:0"></i>Reclassificação ajusta o score contextual sem alterar a severidade original do scanner. Toda alteração exige justificativa técnica auditável.</div>
+  <div class="card">
+    <div class="card-hd"><i class="ti ti-adjustments-horizontal" style="color:var(--accent)"></i><div><div class="card-t">Reclassificação de Risco</div><div class="card-s">Score técnico original → Score ajustado por contexto de negócio</div></div></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Ticket</th><th>Vulnerabilidade</th><th>Sev.</th><th>Score Técnico</th><th>Score Final</th><th>Delta</th><th>Fatores</th><th>Justificativa</th><th></th></tr></thead>
+      <tbody>${VULNS.filter(v=>v.status!=='Resolved').map(v=>{
+        const o=Math.min(100,Math.round((v.cvss||0)/10*25+(v.exploit?10:0)));
+        const d=v.final_score-o;
+        return`<tr class="tr" onclick="openRC('${v.id}')">
+          <td class="mono" style="color:var(--text3)">${v.ticket||v.id}</td>
+          <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500">${v.title}</td>
+          <td>${SP(v.sev)}</td>
+          <td class="mono">${o}</td>
+          <td><span style="color:${RC(v.final_score)};font-weight:700;font-family:var(--mono)">${v.final_score}</span></td>
+          <td style="font-size:11px;font-weight:700;color:${d>0?'var(--crit)':d<0?'var(--success)':'var(--text3)'}">${d>0?'+'+d:d}</td>
+          <td style="font-size:9px;color:var(--text2)">${[v.kev?'KEV':'',v.internet_facing?'Internet':'',v.compensating_controls?'Control':'',v.pci_scope?'PCI':'',v.rce?'RCE':''].filter(Boolean).join(' ')||'—'}</td>
+          <td style="font-size:10px;color:var(--text2);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.reclassify_reason||'—'}</td>
+          <td><button class="btn btn-s" onclick="event.stopPropagation();openRC('${v.id}')"><i class="ti ti-edit"></i></button></td>
+        </tr>`;}).join('')}</tbody>
+    </table></div>
+  </div></div>`;
+}
 
-window.closeDetail = function() {
-  document.getElementById('detail-overlay').classList.remove('open');
-};
+// ══════════════════════════════════════════════════════════════════════════════
+//  MÓDULO 9 — EXCEÇÕES
+// ══════════════════════════════════════════════════════════════════════════════
+function exceptions() {
+  return `<div class="content">
+  <div class="nt nw"><i class="ti ti-shield-x" style="font-size:16px;flex-shrink:0"></i><strong>Atenção:</strong> Exceções não ocultam vulnerabilidades. Requerem justificativa técnica, controle compensatório, aprovação formal, prazo e revalidação periódica.</div>
+  <div class="card">
+    <div class="card-hd"><i class="ti ti-shield-x" style="color:var(--high)"></i><div><div class="card-t">Exceções e Aceite de Risco</div><div class="card-s">Aprovação formal com evidência e prazo de validade</div></div><div class="card-ac"><button class="btn btn-p btn-s" onclick="openModal('addexc')"><i class="ti ti-plus"></i> Nova Exceção</button></div></div>
+    <div class="tbl"><table>
+      <thead><tr><th>ID</th><th>Vulnerabilidade</th><th>Status</th><th>Owner</th><th>Aprovador</th><th>Controles</th><th>Criada</th><th>Expira</th></tr></thead>
+      <tbody>${EXCS.map(e=>{const v=VULNS.find(x=>x.id===e.vid)||{title:e.vid};return`<tr class="tr"><td class="mono" style="color:var(--text3)">${e.id}</td><td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500">${v.title}</td><td>${rpill(e.st==='approved'?'pd':e.st==='pending'?'ph':'pc',e.st==='approved'?'Aprovada':e.st==='pending'?'Pendente':'Expirada')}</td><td style="font-size:11px;color:var(--text2)">${e.owner}</td><td style="font-size:11px;color:var(--text2)">${e.appr||'—'}</td><td style="font-size:10px;color:var(--text3)">${e.ctrl||'—'}</td><td style="font-size:11px;color:var(--text3)">${FD(e.cr)}</td><td style="font-size:11px;color:${new Date(e.exp)<new Date()?'var(--crit)':'var(--text3)'}">${FD(e.exp)}</td></tr>`;}).join('')}</tbody>
+    </table></div>
+  </div></div>`;
+}
 
-// ── RECLASSIFY DETAIL ─────────────────────────────────────────────────────────
-window.openReclassify = function(id) {
-  const v = VULNS.find(x=>x.id===id);
-  if (!v) return;
-  openModal('reclassify', v);
+// ══════════════════════════════════════════════════════════════════════════════
+//  MÓDULO 10 — GESTÃO SLA
+// ══════════════════════════════════════════════════════════════════════════════
+function sla() {
+  const a=VULNS.filter(v=>v.status!=='Resolved');
+  const br=a.filter(v=>v.sla_used>=v.sla_max), wa=a.filter(v=>v.sla_used/v.sla_max>=.75&&v.sla_used<v.sla_max);
+  return `<div class="content">
+  <div class="g4">
+    <div class="mt"><div class="mt-l">SLA Vencido</div><div class="mt-v vc">${br.length}</div><div class="mt-s">Ação imediata</div></div>
+    <div class="mt"><div class="mt-l">Alerta ≥75%</div><div class="mt-v vh">${wa.length}</div><div class="mt-s">Vencendo em breve</div></div>
+    <div class="mt"><div class="mt-l">Compliance SLA</div><div class="mt-v vk">${Math.round((1-br.length/Math.max(a.length,1))*100)}%</div></div>
+    <div class="mt"><div class="mt-l">MTTR Críticas</div><div class="mt-v vh">${MONTHLY_TRENDS[MONTHLY_TRENDS.length-1].mttr_crit}d</div><div class="mt-s">Meta: ≤7d</div></div>
+  </div>
+  ${br.length>0?`<div class="card">
+    <div class="card-hd"><i class="ti ti-clock-x" style="color:var(--crit)"></i><div><div class="card-t">SLA Vencido — Escalonamento Ativo</div></div></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Ticket</th><th>Vulnerabilidade</th><th>Sev.</th><th>Owner</th><th>SLA</th><th>Vencido</th><th>Escalonamento</th><th>Ações</th></tr></thead>
+      <tbody>${br.map(v=>{const esc=getEscalationLevel(v);return`<tr class="tr">
+        <td class="mono">${v.ticket||v.id}</td>
+        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500">${v.title}</td>
+        <td>${SP(v.sev)}</td>
+        <td style="font-size:11px;color:var(--text2)">${v.owner}</td>
+        <td>${SB(v)}</td>
+        <td style="color:var(--crit);font-weight:700">+${v.sla_used-v.sla_max}d</td>
+        <td style="font-size:10px;color:${esc.color}">${esc.label}</td>
+        <td><div class="btn-g">
+          <button class="btn btn-s" onclick="notifyOwner('${v.id}')"><i class="ti ti-send"></i>Cobrar</button>
+          <button class="btn btn-s btn-d" onclick="escalate('${v.id}')"><i class="ti ti-arrow-up"></i>Escalar</button>
+        </div></td>
+      </tr>`;}).join('')}</tbody>
+    </table></div>
+  </div>`:''}
+  <div class="card">
+    <div class="card-hd"><i class="ti ti-clock" style="color:var(--high)"></i><div><div class="card-t">Próximos do Vencimento ≥75%</div><div class="card-s">Alertas preventivos — cobrar antes de vencer</div></div></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Ticket</th><th>Vulnerabilidade</th><th>Sev.</th><th>Owner</th><th>SLA</th><th>Restam</th><th>Impacto</th></tr></thead>
+      <tbody>${wa.map(v=>`<tr class="tr" onclick="openDov('${v.id}')">
+        <td class="mono">${v.ticket||v.id}</td>
+        <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500">${v.title}</td>
+        <td>${SP(v.sev)}</td>
+        <td style="font-size:11px;color:var(--text2)">${v.owner}</td>
+        <td>${SB(v)}</td>
+        <td style="color:var(--high);font-weight:700">${getSlaRemaining(v)}d</td>
+        <td style="font-size:11px;font-weight:600;color:var(--high)">${v._fin.label}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>
+  </div></div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  MÓDULO 11 — CI/CD SECURITY
+// ══════════════════════════════════════════════════════════════════════════════
+function cicd() {
+  const tp={secret:'pc',sast:'ph',sca:'pm',iac:'pnist',container:'pai'};
+  return `<div class="content">
+  <div class="g4">
+    <div class="mt"><div class="mt-l">Pipelines Bloqueados</div><div class="mt-v vc">${PIPELINE_GATES.filter(g=>g.status==='blocked').length}</div><div class="mt-s">Deploy impedido</div></div>
+    <div class="mt"><div class="mt-l">Em Alerta</div><div class="mt-v vh">${PIPELINE_GATES.filter(g=>g.status==='warning').length}</div><div class="mt-s">Aprovação manual</div></div>
+    <div class="mt"><div class="mt-l">Findings Abertos</div><div class="mt-v vh">${CICD_FINDINGS.filter(f=>f.status==='open').length}</div></div>
+    <div class="mt"><div class="mt-l">Secrets Expostos</div><div class="mt-v vc">${CICD_FINDINGS.filter(f=>f.type==='secret'&&f.status==='open').length}</div><div class="mt-s">Revogar imediatamente</div></div>
+  </div>
+  <div class="nt nw"><i class="ti ti-shield-exclamation" style="font-size:16px;flex-shrink:0"></i><strong>Policy as Code ativa:</strong> SAST · SCA · Secret Scanning · IaC Scan · Container Scan. Merges bloqueados automaticamente quando risk ≥ CRITICAL com exploit disponível.</div>
+  <div class="card">
+    <div class="card-hd"><i class="ti ti-git-branch" style="color:var(--accent)"></i><div><div class="card-t">Security Gates por Repositório</div><div class="card-s">Status do último scan — bloqueio de deploy</div></div></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Repositório</th><th>Gates Ativos</th><th>Status</th><th>Motivo do Bloqueio</th><th>Último Scan</th><th>Ambiente</th></tr></thead>
+      <tbody>${PIPELINE_GATES.map(g=>`<tr class="tr">
+        <td class="mono" style="color:var(--text2)">${g.repo}</td>
+        <td style="font-size:10px;color:var(--text3)">${g.gates.join(' · ')}</td>
+        <td>${rpill(g.status==='blocked'?'pc':g.status==='warning'?'ph':'pd',g.status==='blocked'?'BLOQUEADO':g.status==='warning'?'ALERTA':'OK')}</td>
+        <td style="font-size:11px;color:var(--text2);max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${g.reason||'—'}</td>
+        <td style="font-size:11px;color:var(--text3)">${g.last_run}</td>
+        <td>${EP(g.env)}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>
+  </div>
+  <div class="card">
+    <div class="card-hd"><i class="ti ti-bug" style="color:var(--high)"></i><div><div class="card-t">Findings Abertos em Pipelines</div><div class="card-s">Secrets · SAST · SCA · IaC · Container — por repositório</div></div></div>
+    <div class="tbl"><table>
+      <thead><tr><th>ID</th><th>Tipo</th><th>Ferramenta</th><th>Sev.</th><th>Finding</th><th>Repositório</th><th>Branch / PR</th><th>Bloqueando</th></tr></thead>
+      <tbody>${CICD_FINDINGS.filter(f=>f.status==='open').map(f=>`<tr class="tr">
+        <td class="mono" style="font-size:10px;color:var(--text3)">${f.id}</td>
+        <td>${rpill(tp[f.type]||'pi',f.type.toUpperCase())}</td>
+        <td style="font-size:10px;color:var(--text3)">${f.tool}</td>
+        <td>${SP(f.sev)}</td>
+        <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px">${f.title}</td>
+        <td class="mono" style="font-size:10px;color:var(--text2)">${f.repo}</td>
+        <td style="font-size:10px;color:var(--text3)">${f.pr||f.branch}</td>
+        <td>${f.blocking?rpill('pc','SIM'):'<span style="color:var(--text3);font-size:10px">—</span>'}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>
+  </div></div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  MÓDULO 12 — COMPLIANCE / GRC
+// ══════════════════════════════════════════════════════════════════════════════
+function compliance() {
+  const fws=[...new Set(COMPLIANCE_CONTROLS.map(c=>c.fw))];
+  const sc=fw=>{const c=COMPLIANCE_CONTROLS.filter(x=>x.fw===fw);return Math.round(c.filter(x=>x.status==='implemented').length/c.length*100);};
+  return `<div class="content">
+  <div class="g4">${fws.slice(0,4).map(fw=>{const s=sc(fw);return`<div class="mt"><div class="mt-l">${fw}</div><div class="mt-v ${s>=80?'vk':s>=60?'vh':'vc'}">${s}%</div><div class="mt-s">controles implementados</div></div>`;}).join('')}</div>
+  ${fws.length>4?`<div class="g4">${fws.slice(4).map(fw=>{const s=sc(fw);return`<div class="mt"><div class="mt-l">${fw}</div><div class="mt-v ${s>=80?'vk':s>=60?'vh':'vc'}">${s}%</div><div class="mt-s">controles</div></div>`;}).join('')}</div>`:''}
+  <div class="nt ni-"><i class="ti ti-certificate" style="font-size:16px;flex-shrink:0"></i><strong>Evidências auditáveis:</strong> scan reports · rescan · tickets · exceções · SLA logs · histórico de cobranças — exportáveis para auditoria interna, externa, BACEN e PCI DSS.</div>
+  <div class="card">
+    <div class="card-hd"><i class="ti ti-list-check" style="color:var(--accent)"></i><div><div class="card-t">Mapeamento de Controles — NIST · PCI DSS · ISO 27001 · LGPD · CMN 4.893</div><div class="card-s">Status · evidências · gaps identificados</div></div>
+    <div class="card-ac"><button class="btn btn-s btn-p" onclick="quickMsg('Gere relatório completo de auditoria com mapeamento para NIST CSF 2.0, PCI DSS 4.0, ISO 27001:2022, LGPD e CMN 4.893/2021. Inclua status de cada controle, evidências disponíveis, gaps e recomendações de melhoria.')"><i class="ti ti-robot"></i> Relatório IA</button></div></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Framework</th><th>Controle</th><th>Descrição</th><th>Status</th><th>Evidência</th><th>Gap</th></tr></thead>
+      <tbody>${COMPLIANCE_CONTROLS.map(c=>`<tr>
+        <td>${rpill('pnist',c.fw.split(' ')[0])}</td>
+        <td class="mono" style="font-size:10px;color:var(--accent)">${c.control}</td>
+        <td style="font-size:11px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.desc}</td>
+        <td>${rpill(c.status==='implemented'?'pd':c.status==='partial'?'ph':'pc',c.status==='implemented'?'OK':c.status==='partial'?'Parcial':'Gap')}</td>
+        <td style="font-size:10px;color:var(--text2);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.evidence}</td>
+        <td style="font-size:10px;color:${c.gap?'var(--high)':'var(--text3)'};max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.gap||'—'}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>
+  </div></div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  MÓDULOS 13-17 — COMMS · RISCO · INTEGRAÇÕES · AGENTE IA · CONFIGURAÇÕES
+// ══════════════════════════════════════════════════════════════════════════════
+function comms() {
+  const ts=[
+    {l:'Alerta Amigável (7 dias)',i:'ti-bell',c:'var(--med)',q:'Gere comunicado amigável para times com SLA vencendo em 7 dias com dados reais da plataforma'},
+    {l:'Lembrete Urgente (3 dias)',i:'ti-bell-ringing',c:'var(--high)',q:'Gere lembrete urgente para SLAs críticos vencendo em 3 dias'},
+    {l:'Escalação — SLA Vencido',i:'ti-alert-triangle',c:'var(--crit)',q:'Gere comunicado formal de escalação para todas as vulnerabilidades com SLA vencido, com impacto financeiro e regulatório'},
+    {l:'Sumário Executivo CISO',i:'ti-briefcase',c:'var(--accent)',q:'Gere sumário executivo completo para CISO com principais riscos, KPIs, MTTR, KEVs, impacto financeiro estimado e recomendações estratégicas'},
+    {l:'Relatório GRC / Auditoria',i:'ti-certificate',c:'#a084ff',q:'Gere relatório para auditoria com mapeamento NIST CSF, PCI DSS 4.0, ISO 27001:2022, LGPD e CMN 4.893 com status de controles e evidências'},
+    {l:'Plano Técnico por Squad',i:'ti-code',c:'var(--success)',q:'Gere plano técnico de correção priorizado por squad com score de risco, impacto financeiro e recomendações de remediação'},
+  ];
+  return `<div class="content">
+  <div class="nt ni-"><i class="ti ti-info-circle" style="font-size:16px;flex-shrink:0"></i>Comunicados gerados pelo Agente IA com dados reais da plataforma. Canais: Slack · Microsoft Teams · E-mail · PagerDuty.</div>
+  <div class="g2">${ts.map(t=>`<div class="card" style="cursor:pointer" onclick="quickMsg('${t.q.replace(/'/g,"\\'")}')"><div class="card-hd"><i class="ti ${t.i}" style="color:${t.c}"></i><div><div class="card-t">${t.l}</div></div><div class="card-ac"><button class="btn btn-s"><i class="ti ti-robot"></i> Gerar via IA</button></div></div></div>`).join('')}
+  </div></div>`;
+}
+
+function risk() {
+  const bT={}; VULNS.filter(v=>v.status!=='Resolved').forEach(v=>{if(!bT[v.team])bT[v.team]={total:0,crit:0,high:0,br:0,fin:0};bT[v.team].total++;if(v.sev==='CRITICAL')bT[v.team].crit++;if(v.sev==='HIGH')bT[v.team].high++;if(v.sla_used>=v.sla_max)bT[v.team].br++;bT[v.team].fin+=v._fin.value;});
+  const mF=Math.max(...Object.values(bT).map(d=>d.fin));
+  return `<div class="content">
+  <div class="card">
+    <div class="card-hd"><i class="ti ti-chart-area" style="color:var(--accent)"></i><div><div class="card-t">Risco por Time — Vulnerabilidades + Exposição Financeira Estimada</div></div></div>
+    <div class="tbl"><table>
+      <thead><tr><th>Time</th><th>Total</th><th>Críticas</th><th>Altas</th><th>SLA Vencido</th><th>Exposição (BRL)</th><th>Distribuição</th></tr></thead>
+      <tbody>${Object.entries(bT).sort((a,b)=>b[1].fin-a[1].fin).map(([t,d])=>`<tr class="tr">
+        <td style="font-weight:500">${t}</td>
+        <td style="font-weight:700">${d.total}</td>
+        <td style="color:var(--crit);font-weight:700">${d.crit}</td>
+        <td style="color:var(--high);font-weight:700">${d.high}</td>
+        <td style="color:${d.br>0?'var(--crit)':'var(--text3)'};font-weight:700">${d.br}</td>
+        <td style="font-weight:600;color:var(--high);font-size:11px">${FMT(d.fin)}</td>
+        <td style="width:140px"><div class="pb"><div class="pbf" style="width:${Math.round(d.fin/mF*100)}%;background:${d.crit>0?'var(--crit)':'var(--high)'}"></div></div></td>
+      </tr>`).join('')}</tbody>
+    </table></div>
+  </div></div>`;
+}
+
+function integrations() {
+  return `<div class="content">
+  <div class="g4">
+    <div class="mt"><div class="mt-l">Conectadas</div><div class="mt-v vk">${INTEGRATIONS.filter(i=>i.status==='connected').length}</div></div>
+    <div class="mt"><div class="mt-l">Parcial</div><div class="mt-v vh">${INTEGRATIONS.filter(i=>i.status==='partial').length}</div></div>
+    <div class="mt"><div class="mt-l">Desconectadas</div><div class="mt-v vc">${INTEGRATIONS.filter(i=>i.status==='off').length}</div></div>
+    <div class="mt"><div class="mt-l">Findings Ativos</div><div class="mt-v vi">${INTEGRATIONS.reduce((s,i)=>s+(i.findings||0),0)}</div></div>
+  </div>
+  <div class="card">
+    <div class="card-hd"><i class="ti ti-plug" style="color:var(--accent)"></i><div><div class="card-t">Status das Integrações</div><div class="card-s">Tenable · Qualys · Snyk · Wiz · GitHub · BloodHound · Jira · Slack · Teams</div></div></div>
+    <div class="card-bd">
+      <div class="int-grid">
+        ${INTEGRATIONS.map(i=>`<div class="int-c">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:36px;height:36px;border-radius:var(--r);background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:18px;color:${i.color}"><i class="ti ${i.icon}"></i></div>
+            <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600">${i.name}</div><div style="font-size:10px;color:var(--text3)">${i.type}</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;font-size:11px">
+            <div class="idd ${i.status==='connected'?'d-on':i.status==='partial'?'d-pt':'d-off'}"></div>
+            <span style="color:${i.status==='connected'?'var(--success)':i.status==='partial'?'var(--high)':'var(--text3)'}">${i.status==='connected'?'Conectada':i.status==='partial'?'Parcial':'Desconectada'}</span>
+          </div>
+          <div style="font-size:10px;color:var(--text3)">${i.last_sync||'—'}</div>
+          ${i.findings!=null?`<div style="font-size:10px;color:var(--text2)">${i.findings} findings</div>`:''}
+          ${i.note?`<div style="font-size:10px;color:var(--high)">${i.note}</div>`:''}
+          <button class="btn btn-s" onclick="syncNow('${i.name}')"><i class="ti ti-refresh"></i> Sync</button>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div></div>`;
+}
+
+function agent() {
+  const qs=['Explique os 5 maiores riscos ao CISO','Sumário executivo para comitê de risco','Compare MTTR e SLA dos times','KEVs com impacto financeiro estimado','Quais vulns vão para comitê executivo?','Plano priorizado de correção por squad','Compliance PCI DSS 4.0 e LGPD','Fornecedores com maior risco','Escalação para SLAs vencidos','Impacto financeiro total das vulns','Padrão de reincidência nos times','Campanhas de correção por tecnologia'];
+  return `<div class="content" style="height:calc(100vh - var(--th) - 40px);display:flex;flex-direction:column">
+  <div class="card" style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+    <div class="card-hd"><i class="ti ti-robot" style="color:var(--ai)"></i><div><div class="card-t">Agente RBVM — IA Generativa</div><div class="card-s">Claude Sonnet · Dados reais · Rastreável · Governança ativa</div></div><div class="card-ac"><button class="btn btn-s" onclick="clearAgent()"><i class="ti ti-trash"></i> Limpar</button></div></div>
+    <div class="nt ni-" style="margin:12px 16px 0;flex-shrink:0"><i class="ti ti-shield-check" style="font-size:14px;flex-shrink:0"></i><strong>Guardrails ativos:</strong> Não inventa dados · Não fecha vulns sem rescan · Não aprova exceções · Não executa mudanças sem aprovação humana.</div>
+    <div class="card-bd" style="flex:1;display:flex;flex-direction:column;overflow:hidden;gap:10px">
+      <div class="am" id="am" style="flex:1;max-height:none"></div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap">${qs.map(q=>`<div class="qb" onclick="quickMsg('${q.replace(/'/g,"\\'")}')"> ${q}</div>`).join('')}</div>
+      <div style="display:flex;gap:8px;margin-top:4px">
+        <input class="ag-in" id="ai" placeholder="Pergunte sobre vulns, riscos, SLAs, compliance, fornecedores, tendências históricas..." onkeydown="if(event.key==='Enter')sendAgent()"/>
+        <button class="btn btn-p" onclick="sendAgent()"><i class="ti ti-send"></i> Enviar</button>
+      </div>
+    </div>
+  </div></div>`;
+}
+
+function settings() {
+  return `<div class="content">
+  <div class="card">
+    <div class="card-hd"><i class="ti ti-settings" style="color:var(--accent)"></i><div><div class="card-t">Configurações</div><div class="card-s">Empresa · SLAs · Governança de IA</div></div></div>
+    <div class="card-bd" style="display:flex;flex-direction:column;gap:16px">
+      <div><div class="ds">Empresa</div>
+        <div class="dg">
+          <div class="di"><div class="di-l">Nome</div><div class="di-v">Corporação XPTO</div></div>
+          <div class="di"><div class="di-l">Setor</div><div class="di-v">Financeiro / Regulado</div></div>
+          <div class="di"><div class="di-l">Frameworks</div><div class="di-v" style="font-size:11px">NIST CSF 2.0 · ISO 27001:2022 · PCI DSS 4.0 · LGPD · CMN 4.893</div></div>
+          <div class="di"><div class="di-l">CISO</div><div class="di-v">ciso@corp.com</div></div>
+        </div>
+      </div>
+      <div><div class="ds">Política de SLA</div>
+        <div class="dg3">
+          ${[['Crítico KEV + internet-facing','72h'],['Crítico internet-facing','7 dias'],['Crítico interno','15 dias'],['Alto internet-facing','15 dias'],['Alto interno','30 dias'],['Médio','60 dias'],['Baixo','90 dias'],['Informativo','Backlog'],['Zero-day (sem patch)','Mitig. 24h'],['Fornecedor Tier 1','15 dias'],['EOL/EOS exposto','Emergencial'],['PCI Scope crítico','SLA reduzido -30%']].map(([l,v])=>`<div class="di"><div class="di-l">${l}</div><div class="di-v" style="font-size:12px">${v}</div></div>`).join('')}
+        </div>
+      </div>
+      <div class="nt nok"><i class="ti ti-shield-check" style="font-size:14px;flex-shrink:0"></i>Governança IA ativa: dados reais · sem encerrar vulns sem evidência · sem aprovar exceções · sem mudanças sem aprovação humana.</div>
+    </div>
+  </div></div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  DETAIL PANEL — DETALHE COMPLETO DA VULNERABILIDADE
+// ══════════════════════════════════════════════════════════════════════════════
+window.openDov = function(id) {
+  const v=VULNS.find(x=>x.id===id); if(!v) return;
+  const exp=explainScore(v), rl=getRiskLabel(v.final_score);
+  document.getElementById('dov-c').innerHTML = `
+  <div class="dov-hd">
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+      ${SP(v.sev)} ${v.kev?rpill('pc','CISA KEV'):''} ${v.exploit?rpill('ph','EXPLOIT'):''} ${v.rce?rpill('pc','RCE'):''} ${v.internet_facing?rpill('ph','INTERNET'):''}
+    </div>
+    <div style="font-size:14px;font-weight:700;line-height:1.3">${v.title}</div>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><span class="mono" style="color:var(--text3)">${v.id}</span><span style="font-size:11px;color:var(--text2)">Ticket: <strong>${v.ticket||'—'}</strong></span><span style="font-size:11px;color:var(--text2)">Fonte: ${v.source}</span></div>
+  </div>
+  <div class="dov-sc">
+    <div class="dg3">
+      <div class="di"><div class="di-l">Score de Risco</div><div class="di-v" style="color:${RC(v.final_score)};font-size:22px">${v.final_score}</div><div style="font-size:10px;color:var(--text3)">${rl.label}</div></div>
+      <div class="di"><div class="di-l">Impacto Financeiro</div><div class="di-v" style="color:${v._fin.category==='Crítico'?'var(--crit)':'var(--high)'};font-size:15px">${v._fin.label}</div><div style="font-size:10px;color:var(--text3)">${v._fin.category}</div></div>
+      <div class="di"><div class="di-l">CVSS / EPSS</div><div class="di-v">${v.cvss} / ${v.epss!=null?(v.epss*100).toFixed(0)+'%':'—'}</div></div>
+      <div class="di"><div class="di-l">Ambiente</div><div class="di-v">${EP(v.env)}</div></div>
+      <div class="di"><div class="di-l">SLA</div><div class="di-v">${SB(v)}</div></div>
+      <div class="di"><div class="di-l">Status</div><div class="di-v">${STP(v.status)}</div></div>
+    </div>
+    <div><div class="ds">Ativo &amp; Responsável</div>
+      <div class="dg">
+        <div class="di"><div class="di-l">Ativo</div><div class="di-v">${v.asset}</div></div>
+        <div class="di"><div class="di-l">Tipo</div><div class="di-v">${v.asset_type}</div></div>
+        <div class="di"><div class="di-l">Owner</div><div class="di-v" style="font-size:11px">${v.owner}</div></div>
+        <div class="di"><div class="di-l">Squad / BU</div><div class="di-v" style="font-size:11px">${v.squad} · ${v.bu}</div></div>
+      </div>
+    </div>
+    ${v.mitre_technique?`<div><div class="ds">MITRE ATT&amp;CK</div><div class="di"><div class="di-l">Técnica / Tática</div><div class="di-v"><span class="pill pai">${v.mitre_technique}</span> ${v.mitre_tactic||''}</div></div></div>`:''}
+    ${v.pci_scope||v.lgpd_scope||v.data_sensitive?`<div><div class="ds">Contexto Regulatório</div><div style="display:flex;gap:8px;flex-wrap:wrap">${v.pci_scope?rpill('pnist','PCI DSS 4.0 — em escopo'):''}${v.lgpd_scope?rpill('pai','LGPD — dados pessoais'):''}${v.data_sensitive?rpill('ph','Dados sensíveis'):''}${v.compensating_controls?'<span class="pill pd">Controle compensatório ativo</span>':''}</div></div>`:''}
+    <div><div class="ds">Score Multicritério — Explicação Detalhada</div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px">
+        ${exp.map(e=>`<div class="ser"><span class="sef">${e.factor}</span><span class="sep ${e.value>0?'pos':'neg'}">${e.value>0?'+'+e.value:e.value} pts</span></div>`).join('')}
+        <div class="ser" style="border-top:2px solid var(--border);margin-top:4px;padding-top:8px"><span style="font-weight:700">Score Final</span><span style="color:${RC(v.final_score)};font-size:14px;font-weight:700">${v.final_score}</span></div>
+      </div>
+    </div>
+    <div><div class="ds">Impacto de Negócio</div><div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;font-size:12px;color:var(--text2);line-height:1.6">${v.business_impact}</div></div>
+    <div><div class="ds">Recomendação de Correção</div><div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;font-size:12px;color:var(--text2);line-height:1.6">${v.remediation}</div></div>
+    ${v.reclassify_reason?`<div class="nt nw"><i class="ti ti-adjustments" style="font-size:14px;flex-shrink:0"></i><strong>Reclassificação:</strong> ${v.reclassify_reason}</div>`:''}
+    ${v.rescan_status==='clean'?`<div class="nt nok"><i class="ti ti-shield-check" style="font-size:14px;flex-shrink:0"></i>Rescan confirmou correção com evidência técnica.</div>`:''}
+    <div class="btn-g" style="padding-top:4px">
+      <button class="btn" onclick="aiComm('${v.id}')"><i class="ti ti-robot"></i> Comunicado IA</button>
+      <button class="btn" onclick="notifyOwner('${v.id}')"><i class="ti ti-send"></i> Notificar Owner</button>
+      <button class="btn btn-o" onclick="triggerRescan('${v.id}')"><i class="ti ti-refresh"></i> Solicitar Rescan</button>
+      <button class="btn btn-d" onclick="markResolved('${v.id}')"><i class="ti ti-check"></i> Resolver*</button>
+    </div>
+    <div style="font-size:9px;color:var(--text3)">*Status muda para "Aguardando Validação". Rescan técnico obrigatório para encerramento definitivo.</div>
+  </div>`;
+  document.getElementById('dov').classList.add('open');
 };
+window.closeDov = () => document.getElementById('dov').classList.remove('open');
+
+// ── MODALS ────────────────────────────────────────────────────────────────────
+window.openModal = function(type, data) {
+  const mc=document.getElementById('mc');
+  if(type==='reclassify'&&data) {
+    mc.innerHTML=`<div class="modal-t"><i class="ti ti-adjustments-horizontal" style="color:var(--accent)"></i>Reclassificação — ${data.id}</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:16px">${data.title}</div>
+    <div class="ff" style="margin-bottom:12px"><div class="fl">Justificativa técnica auditável</div><textarea class="fi" id="rc-r">${data.reclassify_reason||''}</textarea></div>
+    <div class="ff" style="margin-bottom:12px"><div class="fl">Controle Compensatório</div><select class="fi" id="rc-c"><option value="0">Nenhum</option><option value="1" ${data.compensating_controls?'selected':''}>Ativo</option></select></div>
+    <div class="modal-ft"><button class="btn" onclick="closeMod()">Cancelar</button><button class="btn btn-p" onclick="saveRC('${data.id}')"><i class="ti ti-check"></i> Salvar</button></div>`;
+  } else if(type==='report') {
+    mc.innerHTML=`<div class="modal-t"><i class="ti ti-file-analytics" style="color:var(--accent)"></i>Gerar Relatório</div>
+    <div class="fr"><div class="ff"><div class="fl">Público-alvo</div><select class="fi"><option>CISO / Executivo</option><option>Gestores de Tecnologia</option><option>Squads Técnicos</option><option>GRC / Auditoria</option><option>Comitê de Risco</option></select></div><div class="ff"><div class="fl">Formato</div><select class="fi"><option>PDF Executivo</option><option>PowerPoint</option><option>Excel/CSV</option><option>Dashboard Web</option></select></div></div>
+    <div class="modal-ft"><button class="btn" onclick="closeMod()">Cancelar</button><button class="btn btn-p" onclick="toast('Relatório gerado via IA — pronto','ts');closeMod()"><i class="ti ti-send"></i> Gerar via IA</button></div>`;
+  } else if(type==='addexc') {
+    mc.innerHTML=`<div class="modal-t"><i class="ti ti-shield-x" style="color:var(--high)"></i>Solicitar Exceção de Risco</div>
+    <div class="fr"><div class="ff"><div class="fl">Vulnerabilidade</div><select class="fi">${VULNS.map(v=>`<option>${v.id} — ${v.title.substring(0,45)}</option>`).join('')}</select></div><div class="ff"><div class="fl">Tipo</div><select class="fi"><option>Aceite temporário</option><option>Aceite formal</option><option>Mitigação compensatória</option></select></div></div>
+    <div class="ff" style="margin-bottom:12px"><div class="fl">Justificativa técnica e de negócio</div><textarea class="fi" placeholder="Razão técnica, impacto de negócio e plano de correção futuro..."></textarea></div>
+    <div class="ff" style="margin-bottom:12px"><div class="fl">Controles Compensatórios</div><input class="fi" placeholder="Ex: WAF ativo, MFA obrigatório, isolamento de rede..."/></div>
+    <div class="modal-ft"><button class="btn" onclick="closeMod()">Cancelar</button><button class="btn btn-p" onclick="toast('Exceção submetida — aguardando aprovação CISO','ts');closeMod()"><i class="ti ti-send"></i> Submeter</button></div>`;
+  }
+  document.getElementById('mbg').classList.add('open');
+};
+window.saveRC = id => {
+  const v=VULNS.find(x=>x.id===id); if(!v) return;
+  v.reclassify_reason=document.getElementById('rc-r').value;
+  v.compensating_controls=document.getElementById('rc-c').value==='1';
+  v.final_score=computeRiskScore(v); v._fin=estimateFinancialImpact(v);
+  toast(`Score atualizado: ${v.final_score}`,'ts'); closeMod(); render();
+};
+window.openRC    = id => openModal('reclassify', VULNS.find(x=>x.id===id));
+window.closeMod  = () => document.getElementById('mbg').classList.remove('open');
+document.getElementById('mbg').addEventListener('click',e=>{if(e.target===e.currentTarget)closeMod();});
 
 // ── ACTIONS ───────────────────────────────────────────────────────────────────
-window.notifyOwner  = id => toast(`Notificação enviada para ${VULNS.find(x=>x.id===id)?.owner||id} via Slack/Teams`, 'success');
-window.escalateVuln = id => toast(`${id}: Escalado para CISO + Gerência + GRC via PagerDuty`, 'success');
-window.syncNow      = name => { toast(`Sincronizando com ${name}...`); setTimeout(()=>toast(`${name}: sincronização concluída`, 'success'), 1500); };
-window.clearAgent   = () => { agentHistory = [agentHistory[0]]; renderMain(); };
-window.markResolved = id => {
-  const v = VULNS.find(x=>x.id===id);
-  if(v){ v.status = 'Awaiting Validation'; }
-  toast(`${id} marcada como "Aguardando Validação Técnica". Rescan necessário para encerramento definitivo.`);
-  closeDetail(); renderMain();
-};
-window.triggerRescan = id => toast(`Rescan solicitado para ${id} na ferramenta de origem. Aguarde resultado.`);
-
-// ── MODAL ─────────────────────────────────────────────────────────────────────
-window.openModal = function(type, data) {
-  const c = document.getElementById('modal-content');
-  if (type === 'reclassify' && data) {
-    c.innerHTML = `<div class="modal-title"><i class="ti ti-adjustments-horizontal" style="color:var(--accent)"></i> Reclassificação de Risco — ${data.id}</div>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:16px">${data.title}</div>
-      <div class="form-row">
-        <div class="form-field"><div class="form-label">Score Atual</div><div style="font-size:20px;font-weight:700;color:${getRiskColor(data.final_score)}">${data.final_score}</div></div>
-        <div class="form-field"><div class="form-label">Severidade Original</div>${sevPill(data.sev)}</div>
-      </div>
-      <div class="form-field" style="margin-bottom:12px"><div class="form-label">Justificativa de Reclassificação</div><textarea class="form-input" id="rc-reason" placeholder="Ex: Controle compensatório ativo (WAF), ambiente isolado, sem exploit disponível...">${data.reclassify_reason||''}</textarea></div>
-      <div class="form-field" style="margin-bottom:12px"><div class="form-label">Controles Compensatórios</div>
-        <select class="form-input" id="rc-controls"><option value="0">Nenhum</option><option value="1" ${data.compensating_controls?'selected':''}>Sim — controle ativo</option></select>
-      </div>
-      <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveReclassify('${data.id}')"><i class="ti ti-check"></i> Salvar</button></div>`;
-  } else if (type === 'report') {
-    c.innerHTML = `<div class="modal-title"><i class="ti ti-file-analytics" style="color:var(--accent)"></i> Gerar Relatório</div>
-      <div class="form-row">
-        <div class="form-field"><div class="form-label">Público-alvo</div><select class="form-input"><option>CISO / Executivo</option><option>Gestores de Tecnologia</option><option>Squads Técnicos</option><option>GRC / Auditoria</option></select></div>
-        <div class="form-field"><div class="form-label">Formato</div><select class="form-input"><option>PDF Executivo</option><option>PowerPoint</option><option>Excel/CSV</option><option>Dashboard Web</option></select></div>
-      </div>
-      <div class="form-field" style="margin-bottom:12px"><div class="form-label">Período</div><select class="form-input"><option>Últimos 30 dias</option><option>Últimos 90 dias</option><option>Mês atual</option></select></div>
-      <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="toast('Relatório gerado via IA — pronto para download','success');closeModal()"><i class="ti ti-send"></i> Gerar via IA</button></div>`;
-  } else if (type === 'addexception') {
-    c.innerHTML = `<div class="modal-title"><i class="ti ti-shield-x" style="color:var(--high)"></i> Solicitar Exceção de Risco</div>
-      <div class="form-row">
-        <div class="form-field"><div class="form-label">Vulnerabilidade</div><select class="form-input">${VULNS.map(v=>`<option value="${v.id}">${v.id} — ${v.title.substring(0,50)}</option>`).join('')}</select></div>
-        <div class="form-field"><div class="form-label">Tipo de Exceção</div><select class="form-input"><option>Aceite temporário</option><option>Aceite formal</option><option>Mitigação compensatória</option></select></div>
-      </div>
-      <div class="form-field" style="margin-bottom:12px"><div class="form-label">Justificativa técnica e de negócio</div><textarea class="form-input" placeholder="Descreva a razão técnica, impacto de negócio e plano de correção futuro..."></textarea></div>
-      <div class="form-field" style="margin-bottom:12px"><div class="form-label">Controles Compensatórios</div><input class="form-input" placeholder="Ex: WAF ativo, isolamento de rede, MFA obrigatório..."/></div>
-      <div class="modal-footer"><button class="btn" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="toast('Exceção solicitada — aguardando aprovação do CISO','success');closeModal()"><i class="ti ti-send"></i> Submeter para Aprovação</button></div>`;
-  }
-  document.getElementById('modal-backdrop').classList.add('open');
-};
-
-window.saveReclassify = function(id) {
-  const v = VULNS.find(x=>x.id===id);
-  if (!v) return;
-  v.reclassify_reason = document.getElementById('rc-reason').value;
-  v.compensating_controls = document.getElementById('rc-controls').value === '1';
-  v.final_score = computeRiskScore(v);
-  toast(`Reclassificação salva — novo score: ${v.final_score}`, 'success');
-  closeModal(); renderMain();
-};
-
-window.closeModal = () => document.getElementById('modal-backdrop').classList.remove('open');
-document.getElementById('modal-backdrop').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
-
-// ── TOAST ─────────────────────────────────────────────────────────────────────
-window.toast = toast;
-
-// ── AGENT ─────────────────────────────────────────────────────────────────────
-function bindAgentIfNeeded() {
-  if (currentView !== 'agent') return;
-  renderAgentMsgs(false);
+function toast(msg,cls='') {
+  const el=document.getElementById('toast'), tm=document.getElementById('tm');
+  if(!el||!tm) return; tm.textContent=msg; el.className='show '+cls;
+  clearTimeout(window._tt); window._tt=setTimeout(()=>el.classList.remove('show'),3500);
 }
-
-window.quickMsg = function(msg) {
-  if (currentView !== 'agent') setView('agent');
-  setTimeout(() => {
-    const input = document.getElementById('agent-input');
-    if (input) { input.value = msg; sendAgent(); }
-  }, 150);
+window.toast        = toast;
+window.notifyOwner  = id => toast(`Notificação enviada para ${VULNS.find(x=>x.id===id)?.owner||id} via Teams/Slack`,'ts');
+window.escalate     = id => toast(`${id}: Escalado para CISO + GRC + Liderança`,'ts');
+window.syncNow      = n  => { toast(`Sincronizando ${n}...`); setTimeout(()=>toast(`${n}: Concluído`,'ts'),1500); };
+window.clearAgent   = () => { AH=[AH[0]]; render(); };
+window.triggerPB    = id => toast(`Playbook acionado para ${id}`,'ts');
+window.triggerRescan= id => toast(`Rescan solicitado para ${id} no scanner de origem`,'ts');
+window.markResolved = id => {
+  const v=VULNS.find(x=>x.id===id); if(v) v.status='Awaiting Validation';
+  toast(`${id}: Aguardando Validação Técnica. Rescan obrigatório para fechar definitivamente.`);
+  closeDov(); render();
 };
 
-window.aiCommunicate = function(id) {
-  const v = VULNS.find(x=>x.id===id);
-  closeDetail();
-  quickMsg(`Gere um comunicado profissional para o time ${v.team} sobre a vulnerabilidade ${v.id}: "${v.title}". Inclua: severidade ${v.sev}, score ${v.final_score}, CVSS ${v.cvss}, EPSS ${v.epss||'N/A'}, KEV: ${v.kev}, impacto de negócio, SLA restante (${getSlaRemaining(v)} dias) e próximos passos de remediação.`);
+// ── AGENTE IA ─────────────────────────────────────────────────────────────────
+window.quickMsg = function(msg) {
+  if(VIEW!=='agent') setView('agent');
+  setTimeout(()=>{ const el=document.getElementById('ai'); if(el){el.value=msg;sendAgent();} },200);
+};
+window.aiComm = function(id) {
+  const v=VULNS.find(x=>x.id===id); closeDov();
+  quickMsg(`Gere comunicado profissional para o time ${v.team} sobre ${v.id}: "${v.title}". Inclua: score ${v.final_score}, CVSS ${v.cvss}, EPSS ${v.epss||'N/A'}, KEV=${v.kev}, impacto ${v._fin.label}, SLA restante ${getSlaRemaining(v)}d, ambiente ${v.env}, recomendação: ${v.remediation}.`);
 };
 
 window.sendAgent = async function() {
-  const input = document.getElementById('agent-input');
-  const container = document.getElementById('agent-msgs');
-  const userText = input?.value.trim();
-  if (!userText || !container) return;
-  input.value = '';
+  const inp=document.getElementById('ai'), cont=document.getElementById('am');
+  const txt=inp?.value.trim(); if(!txt||!cont) return;
+  inp.value=''; AH.push({role:'user',text:txt}); rMsgs(true);
 
-  agentHistory.push({ role:'user', text:userText });
-  renderAgentMsgs(true);
+  const a=VULNS.filter(v=>v.status!=='Resolved');
+  const lm=MONTHLY_TRENDS[MONTHLY_TRENDS.length-1];
+  const vSum=VULNS.map(v=>({id:v.id,ticket:v.ticket,title:v.title,sev:v.sev,cvss:v.cvss,epss:v.epss,kev:v.kev,exploit:v.exploit,rce:v.rce,score:v.final_score,fin:v._fin.label,team:v.team,squad:v.squad,bu:v.bu,owner:v.owner,status:v.status,sla:`${v.sla_used}/${v.sla_max}d`,breach:v.sla_used>=v.sla_max,env:v.env,asset:v.asset,source:v.source,pci:v.pci_scope,lgpd:v.lgpd_scope,mitre:v.mitre_technique||null}));
+  const kriB=KRI_ALERTS.filter(k=>k.status==='breach').map(k=>k.label).join(', ');
+  const blk=PIPELINE_GATES.filter(g=>g.status==='blocked').map(g=>g.repo).join(', ');
+  const cGaps=COMPLIANCE_CONTROLS.filter(c=>c.gap).map(c=>`${c.fw} ${c.control}: ${c.gap}`).slice(0,6).join('\n');
+  const sAlerts=SUPPLIER_VULNS.filter(v=>v.status==='Overdue').map(v=>v.vuln_id).join(', ');
 
-  const vulnSummary = VULNS.map(v => ({
-    id:v.id, ticket:v.ticket, title:v.title, sev:v.sev, cvss:v.cvss, epss:v.epss,
-    kev:v.kev, exploit:v.exploit, rce:v.rce, risk_score:v.final_score,
-    team:v.team, squad:v.squad, bu:v.bu, owner:v.owner,
-    status:v.status, sla:`${v.sla_used}/${v.sla_max}d`, sla_breach:v.sla_used>=v.sla_max,
-    env:v.env, asset:v.asset, asset_type:v.asset_type, source:v.source,
-    internet_facing:v.internet_facing, pci_scope:v.pci_scope, lgpd_scope:v.lgpd_scope,
-    data_sensitive:v.data_sensitive, compensating_controls:v.compensating_controls,
-    fw:v.fw, nist:v.nist, owasp:v.owasp
-  }));
+  const sys=`Você é o Agente RBVM de uma plataforma enterprise de segurança em ambiente financeiro regulado.
 
-  const systemPrompt = `Você é o Agente RBVM (Risk-Based Vulnerability Management) de uma plataforma enterprise de segurança corporativa.
+VULNERABILIDADES (${VULNS.length} total, ${a.length} abertas):
+${JSON.stringify(vSum,null,1)}
 
-VULNERABILIDADES ATIVAS (${VULNS.length} total, ${VULNS.filter(v=>v.status!=='Resolved').length} abertas):
-${JSON.stringify(vulnSummary, null, 1)}
+MÉTRICAS:
+- Exposição financeira total: ${FMT(totalFinancialExposure(VULNS))}
+- MTTR críticas: ${lm.mttr_crit}d | Altas: ${lm.mttr_high}d | SLA compliance: ${Math.round(lm.sla_compliance*100)}%
+- Mês atual: ${lm.opened} abertas · ${lm.closed} fechadas · ${lm.kev} KEVs
+- MTTR por time: ${JSON.stringify(MTTR_BY_TEAM.map(t=>({time:t.team,mttr_crit:t.mttr_crit+'d',sla:Math.round(t.sla_rate*100)+'%'})))}
 
-EXCEÇÕES ATIVAS: ${EXCEPTIONS.length} exceções (${EXCEPTIONS.filter(e=>e.status==='pending').length} pendentes de aprovação)
+KRIs BREACH: ${kriB||'Nenhum'}
+PIPELINES BLOQUEADOS: ${blk||'Nenhum'}
+COMPLIANCE GAPS:\n${cGaps||'Nenhum'}
+FORNECEDORES OVERDUE: ${sAlerts||'Nenhum'}
+EXCEÇÕES PENDENTES: ${EXCS.filter(e=>e.st==='pending').length}
+PLAYBOOKS ATIVOS: ${PLAYBOOKS.filter(p=>p.status==='active').map(p=>p.name).join(', ')}
 
-CONTEXTO:
-- Empresa: Corporação XPTO — Setor financeiro/regulado
-- Frameworks: NIST CSF 2.0, ISO 27001:2022, PCI DSS 4.0, LGPD, CMN 4.893
-- Risk Scoring: Multicritério (CVSS + EPSS + KEV + Exposição + Criticidade + Regulatório)
-- Times: AppSec, CloudOps, Infrastructure, Network, DevOps, MLPlatform
-- Integrações: Tenable, Qualys, Rapid7, Snyk, Wiz, GitHub Advanced Security, BloodHound, Microsoft Defender
+CONTEXTO: Setor financeiro regulado · LGPD · PCI DSS 4.0 · CMN 4.893/2021 · ISO 27001:2022 · NIST CSF 2.0
+TIMES: AppSec · CloudOps · Infrastructure · Network · DevOps
+FERRAMENTAS: Tenable · Qualys · Snyk · Wiz · GHAS · BloodHound · Defender · Jira
 
-REGRAS DE GOVERNANÇA:
-- Responda com base nos dados reais acima. Não invente informações.
-- Cite IDs específicos (CVE-XXXX, SEC-XXXX) ao analisar.
-- Para comunicados: formato estruturado com severidade, impacto, SLA e próximos passos.
-- Para relatórios executivos: foque em risco de negócio, não em jargão técnico.
-- Não sugira fechar vulnerabilidades sem evidência de rescan.
-- Não aprove exceções — apenas sugira para revisão humana.
-- Máximo 500 palavras. Use markdown (negrito, listas).`;
+GUARDRAILS DE GOVERNANÇA:
+- Responda APENAS com dados acima. Nunca invente CVEs, dados ou métricas.
+- Cite sempre IDs específicos (SEC-XXXX, CVE-XXXX) em análises.
+- Nunca sugira fechar vulnerabilidades sem evidência de rescan técnico.
+- Nunca aprove exceções — apenas sugira para revisão humana com justificativa.
+- Nunca diga que a plataforma fez ações que não estão nos dados.
+- Máximo 500 palavras. Use markdown (negrito, listas, tabelas quando útil).`;
 
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        system:systemPrompt,
-        messages:agentHistory.map(m=>({ role:m.role==='ai'?'assistant':'user', content:m.text }))
-      })
-    });
-    const data = await resp.json();
-    const reply = data.content?.map(b=>b.text||'').join('') || 'Não foi possível obter resposta.';
-    agentHistory.push({ role:'ai', text:reply });
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:AH.map(m=>({role:m.role==='ai'?'assistant':'user',content:m.text}))})});
+    const d=await r.json();
+    AH.push({role:'ai',text:d.content?.map(b=>b.text||'').join('')||'Erro ao obter resposta.'});
   } catch(e) {
-    agentHistory.push({ role:'ai', text:'Erro ao conectar ao agente. Verifique a configuração da API.' });
+    AH.push({role:'ai',text:'Erro ao conectar ao agente. Verifique a API Anthropic.'});
   }
-  renderAgentMsgs(false);
+  rMsgs(false);
 };
 
-function renderAgentMsgs(typing) {
-  const container = document.getElementById('agent-msgs');
-  if (!container) return;
-  container.innerHTML = agentHistory.map(m=>`
-    <div class="agent-msg ${m.role==='ai'?'msg-ai':'msg-user'}">
-      <div class="msg-meta">${m.role==='ai'?'RBVM Agent':'Você'}</div>
-      ${m.text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>')}
-    </div>`).join('');
-  if (typing) container.innerHTML += `<div class="agent-msg msg-ai"><div class="typing-dots"><div class="td"></div><div class="td"></div><div class="td"></div></div></div>`;
-  container.scrollTop = container.scrollHeight;
+function rMsgs(typing) {
+  const el=document.getElementById('am'); if(!el) return;
+  el.innerHTML=AH.map(m=>`<div class="ag-msg ${m.role==='ai'?'msg-ai':'msg-u'}">
+    <div class="ag-meta">${m.role==='ai'?'RBVM Agent':'Você'}</div>
+    ${m.text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/`(.*?)`/g,'<code style="background:var(--bg4);padding:1px 4px;border-radius:3px;font-family:var(--mono);font-size:10px">$1</code>')}
+  </div>`).join('');
+  if(typing) el.innerHTML+=`<div class="ag-msg msg-ai"><div class="tdots"><div class="td"></div><div class="td"></div><div class="td"></div></div></div>`;
+  el.scrollTop=el.scrollHeight;
 }
 
 // ── START ─────────────────────────────────────────────────────────────────────
-renderMain();
+render();
 </script>
 </body>
 </html>
