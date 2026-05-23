@@ -56,6 +56,46 @@
 @keyframes sU{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 ::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px}
 .mono{font-family:var(--mono);font-size:11px}
+/* FOOTER */
+.app{grid-template-rows:var(--th) 1fr}
+.app-footer{grid-column:1/-1;padding:7px 20px;background:var(--bg2);border-top:1px solid var(--border);font-size:10px;color:var(--text3);text-align:center;flex-shrink:0}
+/* LIFECYCLE */
+.lc-step{display:flex;gap:12px;padding:12px 0;position:relative}
+.lc-step::before{content:'';position:absolute;left:15px;top:44px;bottom:-10px;width:2px;background:var(--border);z-index:0}
+.lc-step:last-child::before{display:none}
+.lc-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;z-index:1;font-size:14px}
+.lc-done{background:rgba(64,200,122,.15);border:2px solid var(--success);color:var(--success)}
+.lc-cur{background:rgba(79,122,255,.15);border:2px solid var(--accent);color:var(--accent);animation:puls 2s ease-in-out infinite}
+.lc-pend{background:var(--bg4);border:2px solid var(--border);color:var(--text3)}
+.lc-warn{background:rgba(255,140,56,.15);border:2px solid var(--high);color:var(--high)}
+.lc-fail{background:var(--critbg);border:2px solid var(--crit);color:var(--crit)}
+.lc-body{flex:1;min-width:0}
+.lc-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px}
+.lc-name{font-size:12px;font-weight:600}.lc-ts{font-size:10px;color:var(--text3)}.lc-actor{font-size:10px;color:var(--text2)}
+.lc-detail{font-size:11px;color:var(--text2);line-height:1.5}.lc-ev{font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:2px}
+/* AUDIT TRAIL */
+.at-row{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}.at-row:last-child{border-bottom:none}
+.at-ic{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;background:var(--bg4)}
+.at-body{flex:1;min-width:0}.at-action{font-size:11px;font-weight:600}.at-meta{font-size:10px;color:var(--text3);margin-top:1px}.at-detail{font-size:10px;color:var(--text2);margin-top:2px}
+.at-ic-sys{background:rgba(79,122,255,.12);color:var(--accent)}.at-ic-usr{background:rgba(64,200,122,.12);color:var(--success)}.at-ic-ai{background:var(--aibg);color:var(--ai)}
+/* STATUS PILLS EXTENDED */
+.ps-tc{background:rgba(79,122,255,.15);color:var(--accent)}.ps-rt{background:var(--medbg);color:var(--med)}.ps-av{background:var(--highbg);color:var(--high)}.ps-rr{background:var(--highbg);color:var(--high)}.ps-fc{background:var(--successbg);color:var(--success)}.ps-sv{background:var(--critbg);color:var(--crit)}.ps-ce{background:var(--successbg);color:var(--success)}.ps-rd{background:var(--critbg);color:var(--crit)}
+/* TICKET MODAL */
+.tick-field{display:flex;flex-direction:column;gap:3px;margin-bottom:10px}.tick-label{font-size:10px;color:var(--text2);font-weight:600}.tick-val{font-size:12px;color:var(--text);background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:6px 10px}.tick-val.editable{border-color:var(--border2)}
+.tick-sep{height:1px;background:var(--border);margin:12px 0}
+.tick-success{background:var(--successbg);border:2px solid rgba(64,200,122,.3);border-radius:var(--r2);padding:16px;text-align:center}
+/* DQ — DATA QUALITY */
+.dq-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg3);margin-bottom:6px;cursor:pointer;transition:border-color .15s}.dq-item:hover{border-color:var(--border2)}
+.dq-icon{width:32px;height:32px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.dq-crit{background:var(--critbg);color:var(--crit)}.dq-high{background:var(--highbg);color:var(--high)}.dq-med{background:var(--medbg);color:var(--med)}.dq-ok{background:var(--successbg);color:var(--success)}
+/* SMART GROUPING */
+.sg-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin-bottom:10px}
+.sg-type{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}
+.sg-title{font-size:13px;font-weight:600;margin:4px 0 6px}
+.sg-stat{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--text2)}
+/* AI SOURCES */
+.ai-sources{background:var(--bg4);border:1px solid var(--border2);border-radius:var(--r);padding:10px 12px;margin-top:8px;font-size:10px;color:var(--text3)}
+.ai-sources-title{font-size:9px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
 </style>
 </head>
 <body>
@@ -106,6 +146,13 @@
     <div class="sb-it" id="nav-comms"      onclick="setView('comms')">     <i class="ti ti-send"></i>Comunicados</div>
     <div class="sb-it" id="nav-risk"       onclick="setView('risk')">      <i class="ti ti-chart-area"></i>Análise de Risco</div>
   </div>
+  <div class="sb-lbl">Orquestração</div>
+  <div class="sb-sec">
+    <div class="sb-it" id="nav-lifecycle"  onclick="setView('lifecycle')"> <i class="ti ti-route"></i>Remediation Lifecycle<span class="sb-n ni" style="font-size:8px">NOVO</span></div>
+    <div class="sb-it" id="nav-dataquality" onclick="setView('dataquality')"><i class="ti ti-shield-half"></i>Data Quality</div>
+    <div class="sb-it" id="nav-execintel"  onclick="setView('execintel')"> <i class="ti ti-brain"></i>Exec Intelligence</div>
+    <div class="sb-it" id="nav-smartgroup" onclick="setView('smartgroup')"><i class="ti ti-stack-2"></i>Smart Grouping</div>
+  </div>
   <div class="sb-lbl">Plataforma</div>
   <div class="sb-sec">
     <div class="sb-it" id="nav-integrations" onclick="setView('integrations')"><i class="ti ti-plug"></i>Integrações</div>
@@ -115,6 +162,7 @@
 </div>
 
 <div class="main-area" id="main"></div>
+<div class="app-footer">© 2026 Andrews Ferreira. Todos os direitos reservados. Conceito proprietário de produto de cibersegurança. Demonstração pública apenas para fins de portfólio.</div>
 
 <div class="dov" id="dov">
   <div class="dov-cl" onclick="closeDov()"><i class="ti ti-x"></i></div>
@@ -139,6 +187,7 @@ import { computeRiskScore, getRiskColor, explainScore, getRiskLabel } from './sr
 import { getSlaRemaining, getEscalationLevel }          from './src/utils/sla.js';
 import { sevPill, statusPill, slaBar, envPill, formatDate } from './src/utils/helpers.js';
 import { estimateFinancialImpact, totalFinancialExposure, formatBRL } from './src/utils/financial.js';
+import { AUDIT_BASE, getAuditTrail } from './src/data/audit.js';
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 VULNS.forEach(v => {
@@ -187,7 +236,7 @@ window.sft = s => { FST=s; render(); };
 // ── RENDER ────────────────────────────────────────────────────────────────────
 function render() {
   upd();
-  const M={dashboard,threatintel,metrics,vulns,assets,suppliers,playbooks,reclassify,exceptions,sla,cicd,compliance,comms,risk,integrations,agent,settings};
+  const M={dashboard,threatintel,metrics,vulns,assets,suppliers,playbooks,reclassify,exceptions,sla,cicd,compliance,comms,risk,integrations,agent,settings,lifecycle,dataquality,execintel,smartgroup};
   document.getElementById('main').innerHTML=(M[VIEW]||dashboard)();
   if(VIEW==='agent') rMsgs(false);
 }
@@ -780,27 +829,52 @@ function settings() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-//  DETAIL PANEL — DETALHE COMPLETO DA VULNERABILIDADE
+//  DETAIL PANEL — COMPLETO COM AUDIT TRAIL + LIFECYCLE ACTIONS
 // ══════════════════════════════════════════════════════════════════════════════
 window.openDov = function(id) {
   const v=VULNS.find(x=>x.id===id); if(!v) return;
   const exp=explainScore(v), rl=getRiskLabel(v.final_score);
+  const st=v.status, tk=TICKETS[id];
+  const auditEvs=getAuditForVuln(id);
+  const hasTk=!!tk||!!v.ticket;
+  const toolMap2={server:'Tenable',application:'Veracode',cloud:'Wiz',container:'Trivy',repository:'GitHub Secret Scanning',ad:'BloodHound',iac:'Checkov',network:'Tenable'};
+
+  const actionBtns=()=>{
+    const btns=[];
+    if(!hasTk) btns.push(`<button class="btn btn-p" onclick="openTicketModal('${id}')"><i class="ti ti-ticket"></i> Criar Ticket</button>`);
+    if(hasTk&&['New','In Progress','Ticket Created'].includes(st)) btns.push(`<button class="btn btn-o" onclick="dovMarkResolved('${id}')"><i class="ti ti-circle-check"></i> Resolvido pelo Time</button>`);
+    if(['Resolved by Team','Awaiting Validation','Awaiting Technical Validation'].includes(st)) btns.push(`<button class="btn btn-p" onclick="dovTriggerRescan('${id}')"><i class="ti ti-refresh"></i> Acionar Rescan</button>`);
+    if(['Rescan Requested','Validation Running','Fixed Confirmed','Still Vulnerable'].includes(st)){
+      btns.push(`<button class="btn btn-o" onclick="dovConfirmFixed('${id}')"><i class="ti ti-shield-check"></i> Confirmar Correção</button>`);
+      btns.push(`<button class="btn btn-d" onclick="dovStillPresent('${id}')"><i class="ti ti-refresh-alert"></i> Still Vulnerable</button>`);
+    }
+    if(st==='Closed with Evidence') btns.push(`<span class="pill pd" style="padding:6px 10px;font-size:11px"><i class="ti ti-lock"></i> Encerrado com evidência</span>`);
+    btns.push(`<button class="btn" onclick="aiComm('${id}')"><i class="ti ti-robot"></i> IA</button>`);
+    btns.push(`<button class="btn" onclick="notifyOwner('${id}')"><i class="ti ti-send"></i> Notificar</button>`);
+    btns.push(`<button class="btn" onclick="openRC('${id}')"><i class="ti ti-adjustments"></i> Reclassificar</button>`);
+    return btns.join('');
+  };
+
   document.getElementById('dov-c').innerHTML = `
   <div class="dov-hd">
     <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
       ${SP(v.sev)} ${v.kev?rpill('pc','CISA KEV'):''} ${v.exploit?rpill('ph','EXPLOIT'):''} ${v.rce?rpill('pc','RCE'):''} ${v.internet_facing?rpill('ph','INTERNET'):''}
     </div>
     <div style="font-size:14px;font-weight:700;line-height:1.3">${v.title}</div>
-    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap"><span class="mono" style="color:var(--text3)">${v.id}</span><span style="font-size:11px;color:var(--text2)">Ticket: <strong>${v.ticket||'—'}</strong></span><span style="font-size:11px;color:var(--text2)">Fonte: ${v.source}</span></div>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+      <span class="mono" style="color:var(--text3)">${v.id}</span>
+      <span style="font-size:11px;color:var(--text2)">Ticket: <strong class="mono">${tk?.id||v.ticket||'—'}</strong></span>
+      <span style="font-size:11px;color:var(--text2)">Fonte: ${v.source}</span>
+    </div>
   </div>
   <div class="dov-sc">
     <div class="dg3">
-      <div class="di"><div class="di-l">Score de Risco</div><div class="di-v" style="color:${RC(v.final_score)};font-size:22px">${v.final_score}</div><div style="font-size:10px;color:var(--text3)">${rl.label}</div></div>
+      <div class="di"><div class="di-l">Score</div><div class="di-v" style="color:${RC(v.final_score)};font-size:22px">${v.final_score}</div><div style="font-size:10px;color:var(--text3)">${rl.label}</div></div>
       <div class="di"><div class="di-l">Impacto Financeiro</div><div class="di-v" style="color:${v._fin.category==='Crítico'?'var(--crit)':'var(--high)'};font-size:15px">${v._fin.label}</div><div style="font-size:10px;color:var(--text3)">${v._fin.category}</div></div>
       <div class="di"><div class="di-l">CVSS / EPSS</div><div class="di-v">${v.cvss} / ${v.epss!=null?(v.epss*100).toFixed(0)+'%':'—'}</div></div>
       <div class="di"><div class="di-l">Ambiente</div><div class="di-v">${EP(v.env)}</div></div>
       <div class="di"><div class="di-l">SLA</div><div class="di-v">${SB(v)}</div></div>
-      <div class="di"><div class="di-l">Status</div><div class="di-v">${STP(v.status)}</div></div>
+      <div class="di"><div class="di-l">Status</div><div class="di-v">${statusEx(st)}</div></div>
     </div>
     <div><div class="ds">Ativo &amp; Responsável</div>
       <div class="dg">
@@ -810,9 +884,9 @@ window.openDov = function(id) {
         <div class="di"><div class="di-l">Squad / BU</div><div class="di-v" style="font-size:11px">${v.squad} · ${v.bu}</div></div>
       </div>
     </div>
-    ${v.mitre_technique?`<div><div class="ds">MITRE ATT&amp;CK</div><div class="di"><div class="di-l">Técnica / Tática</div><div class="di-v"><span class="pill pai">${v.mitre_technique}</span> ${v.mitre_tactic||''}</div></div></div>`:''}
-    ${v.pci_scope||v.lgpd_scope||v.data_sensitive?`<div><div class="ds">Contexto Regulatório</div><div style="display:flex;gap:8px;flex-wrap:wrap">${v.pci_scope?rpill('pnist','PCI DSS 4.0 — em escopo'):''}${v.lgpd_scope?rpill('pai','LGPD — dados pessoais'):''}${v.data_sensitive?rpill('ph','Dados sensíveis'):''}${v.compensating_controls?'<span class="pill pd">Controle compensatório ativo</span>':''}</div></div>`:''}
-    <div><div class="ds">Score Multicritério — Explicação Detalhada</div>
+    ${v.mitre_technique?`<div><div class="ds">MITRE ATT&amp;CK</div><div class="di"><div class="di-l">Técnica</div><div class="di-v"><span class="pill pai">${v.mitre_technique}</span> ${v.mitre_tactic||''}</div></div></div>`:''}
+    ${v.pci_scope||v.lgpd_scope||v.data_sensitive?`<div><div class="ds">Contexto Regulatório</div><div style="display:flex;gap:8px;flex-wrap:wrap">${v.pci_scope?rpill('pnist','PCI DSS 4.0'):''}${v.lgpd_scope?rpill('pai','LGPD'):''}${v.data_sensitive?rpill('ph','Dados sensíveis'):''}${v.compensating_controls?rpill('pd','Controle compensatório'):''}</div></div>`:''}
+    <div><div class="ds">Score Multicritério</div>
       <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px">
         ${exp.map(e=>`<div class="ser"><span class="sef">${e.factor}</span><span class="sep ${e.value>0?'pos':'neg'}">${e.value>0?'+'+e.value:e.value} pts</span></div>`).join('')}
         <div class="ser" style="border-top:2px solid var(--border);margin-top:4px;padding-top:8px"><span style="font-weight:700">Score Final</span><span style="color:${RC(v.final_score)};font-size:14px;font-weight:700">${v.final_score}</span></div>
@@ -821,18 +895,65 @@ window.openDov = function(id) {
     <div><div class="ds">Impacto de Negócio</div><div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;font-size:12px;color:var(--text2);line-height:1.6">${v.business_impact}</div></div>
     <div><div class="ds">Recomendação de Correção</div><div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;font-size:12px;color:var(--text2);line-height:1.6">${v.remediation}</div></div>
     ${v.reclassify_reason?`<div class="nt nw"><i class="ti ti-adjustments" style="font-size:14px;flex-shrink:0"></i><strong>Reclassificação:</strong> ${v.reclassify_reason}</div>`:''}
-    ${v.rescan_status==='clean'?`<div class="nt nok"><i class="ti ti-shield-check" style="font-size:14px;flex-shrink:0"></i>Rescan confirmou correção com evidência técnica.</div>`:''}
-    <div class="btn-g" style="padding-top:4px">
-      <button class="btn" onclick="aiComm('${v.id}')"><i class="ti ti-robot"></i> Comunicado IA</button>
-      <button class="btn" onclick="notifyOwner('${v.id}')"><i class="ti ti-send"></i> Notificar Owner</button>
-      <button class="btn btn-o" onclick="triggerRescan('${v.id}')"><i class="ti ti-refresh"></i> Solicitar Rescan</button>
-      <button class="btn btn-d" onclick="markResolved('${v.id}')"><i class="ti ti-check"></i> Resolver*</button>
+    <div><div class="ds">Ações do Ciclo de Remediação</div>
+      <div class="btn-g" style="padding:4px 0">${actionBtns()}</div>
+      <div style="font-size:9px;color:var(--text3);margin-top:6px">Criar ticket ≠ corrigido · Resolvido pelo time ≠ fechado · Validação técnica é obrigatória.</div>
     </div>
-    <div style="font-size:9px;color:var(--text3)">*Status muda para "Aguardando Validação". Rescan técnico obrigatório para encerramento definitivo.</div>
+    <div><div class="ds">Audit Trail — Histórico Auditável</div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;max-height:220px;overflow-y:auto">
+        ${auditEvs.length===0
+          ?'<div style="color:var(--text3);font-size:11px">Nenhum evento. Crie um ticket para iniciar o ciclo.</div>'
+          :auditEvs.map(e=>`<div class="at-row">
+              <div class="at-ic ${e.actor==='system'?'at-ic-sys':e.actor==='ai'?'at-ic-ai':'at-ic-usr'}"><i class="ti ${e.icon||'ti-circle'}" style="font-size:11px"></i></div>
+              <div class="at-body">
+                <div class="at-action">${e.action}${e.before&&e.after?` <span style="font-size:9px;color:var(--text3)">${e.before} → ${e.after}</span>`:''}</div>
+                <div class="at-meta">${e.ts} · ${e.name} · ${e.src||'—'}</div>
+                ${e.detail?`<div class="at-detail">${e.detail}</div>`:''}
+              </div>
+            </div>`).join('')}
+        <div class="at-row" style="opacity:.35;pointer-events:none"><div class="at-ic at-ic-sys"><i class="ti ti-dots" style="font-size:11px"></i></div><div class="at-body"><div class="at-action" style="font-style:italic;font-size:10px">Próximos eventos registrados ao executar ações acima</div></div></div>
+      </div>
+    </div>
+    <div style="padding-top:4px">
+      <button class="btn btn-s" onclick="LC_VULN_ID='${id}';setView('lifecycle')"><i class="ti ti-route"></i> Ver Jornada Completa</button>
+    </div>
   </div>`;
   document.getElementById('dov').classList.add('open');
 };
 window.closeDov = () => document.getElementById('dov').classList.remove('open');
+
+// ── DOV STATUS ACTIONS ────────────────────────────────────────────────────────
+window.dovMarkResolved = id => {
+  saveStatus(id,'Resolved by Team');
+  addAuditEvent(id,{actor:'user',name:'Owner Técnico',icon:'ti-circle-check',action:'Resolvido pelo Time Técnico',before:'In Progress',after:'Resolved by Team',detail:'Ticket marcado como resolvido. Validação técnica obrigatória antes de fechar.',src:'User'});
+  toast('Status → Resolvido pelo Time. Validação técnica obrigatória.','ts'); openDov(id);
+};
+window.dovTriggerRescan = id => {
+  const v2=VULNS.find(x=>x.id===id);
+  const tm2={server:'Tenable',application:'Veracode',cloud:'Wiz',container:'Trivy',repository:'GitHub Secret Scanning',ad:'BloodHound',iac:'Checkov',network:'Tenable'};
+  const t2=tm2[v2?.asset_type]||'Tenable';
+  saveStatus(id,'Rescan Requested');
+  addAuditEvent(id,{actor:'system',name:'RBVM Validation Engine',icon:'ti-refresh',action:'Rescan solicitado via API',before:'Resolved by Team',after:'Rescan Requested',detail:`Ferramenta: ${t2} · Validação técnica iniciada`,src:t2});
+  toast(`Rescan acionado via ${t2}...`,'ts');
+  setTimeout(()=>{ saveStatus(id,'Validation Running'); addAuditEvent(id,{actor:'system',name:t2,icon:'ti-radar',action:'Validação em execução',before:'Rescan Requested',after:'Validation Running',detail:`${t2} escaneando ativo`,src:t2}); openDov(id); render(); },1400);
+};
+window.dovConfirmFixed = id => {
+  const v3=VULNS.find(x=>x.id===id);
+  const tm3={server:'Tenable',application:'Veracode',cloud:'Wiz',container:'Trivy',repository:'GitHub Secret Scanning',ad:'BloodHound',iac:'Checkov',network:'Tenable'};
+  const t3=tm3[v3?.asset_type]||'Tenable';
+  saveStatus(id,'Closed with Evidence');
+  addAuditEvent(id,{actor:'system',name:t3,icon:'ti-shield-check',action:'Correção confirmada — vulnerability NOT found',before:'Validation Running',after:'Closed with Evidence',detail:`${t3} não detectou o finding no rescan. Evidência: scan-${id}-${Date.now()}.pdf`,src:t3});
+  addAuditEvent(id,{actor:'system',name:'RBVM Engine',icon:'ti-lock',action:'Vulnerabilidade encerrada com evidência técnica',before:'Fixed Confirmed',after:'Closed with Evidence',detail:'Indicadores executivos atualizados. Ciclo encerrado.',src:'Internal'});
+  toast('Correção confirmada — vulnerabilidade encerrada com evidência!','ts');
+  openDov(id); render();
+};
+window.dovStillPresent = id => {
+  saveStatus(id,'Still Vulnerable');
+  addAuditEvent(id,{actor:'system',name:'Scanner',icon:'ti-alert-triangle',action:'Finding AINDA PRESENTE após rescan',before:'Validation Running',after:'Still Vulnerable',detail:'Vulnerabilidade não corrigida. Ticket reaberto. SLA reiniciado.',src:'Scanner'});
+  setTimeout(()=>{ saveStatus(id,'Reopened'); addAuditEvent(id,{actor:'system',name:'RBVM Engine',icon:'ti-refresh-alert',action:'Ticket reaberto — reincidência registrada',before:'Still Vulnerable',after:'Reopened',detail:'SLA reiniciado. GRC notificado. Escalonamento automático ativado.',src:'Internal'}); openDov(id); render(); },700);
+  toast('Finding persistente — ticket reaberto e SLA reiniciado','te');
+};
+
 
 // ── MODALS ────────────────────────────────────────────────────────────────────
 window.openModal = function(type, data) {
@@ -874,16 +995,70 @@ function toast(msg,cls='') {
   clearTimeout(window._tt); window._tt=setTimeout(()=>el.classList.remove('show'),3500);
 }
 window.toast        = toast;
-window.notifyOwner  = id => toast(`Notificação enviada para ${VULNS.find(x=>x.id===id)?.owner||id} via Teams/Slack`,'ts');
-window.escalate     = id => toast(`${id}: Escalado para CISO + GRC + Liderança`,'ts');
+window.notifyOwner  = id => { addAuditEvent(id,{actor:'system',name:'Notification Engine',icon:'ti-send',action:'Notificação enviada ao owner',before:null,after:null,detail:`Canal: Slack/Teams · Destinatário: ${VULNS.find(x=>x.id===id)?.owner||id}`,src:'Slack/Teams'}); toast(`Notificação enviada para ${VULNS.find(x=>x.id===id)?.owner||id}`,'ts'); };
+window.escalate     = id => { addAuditEvent(id,{actor:'system',name:'Escalation Engine',icon:'ti-arrow-up',action:'Escalonamento executado',before:null,after:null,detail:'CISO + GRC + Liderança notificados via PagerDuty',src:'PagerDuty'}); toast(`${id}: Escalado para CISO + GRC + Liderança`,'ts'); };
 window.syncNow      = n  => { toast(`Sincronizando ${n}...`); setTimeout(()=>toast(`${n}: Concluído`,'ts'),1500); };
 window.clearAgent   = () => { AH=[AH[0]]; render(); };
 window.triggerPB    = id => toast(`Playbook acionado para ${id}`,'ts');
-window.triggerRescan= id => toast(`Rescan solicitado para ${id} no scanner de origem`,'ts');
-window.markResolved = id => {
-  const v=VULNS.find(x=>x.id===id); if(v) v.status='Awaiting Validation';
-  toast(`${id}: Aguardando Validação Técnica. Rescan obrigatório para fechar definitivamente.`);
-  closeDov(); render();
+window.triggerRescan= id => dovTriggerRescan(id);
+window.markResolved = id => { dovMarkResolved(id); closeDov(); };
+
+// ── TICKET MODAL ──────────────────────────────────────────────────────────────
+window.openTicketModal = function(id) {
+  const v=VULNS.find(x=>x.id===id); if(!v) return;
+  const prio=v.sev==='CRITICAL'?'P1 — Critical':v.sev==='HIGH'?'P2 — High':'P3 — Medium';
+  const due=v.due||new Date(Date.now()+v.sla_max*86400000).toISOString().slice(0,10);
+  const mc=document.getElementById('mc');
+  mc.innerHTML=`<div class="modal-t"><i class="ti ti-ticket" style="color:var(--accent)"></i>Criar Ticket — ${id}</div>
+  <div class="fr" style="margin-bottom:10px">
+    <div class="ff"><div class="fl">Ferramenta</div><select class="fi" id="tk-tool"><option>Jira</option><option>ServiceNow</option></select></div>
+    <div class="ff"><div class="fl">Tipo</div><select class="fi" id="tk-type"><option>Security Finding</option><option>Incident</option><option>Task</option><option>Change Request</option></select></div>
+  </div>
+  <div class="tick-sep"></div>
+  <div class="g2" style="gap:8px;margin-bottom:10px">
+    <div class="tick-field"><div class="tick-label">Vulnerabilidade</div><div class="tick-val mono">${id}</div></div>
+    <div class="tick-field"><div class="tick-label">Ativo</div><div class="tick-val">${v.asset}</div></div>
+    <div class="tick-field"><div class="tick-label">Owner</div><div class="tick-val">${v.owner}</div></div>
+    <div class="tick-field"><div class="tick-label">Squad / BU</div><div class="tick-val">${v.squad} · ${v.bu}</div></div>
+    <div class="tick-field"><div class="tick-label">Severidade / Score</div><div class="tick-val">${v.sev} · Score: ${v.final_score}</div></div>
+    <div class="tick-field"><div class="tick-label">Prioridade / Due Date</div><div class="tick-val">${prio} · ${due}</div></div>
+    <div class="tick-field"><div class="tick-label">Impacto Financeiro</div><div class="tick-val" style="color:var(--crit)">${v._fin.label}</div></div>
+    <div class="tick-field"><div class="tick-label">SLA</div><div class="tick-val">${v.sla_max} dias · Due: ${due}</div></div>
+  </div>
+  <div class="tick-field" style="margin-bottom:8px"><div class="tick-label">Descrição Técnica</div><div class="tick-val" style="font-size:11px;line-height:1.5">${v.business_impact}</div></div>
+  <div class="tick-field" style="margin-bottom:8px"><div class="tick-label">Recomendação de Correção</div><div class="tick-val" style="font-size:11px;line-height:1.5">${v.remediation}</div></div>
+  <div class="tick-field" style="margin-bottom:8px"><div class="tick-label">Tags</div><div class="tick-val" style="font-size:11px">${[v.sev,v.kev?'KEV':'',v.exploit?'exploit':'',v.rce?'rce':'',v.source,v.nist||''].filter(Boolean).join(', ')}</div></div>
+  <div class="nt ni-" style="margin-bottom:10px"><i class="ti ti-info-circle" style="font-size:14px;flex-shrink:0"></i>Criar ticket ≠ vulnerabilidade corrigida. Após correção, validação técnica via rescan é obrigatória.</div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeMod()">Cancelar</button>
+    <button class="btn btn-p" onclick="execCreateTicket('${id}')"><i class="ti ti-ticket"></i> Criar Ticket Agora</button>
+  </div>`;
+  document.getElementById('mbg').classList.add('open');
+};
+window.execCreateTicket = function(id) {
+  const tool=document.getElementById('tk-tool')?.value||'Jira';
+  const type=document.getElementById('tk-type')?.value||'Security Finding';
+  const v=VULNS.find(x=>x.id===id); if(!v) return;
+  const num=Math.floor(1000+Math.random()*9000);
+  const tkId=`${tool==='Jira'?'SEC':'INC'}-${num}`;
+  TICKETS[id]={id:tkId,tool,type,vuln_id:id,created:new Date().toISOString().slice(0,16).replace('T',' '),status:'Open'};
+  LS.set('tickets',TICKETS);
+  saveStatus(id,'Ticket Created');
+  addAuditEvent(id,{actor:'system',name:`${tool} Integration`,icon:'ti-ticket',action:`Ticket criado: ${tkId}`,before:'New',after:'Ticket Created',detail:`${tool} · Tipo: ${type} · Prioridade: ${v.sev==='CRITICAL'?'P1':'P2'} · SLA: ${v.sla_max}d · Due: ${v.due||'—'}`,src:tool});
+  document.getElementById('mc').innerHTML=`
+  <div class="tick-success">
+    <i class="ti ti-circle-check" style="font-size:32px;color:var(--success);display:block;margin:0 auto 10px"></i>
+    <div style="font-size:16px;font-weight:700;color:var(--success);margin-bottom:6px">Ticket Criado com Sucesso!</div>
+    <div class="mono" style="font-size:22px;color:var(--accent);margin:6px 0">${tkId}</div>
+    <div style="font-size:11px;color:var(--text2);margin-bottom:4px">Ferramenta: ${tool} · Tipo: ${type} · Status: Open</div>
+    <div style="font-size:11px;color:var(--text2);margin-bottom:12px">Owner: ${v.owner} · Due: ${v.due||'—'}</div>
+    <div class="btn-g" style="justify-content:center">
+      <button class="btn btn-s btn-p" onclick="closeMod();openDov('${id}')"><i class="ti ti-arrow-right"></i> Ver Vulnerabilidade</button>
+      <button class="btn btn-s" onclick="closeMod();LC_VULN_ID='${id}';setView('lifecycle')"><i class="ti ti-route"></i> Ver Lifecycle</button>
+      <button class="btn btn-s" onclick="closeMod()">Fechar</button>
+    </div>
+  </div>`;
+  toast(`Ticket ${tkId} criado no ${tool}!`,'ts'); render();
 };
 
 // ── AGENTE IA ─────────────────────────────────────────────────────────────────
@@ -939,10 +1114,22 @@ GUARDRAILS DE GOVERNANÇA:
 - Nunca diga que a plataforma fez ações que não estão nos dados.
 - Máximo 500 palavras. Use markdown (negrito, listas, tabelas quando útil).`;
 
+  // Build source metadata for transparency
+  const activeVulns=VULNS.filter(v=>v.status!=='Resolved');
+  const sourceMeta={
+    vulns_total:VULNS.length, vulns_active:activeVulns.length,
+    period:'últimos 6 meses', data_date:'2024-05-22',
+    sources_used:['RBVM Platform Dataset','CISA KEV','EPSS/FIRST','MONTHLY_TRENDS','KRI_ALERTS','COMPLIANCE_CONTROLS','SUPPLIER_VULNS','CICD_FINDINGS'],
+    limitations:['Dados mockados para demonstração','Integrações reais não conectadas','Valores financeiros são estimativas','Sem dados em tempo real'],
+    vulns_referenced:activeVulns.filter(v=>v.kev||v.sla_used>=v.sla_max).map(v=>v.id).slice(0,6),
+  };
+
   try {
     const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sys,messages:AH.map(m=>({role:m.role==='ai'?'assistant':'user',content:m.text}))})});
     const d=await r.json();
-    AH.push({role:'ai',text:d.content?.map(b=>b.text||'').join('')||'Erro ao obter resposta.'});
+    const reply=d.content?.map(b=>b.text||'').join('')||'Erro ao obter resposta.';
+    AH.push({role:'ai',text:reply,sources:sourceMeta});
+    addAuditEvent('AI_AGENT',{actor:'ai',name:'RBVM AI Agent',icon:'ti-robot',action:'Resposta gerada pelo Agente IA',before:null,after:null,detail:`Query: "${txt.substring(0,80)}..." · Vulns analisadas: ${sourceMeta.vulns_active}`,src:'Claude Sonnet'});
   } catch(e) {
     AH.push({role:'ai',text:'Erro ao conectar ao agente. Verifique a API Anthropic.'});
   }
@@ -952,11 +1139,388 @@ GUARDRAILS DE GOVERNANÇA:
 function rMsgs(typing) {
   const el=document.getElementById('am'); if(!el) return;
   el.innerHTML=AH.map(m=>`<div class="ag-msg ${m.role==='ai'?'msg-ai':'msg-u'}">
-    <div class="ag-meta">${m.role==='ai'?'RBVM Agent':'Você'}</div>
+    <div class="ag-meta">${m.role==='ai'?'🤖 RBVM Agent — Claude Sonnet':'Você'}</div>
     ${m.text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/`(.*?)`/g,'<code style="background:var(--bg4);padding:1px 4px;border-radius:3px;font-family:var(--mono);font-size:10px">$1</code>')}
+    ${m.sources?`<div class="ai-sources">
+      <div class="ai-sources-title">📊 Fontes usadas pela IA</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:4px">
+        <span>Vulns analisadas: <strong>${m.sources.vulns_active}</strong>/${m.sources.vulns_total}</span>
+        <span>Período: <strong>${m.sources.period}</strong></span>
+        <span>Data ref.: <strong>${m.sources.data_date}</strong></span>
+      </div>
+      <div style="margin-top:4px">Fontes: ${m.sources.sources_used.map(s=>`<span style="margin-right:6px;color:var(--accent)">${s}</span>`).join('')}</div>
+      <div style="margin-top:4px;color:var(--high)">⚠ ${m.sources.limitations.join(' · ')}</div>
+      ${m.sources.vulns_referenced.length?`<div style="margin-top:4px">CVEs/IDs referenciados: ${m.sources.vulns_referenced.map(id=>`<span class="pill pn" style="font-size:8px;margin:1px">${id}</span>`).join('')}</div>`:''}
+    </div>`:''}
   </div>`).join('');
   if(typing) el.innerHTML+=`<div class="ag-msg msg-ai"><div class="tdots"><div class="td"></div><div class="td"></div><div class="td"></div></div></div>`;
   el.scrollTop=el.scrollHeight;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  PERSISTÊNCIA — localStorage
+// ══════════════════════════════════════════════════════════════════════════════
+const LS = {
+  get: k => { try { return JSON.parse(localStorage.getItem('rbvm_'+k)); } catch { return null; } },
+  set: (k,v) => { try { localStorage.setItem('rbvm_'+k, JSON.stringify(v)); } catch {} },
+};
+// Persisted state
+let TICKETS     = LS.get('tickets')     || {};  // {vulnId: {id,tool,type,created,...}}
+let VULN_STATUS = LS.get('vstatus')     || {};  // {vulnId: status}
+let AUDIT_ADDED = LS.get('audit')       || {};  // {vulnId: [events]}
+let LC_VULN_ID  = 'CVE-2024-23897';            // selected lifecycle vuln
+
+// Apply persisted statuses
+VULNS.forEach(v => {
+  if (VULN_STATUS[v.id]) v.status = VULN_STATUS[v.id];
+  v._fin = estimateFinancialImpact(v);
+});
+
+function saveStatus(id, status) {
+  const v=VULNS.find(x=>x.id===id); if(!v) return;
+  v.status = status; VULN_STATUS[id]=status;
+  LS.set('vstatus', VULN_STATUS);
+}
+function addAuditEvent(vulnId, ev) {
+  if (!AUDIT_ADDED[vulnId]) AUDIT_ADDED[vulnId]=[];
+  AUDIT_ADDED[vulnId].push({...ev, ts: new Date().toISOString().slice(0,16).replace('T',' ')});
+  LS.set('audit', AUDIT_ADDED);
+}
+function getAuditForVuln(id) {
+  return getAuditTrail(id, AUDIT_ADDED);
+}
+
+// Extended status pill
+function statusEx(s) {
+  const m={'New':['pn','Novo'],'In Progress':['pp','Em andamento'],'Ticket Created':['ps-tc','Ticket Criado'],'Resolved by Team':['ps-rt','Resolvido pelo Time'],'Awaiting Validation':['ps-av','Aguard. Validação'],'Awaiting Technical Validation':['ps-av','Aguard. Validação'],'Rescan Requested':['ps-rr','Rescan Solicitado'],'Validation Running':['pp','Validando...'],'Fixed Confirmed':['ps-fc','Confirmado ✓'],'Still Vulnerable':['ps-sv','Ainda Vulnerável'],'Reopened':['ps-sv','Reaberto'],'Closed with Evidence':['ps-ce','Fechado ✓'],'Recurrence Detected':['ps-rd','Reincidência'],'Resolved':['pd','Resolvido']};
+  const [cls,lbl]=m[s]||['pn',s];
+  return `<span class="pill ${cls}" style="font-size:10px">${lbl}</span>`;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  MÓDULO A — REMEDIATION LIFECYCLE
+// ══════════════════════════════════════════════════════════════════════════════
+const LC_FEATURED = ['CVE-2024-23897','CVE-2024-21762','CVE-2024-6387','SCA-2024-LOG4J','CLOUD-2024-S3','CICD-2024-001','AD-2024-001'];
+
+function lifecycle() {
+  const v=VULNS.find(x=>x.id===LC_VULN_ID)||VULNS[0];
+  const events=getAuditForVuln(v.id);
+  const tk=TICKETS[v.id];
+
+  const steps=[
+    {id:'detect',   icon:'ti-radar',            label:'Finding Detectado',               desc:'Scanner identifica e envia para a plataforma'},
+    {id:'normalize',icon:'ti-transform',         label:'Normalização & Deduplicação',     desc:'RBVM normaliza, padroniza e remove duplicatas'},
+    {id:'enrich',   icon:'ti-database',          label:'Enriquecimento com TI',           desc:'CVSS, EPSS, KEV, exploit, MITRE ATT&CK, exposição'},
+    {id:'score',    icon:'ti-chart-bar',          label:'Risk Score Calculado',            desc:'Score multicritério baseado em 10+ fatores de risco'},
+    {id:'owner',    icon:'ti-user',              label:'Owner & Squad Identificados',     desc:'CMDB vincula ativo ao owner e squad responsável'},
+    {id:'ticket',   icon:'ti-ticket',            label:'Ticket Criado',                   desc:'Jira/ServiceNow com campos completos e prioridade'},
+    {id:'sla',      icon:'ti-clock',             label:'SLA Iniciado',                    desc:'Timer de cobrança conforme política corporativa'},
+    {id:'notify',   icon:'ti-send',              label:'Alerta Enviado',                  desc:'Owner notificado via Slack/Teams/PagerDuty'},
+    {id:'track',    icon:'ti-activity',          label:'Acompanhamento de SLA',           desc:'Cobranças preventivas e escalonamento automático'},
+    {id:'resolved', icon:'ti-circle-check',      label:'Resolvido pelo Time Técnico',     desc:'Owner marca ticket como resolvido — sem encerrar'},
+    {id:'await',    icon:'ti-hourglass',         label:'Aguardando Validação Técnica',    desc:'RBVM move para validação obrigatória — não fecha direto'},
+    {id:'rescan',   icon:'ti-refresh',           label:'Rescan / Validação via API',      desc:'Scanner de origem confirma ou nega a correção'},
+    {id:'result',   icon:'ti-shield-check',      label:'Resultado da Validação',          desc:'Fixed Confirmed → fecha · Still Vulnerable → reabre'},
+    {id:'close',    icon:'ti-lock',              label:'Fechado com Evidência',           desc:'Vulnerabilidade encerrada com evidência técnica'},
+  ];
+
+  // Determine step states from events and current vuln status
+  const st=v.status;
+  const hasTk = !!tk||!!v.ticket;
+  const stepState = (id) => {
+    const done={'detect':true,'normalize':true,'enrich':true,'score':true,'owner':true};
+    if(done[id]) return 'done';
+    if(id==='ticket') return hasTk?'done':'cur';
+    if(id==='sla') return hasTk?'done':'pend';
+    if(id==='notify') return hasTk?'done':'pend';
+    if(id==='track') return hasTk&&st!=='New'?'done':'pend';
+    if(id==='resolved') return ['Resolved by Team','Awaiting Validation','Awaiting Technical Validation','Rescan Requested','Validation Running','Fixed Confirmed','Still Vulnerable','Reopened','Closed with Evidence','Recurrence Detected'].includes(st)?'done':hasTk?'cur':'pend';
+    if(id==='await') return ['Awaiting Validation','Awaiting Technical Validation','Rescan Requested','Validation Running','Fixed Confirmed','Still Vulnerable','Closed with Evidence'].includes(st)?'done':'pend';
+    if(id==='rescan') return ['Rescan Requested','Validation Running','Fixed Confirmed','Still Vulnerable','Closed with Evidence'].includes(st)?'done':['Awaiting Validation','Awaiting Technical Validation'].includes(st)?'cur':'pend';
+    if(id==='result') return ['Fixed Confirmed','Still Vulnerable','Closed with Evidence'].includes(st)?'done':['Rescan Requested','Validation Running'].includes(st)?'cur':'pend';
+    if(id==='close') return st==='Closed with Evidence'||st==='Fixed Confirmed'?'done':'pend';
+    return 'pend';
+  };
+
+  const stepEvent = (id) => {
+    const m={detect:events[0],normalize:events[1],enrich:events[2],score:events[3],owner:events[4],ticket:events[5]||tk,sla:events[6],notify:events[7]};
+    return m[id];
+  };
+
+  const nextAction = () => {
+    if(!hasTk) return {label:'Criar Ticket no Jira/ServiceNow',action:`openTicketModal('${v.id}')`,cls:'btn-p',icon:'ti-ticket'};
+    if(['In Progress','Ticket Created'].includes(st)) return {label:'Marcar como Resolvido pelo Time',action:`lcMarkResolved('${v.id}')`,cls:'btn-o',icon:'ti-check'};
+    if(['Resolved by Team','Awaiting Validation','Awaiting Technical Validation'].includes(st)) return {label:'Solicitar Rescan / Validação Técnica',action:`lcTriggerRescan('${v.id}')`,cls:'btn-p',icon:'ti-refresh'};
+    if(['Rescan Requested','Validation Running'].includes(st)) return {label:'Validação em andamento...',action:'',cls:'btn disabled',icon:'ti-loader'};
+    if(st==='Fixed Confirmed'||st==='Closed with Evidence') return null;
+    return {label:'Criar Ticket',action:`openTicketModal('${v.id}')`,cls:'btn-p',icon:'ti-ticket'};
+  };
+  const na=nextAction();
+
+  return `<div class="content">
+  <div class="nt ni-" style="align-items:center"><i class="ti ti-route" style="font-size:16px;flex-shrink:0"></i><strong>Remediation Lifecycle</strong> — Jornada completa de uma vulnerabilidade: do finding à evidência de correção. Este é o diferencial central da plataforma.</div>
+  <div class="card">
+    <div class="card-hd"><i class="ti ti-selector" style="color:var(--accent)"></i><div><div class="card-t">Selecionar Vulnerabilidade</div><div class="card-s">Escolha um finding crítico para acompanhar a jornada</div></div></div>
+    <div class="card-bd">
+      <select class="fi" onchange="lcSelectVuln(this.value)" style="width:100%;margin-bottom:0">
+        ${LC_FEATURED.map(id=>{const vx=VULNS.find(x=>x.id===id); return`<option value="${id}" ${id===LC_VULN_ID?'selected':''}>${id} — ${vx?.title?.substring(0,65)||id}</option>`;}).join('')}
+      </select>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-hd"><i class="ti ti-bug" style="color:${RC(v.final_score)}"></i>
+      <div><div class="card-t">${v.title}</div><div class="card-s">${v.asset} · ${v.source} · Owner: ${v.owner}</div></div>
+      <div class="card-ac">${statusEx(v.status)}<span style="margin-left:8px;font-size:11px;color:${RC(v.final_score)};font-weight:700">Score: ${v.final_score}</span>${v.kev?rpill('pc','KEV'):''}</div>
+    </div>
+    <div class="dg3" style="padding:12px 16px 0">
+      <div class="di"><div class="di-l">Severidade</div><div class="di-v">${SP(v.sev)}</div></div>
+      <div class="di"><div class="di-l">Ticket</div><div class="di-v mono">${tk?.id||v.ticket||'—'}</div></div>
+      <div class="di"><div class="di-l">Impacto Financeiro</div><div class="di-v" style="color:var(--crit);font-size:12px">${v._fin.label}</div></div>
+    </div>
+    <div class="card-bd" style="padding-top:8px">
+      <div style="position:relative;padding:8px 0">
+        ${steps.map((s,i)=>{
+          const state=stepState(s.id), ev=stepEvent(s.id);
+          const dotCls={done:'lc-done',cur:'lc-cur',pend:'lc-pend',warn:'lc-warn'}[state]||'lc-pend';
+          return `<div class="lc-step">
+            <div class="lc-dot ${dotCls}"><i class="ti ${s.icon}"></i></div>
+            <div class="lc-body">
+              <div class="lc-head">
+                <span class="lc-name" style="color:${state==='done'?'var(--text)':state==='cur'?'var(--accent)':'var(--text3)'}">${s.label}</span>
+                ${state==='done'?'<i class="ti ti-check" style="color:var(--success);font-size:12px"></i>':''}
+                ${state==='cur'?rpill('pi','ATUAL'):''}
+                ${ev?`<span class="lc-ts">${ev.ts}</span><span class="lc-actor">· ${ev.name||ev.actor||''}</span>`:''}
+              </div>
+              <div class="lc-detail" style="color:${state==='pend'?'var(--text3)':'var(--text2)'}">${ev?.detail||s.desc}</div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>
+  ${na?`<div class="card">
+    <div class="card-hd"><i class="ti ti-arrow-right" style="color:var(--accent)"></i><div><div class="card-t">Próxima Ação Recomendada</div><div class="card-s">O que a plataforma espera agora para avançar o ciclo</div></div></div>
+    <div class="card-bd" style="display:flex;gap:10px;align-items:center">
+      <button class="btn ${na.cls}" ${na.action?`onclick="${na.action}"`:'disabled'}><i class="ti ${na.icon}"></i>${na.label}</button>
+      ${hasTk&&['In Progress','Ticket Created'].includes(st)?`<button class="btn btn-d" onclick="lcMarkStillPresent('${v.id}')"><i class="ti ti-refresh-alert"></i> Finding Ainda Presente</button>`:''}
+      <button class="btn" onclick="openDov('${v.id}')"><i class="ti ti-info-circle"></i> Ver Detalhe Completo</button>
+    </div>
+  </div>`:'<div class="nt nok"><i class="ti ti-lock" style="font-size:16px;flex-shrink:0"></i><strong>Ciclo encerrado</strong> — Vulnerabilidade fechada com evidência técnica. Monitore por reincidência no próximo scan.</div>'}
+  <div class="card">
+    <div class="card-hd"><i class="ti ti-list-details" style="color:var(--accent)"></i><div><div class="card-t">Audit Trail</div><div class="card-s">Histórico completo e auditável de eventos desta vulnerabilidade</div></div></div>
+    <div class="card-bd">
+      ${getAuditForVuln(v.id).length===0?'<div style="color:var(--text3);font-size:11px">Sem eventos registrados ainda.</div>':
+        getAuditForVuln(v.id).map(e=>`<div class="at-row">
+          <div class="at-ic ${e.actor==='system'?'at-ic-sys':e.actor==='ai'?'at-ic-ai':'at-ic-usr'}"><i class="ti ${e.icon||'ti-circle'}"></i></div>
+          <div class="at-body">
+            <div class="at-action">${e.action}</div>
+            <div class="at-meta">${e.ts} · ${e.name} · Fonte: ${e.src||'—'} ${e.before&&e.after?`· Status: ${e.before} → ${e.after}`:''}</div>
+            <div class="at-detail">${e.detail||''}</div>
+          </div>
+        </div>`).join('')}
+    </div>
+  </div>
+  </div>`;
+}
+window.lcSelectVuln = id => { LC_VULN_ID=id; render(); };
+window.lcMarkResolved = id => {
+  saveStatus(id,'Awaiting Validation');
+  addAuditEvent(id,{actor:'user',name:'Owner Técnico',icon:'ti-circle-check',action:'Resolvido pelo Time Técnico',before:'In Progress',after:'Awaiting Validation',detail:'Ticket marcado como resolvido. Aguardando validação técnica obrigatória.',src:'User'});
+  toast('Marcado como resolvido — aguardando validação técnica','ts'); render();
+};
+window.lcTriggerRescan = id => {
+  const v=VULNS.find(x=>x.id===id);
+  const toolMap={server:'Tenable',application:'Veracode',cloud:'Wiz',container:'Trivy',repository:'GitHub Secret Scanning',ad:'BloodHound',iac:'Checkov',network:'Tenable',sca:'Snyk'};
+  const tool=toolMap[v?.asset_type]||'Tenable';
+  saveStatus(id,'Rescan Requested');
+  addAuditEvent(id,{actor:'system',name:'RBVM Validation Engine',icon:'ti-refresh',action:'Rescan solicitado — validação técnica',before:'Awaiting Validation',after:'Rescan Requested',detail:`Tool: ${tool} · Aguardando resultado do scanner de origem`,src:tool});
+  toast(`Rescan solicitado via ${tool}. Aguardando resultado...`,'ts');
+  setTimeout(()=>{
+    saveStatus(id,'Validation Running');
+    addAuditEvent(id,{actor:'system',name:tool,icon:'ti-radar',action:'Validação em execução...',before:'Rescan Requested',after:'Validation Running',detail:`${tool} executando nova varredura no ativo`,src:tool});
+    render();
+  },1500);
+};
+window.lcMarkStillPresent = id => {
+  saveStatus(id,'Still Vulnerable');
+  addAuditEvent(id,{actor:'user',name:'Security Analyst',icon:'ti-alert-triangle',action:'Finding ainda presente após análise',before:'In Progress',after:'Still Vulnerable',detail:'Vulnerabilidade não corrigida confirmada manualmente. Ticket reaberto.',src:'Manual'});
+  setTimeout(()=>{
+    saveStatus(id,'Reopened');
+    addAuditEvent(id,{actor:'system',name:'RBVM Engine',icon:'ti-refresh-alert',action:'Ticket reaberto automaticamente — finding persistente',before:'Still Vulnerable',after:'Reopened',detail:'SEC reaberto + SLA reiniciado + Owner notificado novamente + escalonamento registrado.',src:'Internal'});
+    toast('Finding persistente — ticket reaberto e SLA reiniciado','te'); render();
+  },800);
+};
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  MÓDULO B — DATA QUALITY & COVERAGE
+// ══════════════════════════════════════════════════════════════════════════════
+function dataquality() {
+  const dqItems=[
+    {cat:'Ativos',     sev:'crit', icon:'ti-user-x',       label:'Sem owner definido',               val:14, fix:'Cadastrar owner no CMDB para cada ativo', detail:'Sem owner, a plataforma não direciona cobranças, tickets ou escalações.'},
+    {cat:'Ativos',     sev:'crit', icon:'ti-tag-off',       label:'Sem criticidade cadastrada',        val:8,  fix:'Classificar criticidade (critical/high/medium/low) no CMDB', detail:'Sem criticidade, o risk score não é calculado corretamente.'},
+    {cat:'Ativos',     sev:'high', icon:'ti-radar-2',       label:'Sem scan recente (>30 dias)',        val:23, fix:'Agendar scans regulares via Tenable/Qualys', detail:'Ativos sem scan recente podem ter vulnerabilidades não detectadas.'},
+    {cat:'Ativos',     sev:'crit', icon:'ti-device-laptop-off',label:'EOL/EOS em produção',            val:3,  fix:'Plano de migração ou compensação formal obrigatório', detail:'Sistemas EOL não recebem patches — risco crescente sem solução.'},
+    {cat:'Ativos',     sev:'high', icon:'ti-building-off',  label:'Sem business unit associada',       val:6,  fix:'Completar cadastro no CMDB com BU responsável', detail:'Sem BU, não é possível gerar relatórios por área de negócio.'},
+    {cat:'Vulns',      sev:'crit', icon:'ti-ticket-off',    label:'Sem ticket associado',              val:VULNS.filter(v=>!v.ticket&&v.status!=='Resolved').length, fix:'Criar ticket para cada finding crítico/alto', detail:'Sem ticket, não há SLA, cobrança, evidência nem rastreabilidade.'},
+    {cat:'Vulns',      sev:'high', icon:'ti-calendar-x',   label:'Sem SLA definido',                  val:VULNS.filter(v=>!v.sla_max).length, fix:'Aplicar política de SLA a todos os findings', detail:'Sem SLA, a plataforma não cobra nem escalona automaticamente.'},
+    {cat:'CI/CD',      sev:'high', icon:'ti-git-branch-deleted',label:'Pipelines sem security gate',   val:10, fix:'Configurar SAST/SCA/Secret Scanning nos repos restantes', detail:'10 de 38 pipelines sem gate — vulns chegam a produção sem controle.'},
+    {cat:'CI/CD',      sev:'crit', icon:'ti-key-off',       label:'Repos sem secret scanning',         val:7,  fix:'Habilitar GitHub Secret Scanning ou Gitleaks em todos os repos', detail:'Secrets expostos são o vetor de exploração mais rápido.'},
+    {cat:'CI/CD',      sev:'high', icon:'ti-box-off',       label:'Containers sem scan de imagem',     val:4,  fix:'Configurar Trivy/Grype em todos os builds de container', detail:'Imagens desatualizadas sem scan acumulam CVEs desconhecidas.'},
+    {cat:'Fornecedores',sev:'high',icon:'ti-building-factory-off',label:'Assessments de fornecedores vencidos', val:SUPPLIERS?.filter(s=>new Date(s.next_assessment)<new Date()).length||2, fix:'Revalidar fornecedores com assessment vencido urgentemente', detail:'Fornecedores sem assessment são risco de supply chain não mensurado.'},
+    {cat:'Integrações',sev:'med', icon:'ti-plug-x',         label:'Integrações com falha ou parcial',  val:INTEGRATIONS?.filter(i=>i.status!=='connected').length||3, fix:'Renovar credenciais e verificar conectividade das integrações', detail:'Dados incompletos ou desatualizados comprometem a priorização.'},
+    {cat:'Cloud',      sev:'ok',  icon:'ti-cloud-check',    label:'Cloud accounts com CSPM ativo',     val:6,  fix:'Manter cobertura total — OK', detail:'Todas as cloud accounts estão monitoradas pelo Wiz.'},
+  ];
+  const sevMap={crit:{cls:'dq-crit',icon:'ti-alert-octagon'},high:{cls:'dq-high',icon:'ti-alert-triangle'},med:{cls:'dq-med',icon:'ti-info-circle'},ok:{cls:'dq-ok',icon:'ti-check'}};
+  const cats=[...new Set(dqItems.map(i=>i.cat))];
+  const total=dqItems.filter(i=>i.sev!=='ok').reduce((s,i)=>s+i.val,0);
+  const crits=dqItems.filter(i=>i.sev==='crit').reduce((s,i)=>s+i.val,0);
+  return `<div class="content">
+  <div class="nt nw"><i class="ti ti-alert-triangle" style="font-size:16px;flex-shrink:0"></i><strong>Data Quality é pré-requisito do RBVM.</strong> Sem owner, criticidade e dados confiáveis, a plataforma não consegue priorizar, direcionar, cobrar, escalar ou evidenciar corretamente.</div>
+  <div class="g4">
+    <div class="mt"><div class="mt-l">Problemas Totais</div><div class="mt-v vc">${total}</div><div class="mt-s">dados faltando</div></div>
+    <div class="mt"><div class="mt-l">Críticos</div><div class="mt-v vc">${crits}</div><div class="mt-s">bloqueiam RBVM</div></div>
+    <div class="mt"><div class="mt-l">Score de Cobertura</div><div class="mt-v ${total<20?'vk':'vh'}">${Math.max(0,100-total)}%</div><div class="mt-s">maturidade estimada</div></div>
+    <div class="mt"><div class="mt-l">Ativos sem Criticidade</div><div class="mt-v vc">8</div><div class="mt-s">score inválido</div></div>
+  </div>
+  ${cats.map(cat=>`
+  <div class="card">
+    <div class="card-hd"><i class="ti ti-category" style="color:var(--accent)"></i><div><div class="card-t">${cat}</div></div></div>
+    <div class="card-bd" style="padding-top:8px">
+      ${dqItems.filter(i=>i.cat===cat).map(i=>{const sm=sevMap[i.sev];return`<div class="dq-item">
+        <div class="dq-icon ${sm.cls}"><i class="ti ${i.icon}"></i></div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:8px"><span style="font-size:12px;font-weight:600">${i.label}</span><span class="pill ${i.sev==='crit'?'pc':i.sev==='high'?'ph':i.sev==='med'?'pm':'pd'}" style="font-size:9px">${i.sev==='ok'?'OK':i.val>0?i.val:''}</span></div>
+          <div style="font-size:11px;color:var(--text2);margin-top:2px">${i.detail}</div>
+          <div style="font-size:10px;color:var(--accent);margin-top:3px">→ ${i.fix}</div>
+        </div>
+      </div>`;}).join('')}
+    </div>
+  </div>`).join('')}
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  MÓDULO C — EXECUTIVE INTELLIGENCE
+// ══════════════════════════════════════════════════════════════════════════════
+function execintel() {
+  const active=VULNS.filter(v=>v.status!=='Resolved');
+  const lm=MONTHLY_TRENDS[MONTHLY_TRENDS.length-1];
+  const pm=MONTHLY_TRENDS[MONTHLY_TRENDS.length-2];
+  const finTotal=FMT(totalFinancialExposure(VULNS));
+  const slaRate=Math.round(lm.sla_compliance*100);
+  const mttrDelta=((lm.mttr_crit-pm.mttr_crit)/pm.mttr_crit*100).toFixed(1);
+  const excsExpiring=EXCS.filter(e=>{const d=new Date(e.exp); return d>new Date()&&(d-new Date())/(1000*60*60*24)<30;}).length;
+  const decisions=[
+    {icon:'ti-alert-octagon', sev:'crit',  q:'Quais KEVs seguem abertas e qual o risco para a organização?',         label:`${active.filter(v=>v.kev).length} KEVs ativas — exploração confirmada em ambiente real`},
+    {icon:'ti-clock-x',       sev:'crit',  q:'Quais SLAs críticos estão vencidos e quem é responsável?',             label:`${active.filter(v=>v.sla_used>=v.sla_max).length} SLAs vencidos — escalonamento ativo`},
+    {icon:'ti-currency-dollar',sev:'high', q:'Qual a exposição financeira estimada das vulnerabilidades críticas?',  label:`Exposição estimada: ${finTotal} em risco ativo`},
+    {icon:'ti-git-branch',    sev:'high',  q:'Quais pipelines estão bloqueados e qual o impacto em entrega?',        label:`${PIPELINE_GATES?.filter(g=>g.status==='blocked').length||4} pipelines bloqueados — deploy impedido`},
+    {icon:'ti-shield-x',      sev:'med',   q:'Quais exceções críticas vencem em breve e precisam de revisão?',       label:`${excsExpiring} exceções vencem em menos de 30 dias`},
+    {icon:'ti-chart-line',    sev:'ok',    q:'Qual a tendência de MTTR e SLA compliance nos últimos 6 meses?',      label:`MTTR ${mttrDelta<0?'↓ melhorando':'↑ piorando'} ${Math.abs(mttrDelta)}% · SLA Compliance ${slaRate}%`},
+  ];
+  const slides=['Visão Executiva de Risco','Tendência de Risco — 6 meses','Top KEVs e Exposição Externa','MTTR e SLA Compliance','Exceções Ativas e Risco Aceito','Decisões Pendentes para Liderança','Plano de Ação — Próximos 30 dias'];
+  return `<div class="content">
+  <div class="nt ni-"><i class="ti ti-brain" style="font-size:16px;flex-shrink:0"></i><strong>Executive Intelligence</strong> — Respostas para as perguntas que liderança faz. Gerado a partir dos dados reais da plataforma.</div>
+  <div class="g4">
+    <div class="mt"><div class="mt-l">Exposição Total</div><div class="mt-v vc" style="font-size:17px">${finTotal}</div><div class="mt-s">risco financeiro estimado</div></div>
+    <div class="mt"><div class="mt-l">Risco Caiu?</div><div class="mt-v ${mttrDelta<0?'vk':'vc'}">${mttrDelta<0?'SIM':'NÃO'}</div><div class="mt-s">MTTR ${Math.abs(mttrDelta)}% ${mttrDelta<0?'melhor':'pior'}</div></div>
+    <div class="mt"><div class="mt-l">SLA Compliance</div><div class="mt-v ${slaRate>=80?'vk':'vh'}">${slaRate}%</div><div class="mt-s">meta: ≥90%</div></div>
+    <div class="mt"><div class="mt-l">Backlog Crítico</div><div class="mt-v vc">${active.filter(v=>v.sev==='CRITICAL').length}</div><div class="mt-s">requer decisão</div></div>
+  </div>
+  <div class="card">
+    <div class="card-hd"><i class="ti ti-checklist" style="color:var(--crit)"></i><div><div class="card-t">Decisões Pendentes para Liderança</div><div class="card-s">Perguntas que a diretoria precisa responder esta semana</div></div></div>
+    <div class="card-bd">
+      ${decisions.map(d=>`<div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg3);margin-bottom:6px;cursor:pointer" onclick="quickMsg('${d.q.replace(/'/g,"\\'")}')">
+        <i class="ti ${d.icon}" style="color:${d.sev==='crit'?'var(--crit)':d.sev==='high'?'var(--high)':d.sev==='ok'?'var(--success)':'var(--med)'};font-size:18px;flex-shrink:0"></i>
+        <div style="flex:1"><div style="font-size:12px;font-weight:500">${d.label}</div><div style="font-size:10px;color:var(--text3)">${d.q}</div></div>
+        <span class="pill ${d.sev==='crit'?'pc':d.sev==='high'?'ph':d.sev==='ok'?'pd':'pm'}" style="font-size:9px;flex-shrink:0">${d.sev==='crit'?'CRÍTICO':d.sev==='high'?'ALTO':d.sev==='ok'?'OK':'MÉDIO'}</span>
+      </div>`).join('')}
+    </div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-hd"><i class="ti ti-presentation" style="color:var(--accent)"></i><div><div class="card-t">Gerar Apresentação Executiva</div><div class="card-s">PowerPoint para CISO e comitê de risco</div></div></div>
+      <div class="card-bd">
+        <div style="font-size:11px;color:var(--text2);margin-bottom:10px">Slides que seriam gerados:</div>
+        ${slides.map((s,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:4px;background:var(--bg4);margin-bottom:4px;font-size:11px"><span style="color:var(--text3);font-weight:700;min-width:20px">${i+1}.</span><span>${s}</span></div>`).join('')}
+        <div class="btn-g" style="margin-top:12px">
+          <button class="btn btn-p" onclick="quickMsg('Gere resumo executivo completo para o CISO com risco atual, KEVs abertas, MTTR, SLA compliance, exposição financeira, exceções e decisões pendentes para liderança.')"><i class="ti ti-robot"></i> Gerar via Agente IA</button>
+          <button class="btn" onclick="toast('Exportação PDF/PPTX: integração com backend necessária para versão enterprise','ts')"><i class="ti ti-file-analytics"></i> Exportar PDF/PPTX</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><i class="ti ti-target" style="color:var(--high)"></i><div><div class="card-t">Plano de Ação — Próximos 30 dias</div><div class="card-s">Prioridades executivas para redução de risco</div></div></div>
+      <div class="card-bd">
+        ${[
+          {p:1,action:'Corrigir todas as CISA KEV abertas',prazo:'72h — 7 dias',who:'CloudOps + Network',status:'URGENTE'},
+          {p:2,action:'Resolver SLAs vencidos com escalação ativa',prazo:'Esta semana',who:'Todos os times',status:'URGENTE'},
+          {p:3,action:'Desbloquear pipelines críticos (CI/CD)',prazo:'48h',who:'DevSecOps',status:'BLOQUEANTE'},
+          {p:4,action:'Renovar assessments de fornecedores vencidos',prazo:'30 dias',who:'GRC + Procurement',status:'REGULATÓRIO'},
+          {p:5,action:'Cadastrar owners para 14 ativos sem responsável',prazo:'15 dias',who:'CMDB Team',status:'QUALIDADE'},
+        ].map(a=>`<div style="display:flex;gap:8px;padding:8px;border-radius:var(--r);background:var(--bg3);border:1px solid var(--border);margin-bottom:6px">
+          <span style="font-size:11px;font-weight:700;color:var(--text3);min-width:16px">${a.p}.</span>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:11px;font-weight:600">${a.action}</div>
+            <div style="font-size:10px;color:var(--text3)">Prazo: ${a.prazo} · Resp: ${a.who}</div>
+          </div>
+          <span class="pill ${a.status==='URGENTE'?'pc':a.status==='BLOQUEANTE'?'ph':'pn'}" style="font-size:8px;flex-shrink:0">${a.status}</span>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  MÓDULO D — SMART TICKET GROUPING
+// ══════════════════════════════════════════════════════════════════════════════
+function smartgroup() {
+  const active=VULNS.filter(v=>v.status!=='Resolved'&&v.status!=='Closed with Evidence');
+  // Group by CVE (same CVE, multiple assets)
+  const byCVE={};active.forEach(v=>{if(!byCVE[v.id])byCVE[v.id]=[];byCVE[v.id].push(v);});
+  // Group by squad
+  const bySquad={};active.forEach(v=>{if(!bySquad[v.squad])bySquad[v.squad]=[];bySquad[v.squad].push(v);});
+  // Group by source
+  const bySrc={};active.forEach(v=>{if(!bySrc[v.source])bySrc[v.source]=[];bySrc[v.source].push(v);});
+
+  const suggestions=[
+    {type:'EMERGENCIAL INDIVIDUAL',color:'var(--crit)',icon:'ti-alert-octagon',title:'CVEs com CISA KEV — Tickets Individuais P0/P1',reason:'KEVs com exploração ativa requerem ticket individual para rastreabilidade máxima e SLA emergencial.', items:active.filter(v=>v.kev).map(v=>v.id),reduction:null,epic:false},
+    {type:'CAMPANHA DE PATCH',color:'var(--high)',icon:'ti-package',title:'Windows/Infrastructure — Patch Campaign',reason:'Multiple vulns na mesma tecnologia podem ser agrupadas em um Epic com Tasks por squad.',items:active.filter(v=>v.asset_type==='server'&&!v.kev).map(v=>v.id),reduction:'Reduz de '+active.filter(v=>v.asset_type==='server'&&!v.kev).length+' tickets para 1 Epic',epic:true},
+    {type:'ÉPICO POR SQUAD',color:'var(--accent)',icon:'ti-users',title:'AppSec Squad — Security Backlog Epic',reason:'Findings do mesmo squad podem virar 1 épico com subtasks priorizadas por risk score.',items:Object.entries(bySquad).find(([k])=>k.includes('AppSec'))?.[1]?.map(v=>v.id)||[],reduction:'1 Epic por squad com subtasks priorizadas',epic:true},
+    {type:'SCA / DEPENDÊNCIAS',color:'#a084ff',icon:'ti-code',title:'Dependências Vulneráveis — Package Update Campaign',reason:'Vulns de dependências afetando múltiplos repos viram um épico por squad com PRs automáticos.',items:active.filter(v=>v.source==='Snyk'||v.source?.includes('Dependabot')).map(v=>v.id),reduction:'1 Epic + PRs automáticos via Snyk',epic:true},
+    {type:'CI/CD — INDIVIDUAL',color:'var(--high)',icon:'ti-git-branch',title:'Secrets e CI/CD Blockers — Incidentes Individuais',reason:'Secrets expostos e blockers de pipeline são sempre individuais — risco específico e ação imediata.',items:active.filter(v=>v.asset_type==='repository').map(v=>v.id),reduction:null,epic:false},
+  ];
+
+  const totalOriginal=active.length;
+  const totalGrouped=suggestions.reduce((s,sg)=>s+(sg.epic?1:sg.items.length),0);
+  return `<div class="content">
+  <div class="nt ni-"><i class="ti ti-stack-2" style="font-size:16px;flex-shrink:0"></i><strong>Smart Ticket Grouping</strong> — Evitar abrir milhares de tickets inúteis. Estratégia inteligente reduz ruído operacional e mantém rastreabilidade.</div>
+  <div class="g4">
+    <div class="mt"><div class="mt-l">Findings Abertos</div><div class="mt-v vi">${totalOriginal}</div><div class="mt-s">sem agrupamento</div></div>
+    <div class="mt"><div class="mt-l">Após Agrupamento</div><div class="mt-v vk">~${totalGrouped}</div><div class="mt-s">tickets/epics sugeridos</div></div>
+    <div class="mt"><div class="mt-l">Redução de Ruído</div><div class="mt-v vk">${Math.round((1-totalGrouped/Math.max(totalOriginal,1))*100)}%</div><div class="mt-s">menos tickets</div></div>
+    <div class="mt"><div class="mt-l">Critério Principal</div><div class="mt-v vt" style="font-size:14px">Risco + Squad</div><div class="mt-s">agrupamento inteligente</div></div>
+  </div>
+  <div class="notice nw" style="display:flex;gap:8px;align-items:flex-start;padding:10px 12px;border-radius:var(--r)"><i class="ti ti-alert-triangle" style="font-size:16px;flex-shrink:0;color:var(--high)"></i><span style="font-size:11px;color:var(--high)"><strong>Regra crítica:</strong> KEVs, secrets expostos e RCEs internet-facing devem SEMPRE ter tickets individuais — nunca agrupados. O agrupamento é para reduzir ruído em vulns de menor urgência.</span></div>
+  ${suggestions.map(sg=>`<div class="sg-card">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <i class="ti ${sg.icon}" style="color:${sg.color};font-size:18px"></i>
+      <div><div class="sg-type" style="color:${sg.color}">${sg.type}</div><div class="sg-title">${sg.title}</div></div>
+      <div style="margin-left:auto;text-align:right">${sg.epic?rpill('pi','EPIC'):'<span class="pill pn" style="font-size:9px">INDIVIDUAL</span>'}</div>
+    </div>
+    <div style="font-size:11px;color:var(--text2);margin-bottom:8px">${sg.reason}</div>
+    <div class="sg-stat">
+      <span>${sg.items.length} findings</span>
+      ${sg.reduction?`<span style="color:var(--success)">→ ${sg.reduction}</span>`:''}
+    </div>
+    ${sg.items.length>0?`<div style="margin-top:8px;display:flex;gap:4px;flex-wrap:wrap">${sg.items.slice(0,6).map(id=>`<span class="pill pn" style="font-size:9px">${id}</span>`).join('')}${sg.items.length>6?`<span style="font-size:10px;color:var(--text3)">+${sg.items.length-6} mais</span>`:''}</div>`:''}
+    <div class="btn-g" style="margin-top:10px">
+      <button class="btn btn-s btn-p" onclick="toast('Grouping aplicado — ${sg.items.length} findings → ${sg.epic?'1 Epic':'tickets individuais'}','ts')"><i class="ti ti-plus"></i> Aplicar Agrupamento</button>
+      <button class="btn btn-s" onclick="quickMsg('Gere um plano de agrupamento de tickets para: ${sg.title}. Inclua critério de agrupamento, risco de agrupamento indevido e estrutura de Epic/Tasks sugerida.')"><i class="ti ti-robot"></i> Detalhar via IA</button>
+    </div>
+  </div>`).join('')}
+  </div>`;
 }
 
 // ── START ─────────────────────────────────────────────────────────────────────
