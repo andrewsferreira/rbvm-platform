@@ -146,6 +146,27 @@
 .fp-quote{background:var(--bg4);border-left:2px solid var(--accent);border-radius:0 var(--r) var(--r) 0;padding:8px 12px;font-size:11px;color:var(--text2);line-height:1.5;margin:6px 0;font-style:italic}
 .scanner-bar{height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-top:3px}
 .scanner-bar-fill{height:100%;border-radius:3px}
+
+/* ── ASM ── */
+.asm-score-wrap{position:relative;width:120px;height:120px;flex-shrink:0}
+.asm-score-val{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.asm-score-num{font-size:28px;font-weight:700;line-height:1}
+.asm-score-lbl{font-size:10px;color:var(--text3);margin-top:2px}
+.asm-cat{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r);background:var(--bg3);border:1px solid var(--border);cursor:pointer;transition:all .15s}
+.asm-cat:hover{border-color:var(--border2);background:var(--bg4)}
+.asm-cat.active{border-color:var(--accent);background:rgba(79,122,255,.08)}
+.asm-cat-icon{width:34px;height:34px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ssl-grade{font-size:15px;font-weight:800;width:28px;text-align:center}
+.hdr-check{width:14px;height:14px;border-radius:2px;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;margin:1px}
+.hdr-ok{background:var(--successbg);color:var(--success)}.hdr-no{background:var(--critbg);color:var(--crit)}
+.dns-ok{color:var(--success)}.dns-no{color:var(--crit)}.dns-tag{font-size:9px;font-weight:700;padding:1px 4px;border-radius:3px}
+.port-badge{font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;background:var(--bg4);color:var(--text2);margin:2px;display:inline-block;font-family:var(--mono)}
+.port-risky{background:var(--critbg);color:var(--crit)}
+.shadow-badge{background:rgba(255,76,76,.15);border:1px solid rgba(255,76,76,.3);border-radius:var(--r);padding:6px 10px;font-size:11px;color:var(--crit);margin-bottom:6px}
+.cert-bar-wrap{height:8px;background:var(--bg4);border-radius:4px;overflow:hidden;margin-top:3px;width:100%}
+.cert-bar-fill{height:100%;border-radius:4px;transition:width .3s}
+.asm-expand{background:var(--bg4);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-top:8px}
+.tech-tag{font-size:9px;padding:2px 7px;border-radius:4px;background:rgba(79,122,255,.12);color:var(--accent);font-weight:600;margin:2px;display:inline-block}
 </style>
 </head>
 <body>
@@ -195,6 +216,10 @@
     <div class="sb-it" id="nav-compliance" onclick="setView('compliance')"><i class="ti ti-certificate"></i>Compliance / GRC</div>
     <div class="sb-it" id="nav-comms"      onclick="setView('comms')">     <i class="ti ti-send"></i>Comunicados</div>
     <div class="sb-it" id="nav-risk"       onclick="setView('risk')">      <i class="ti ti-chart-area"></i>Análise de Risco</div>
+  </div>
+  <div class="sb-lbl">Sprint 3</div>
+  <div class="sb-sec">
+    <div class="sb-it" id="nav-asm" onclick="setView('asm')"><i class="ti ti-radar-2"></i>Attack Surface<span class="sb-n nc" id="sb-asm">—</span></div>
   </div>
   <div class="sb-lbl">Sprint 2</div>
   <div class="sb-sec">
@@ -249,6 +274,7 @@ import { getSlaRemaining, getEscalationLevel }          from './src/utils/sla.js
 import { sevPill, statusPill, slaBar, envPill, formatDate } from './src/utils/helpers.js';
 import { estimateFinancialImpact, totalFinancialExposure, formatBRL } from './src/utils/financial.js';
 import { AUDIT_BASE, getAuditTrail } from './src/data/audit.js';
+import { EXTERNAL_ASSETS, ASM_CATEGORIES, ASM_TIMELINE, getAsmScore, getCertStatus, getHeadersGrade } from './src/data/asm.js';
 import { SBOM_APPS, SBOM_COMPONENTS, LICENSE_RISKS, getSbomStats } from './src/data/sbom.js';
 import { FP_RECORDS, FP_SCANNER_STATS, getFPStats }                    from './src/data/fpw.js';
 import { WAR_ROOM_INCIDENTS }              from './src/data/warroom.js';
@@ -291,6 +317,8 @@ function upd() {
   q('sb-pb',PLAYBOOKS.filter(p=>p.status==='active').length);
   const sbomSt=getSbomStats(); q('sb-sbom',sbomSt.withCves);
   const fpSt=getFPStats();     q('sb-fp',fpSt.pending);
+  const shadowCount=EXTERNAL_ASSETS.filter(a=>a.shadow).length;
+  q('sb-asm',shadowCount>0?shadowCount+'!':EXTERNAL_ASSETS.length);
 }
 
 // ── NAVIGATION ────────────────────────────────────────────────────────────────
@@ -303,7 +331,7 @@ window.sft = s => { FST=s; render(); };
 // ── RENDER ────────────────────────────────────────────────────────────────────
 function render() {
   upd();
-  const M={dashboard,threatintel,metrics,vulns,assets,suppliers,playbooks,reclassify,exceptions,sla,cicd,compliance,comms,risk,integrations,agent,settings,lifecycle,dataquality,execintel,smartgroup,warroom,crownj,sbom,fpw};
+  const M={dashboard,threatintel,metrics,vulns,assets,suppliers,playbooks,reclassify,exceptions,sla,cicd,compliance,comms,risk,integrations,agent,settings,lifecycle,dataquality,execintel,smartgroup,warroom,crownj,sbom,fpw,asm};
   document.getElementById('main').innerHTML=(M[VIEW]||dashboard)();
   if(VIEW==='agent') rMsgs(false);
 }
@@ -1245,6 +1273,9 @@ let SBOM_FILTER_APP = 'ALL';
 let SBOM_FILTER_ECO = 'ALL';
 let SBOM_FILTER_CVE = false;
 let FP_LOCAL = JSON.parse(localStorage.getItem('rbvm_fp_records')||'[]'); // user-added FPs
+let ASM_TAB    = 'overview';                    // asm active tab
+let ASM_CAT    = 'ALL';                         // asm category filter
+let ASM_EXPAND = null;                          // expanded asset id
 
 // Apply persisted statuses
 VULNS.forEach(v => {
@@ -2180,6 +2211,244 @@ window.submitFPContest = () => {
   toast(`${newFP.id} submetido para revisão`,'ts');
   closeMod(); FP_TAB='queue'; render();
 };
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  SPRINT 3 — ATTACK SURFACE MANAGEMENT (ASM)
+// ══════════════════════════════════════════════════════════════════════════════
+function asm() {
+  const all      = EXTERNAL_ASSETS;
+  const monitored= all.filter(a => !a.shadow);
+  const shadow   = all.filter(a => a.shadow);
+  const risky    = monitored.filter(a => a.risk_score >= 60).length;
+  const certAlerts = monitored.filter(a => a.ssl.days !== null && a.ssl.days < 30).length;
+  const noHeaders  = monitored.filter(a => a.headers.score < 30).length;
+  const surfScore  = getAsmScore(all);
+  const scoreColor = surfScore >= 60 ? 'var(--crit)' : surfScore >= 35 ? 'var(--high)' : 'var(--success)';
+
+  // Exposure score SVG gauge
+  const gaugeR = 50, gaugeC = 2 * Math.PI * gaugeR;
+  const gaugeFill = gaugeC * (surfScore / 100);
+  const gaugeSvg = `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" style="transform:rotate(-90deg)">
+    <circle cx="60" cy="60" r="${gaugeR}" fill="none" stroke="var(--bg4)" stroke-width="10"/>
+    <circle cx="60" cy="60" r="${gaugeR}" fill="none" stroke="${scoreColor}" stroke-width="10"
+      stroke-dasharray="${gaugeFill} ${gaugeC}" stroke-linecap="round"/>
+  </svg>`;
+
+  // ── HELPERS ──────────────────────────────────────────────────────────────────
+  const riskPill  = s => s >= 75 ? rpill('pc','CRÍTICO') : s >= 55 ? rpill('ph','ALTO') : s >= 35 ? rpill('pm','MÉDIO') : rpill('pl','BAIXO');
+  const sslGrade  = g => { const c=g==='A+'||g==='A'?'var(--success)':g==='B'?'var(--med)':g==='C'?'var(--high)':'var(--crit)'; return `<span class="ssl-grade" style="color:${c}">${g}</span>`; };
+  const headerDot = ok => `<span class="hdr-check ${ok?'hdr-ok':'hdr-no'}">${ok?'✓':'✗'}</span>`;
+  const dnsDot    = (ok,lbl) => `<span class="dns-tag" style="background:${ok?'var(--successbg)':'var(--critbg)'};color:${ok?'var(--success)':'var(--crit)'}">${lbl}</span>`;
+  const portRisky = p => [22,23,3306,5432,6379,27017,2375,9200,8080,9000,3000].includes(p);
+  const portBadge = p => `<span class="port-badge ${portRisky(p)?'port-risky':''}">${p}</span>`;
+  const assetIcon = t => ({web_app:'ti-world',api:'ti-api',vpn:'ti-shield-lock',bastion:'ti-server',mail:'ti-mail',cdn:'ti-cloud',cloud_storage:'ti-brand-aws',shadow_it:'ti-ghost'}[t]||'ti-device-unknown');
+
+  // ── OVERVIEW ─────────────────────────────────────────────────────────────────
+  const overviewHTML = () => `<div class="content">
+    <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;margin-bottom:0">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+        <div class="asm-score-wrap">
+          ${gaugeSvg}
+          <div class="asm-score-val"><div class="asm-score-num" style="color:${scoreColor}">${surfScore}</div><div class="asm-score-lbl">EXPOSURE<br>SCORE</div></div>
+        </div>
+        <div style="font-size:10px;color:var(--text3)">0=mínimo · 100=máximo</div>
+      </div>
+      <div style="flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;min-width:280px">
+        <div class="mt"><div class="mt-l">Ativos Externos</div><div class="mt-v vi">${monitored.length}</div><div class="mt-s">monitorados</div></div>
+        <div class="mt"><div class="mt-l">Shadow IT</div><div class="mt-v vc">${shadow.length}</div><div class="mt-s">fora do CMDB</div></div>
+        <div class="mt"><div class="mt-l">Risco Alto+</div><div class="mt-v vc">${risky}</div><div class="mt-s">score ≥ 60</div></div>
+        <div class="mt"><div class="mt-l">Certs < 30 dias</div><div class="mt-v ${certAlerts>0?'vc':'vk'}">${certAlerts}</div><div class="mt-s">vencendo</div></div>
+        <div class="mt"><div class="mt-l">Headers Inseguros</div><div class="mt-v vh">${noHeaders}</div><div class="mt-s">score < 30</div></div>
+        <div class="mt"><div class="mt-l">Sem TLS válido</div><div class="mt-v ${shadow.length>0?'vc':'vk'}">${all.filter(a=>!a.ssl.valid).length}</div><div class="mt-s">ativos</div></div>
+      </div>
+    </div>
+    ${shadow.length>0?`<div class="nt nc-"><i class="ti ti-ghost" style="font-size:16px;flex-shrink:0"></i><strong>${shadow.length} ativos Shadow IT detectados</strong> — não estão no CMDB. Sem owner, sem monitoramento, sem patch management. Risco desconhecido e potencialmente crítico.<button class="btn btn-s btn-d" style="margin-left:auto" onclick="ASM_TAB='shadow';render()">Ver Shadow IT →</button></div>`:''}
+    <div class="g2">
+      <div class="card">
+        <div class="card-hd"><i class="ti ti-layout-grid" style="color:var(--accent)"></i><div><div class="card-t">Superfície por Categoria</div><div class="card-s">Clique para filtrar</div></div></div>
+        <div class="card-bd" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          ${ASM_CATEGORIES.map(cat=>{
+            const assets=all.filter(a=>(cat.id==='shadow_it'?a.shadow:(a.type===cat.id&&!a.shadow)));
+            const maxRisk=assets.length?Math.max(...assets.map(a=>a.risk_score)):0;
+            return `<div class="asm-cat ${ASM_CAT===cat.id?'active':''}" onclick="ASM_CAT='${cat.id}';ASM_TAB='assets';render()">
+              <div class="asm-cat-icon" style="background:rgba(79,122,255,.1);color:${cat.color}"><i class="ti ${cat.icon}"></i></div>
+              <div style="flex:1"><div style="font-size:12px;font-weight:500">${cat.label}</div><div style="font-size:10px;color:var(--text3)">${assets.length} ativo(s) ${maxRisk>60?'· '+rpill('pc','risco'):(maxRisk>35?'· '+rpill('ph','alerta'):'')}</div></div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><i class="ti ti-arrow-up-right" style="color:var(--crit)"></i><div><div class="card-t">Top 5 Ativos Mais Expostos</div><div class="card-s">Por exposure score</div></div></div>
+        <div class="card-bd" style="padding-top:6px">
+          ${[...all].sort((a,b)=>b.risk_score-a.risk_score).slice(0,5).map((a,i)=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)${i===4?';border-bottom:none':''}">
+            <span style="font-size:11px;font-weight:700;color:var(--text3);min-width:16px">${i+1}.</span>
+            <i class="ti ${assetIcon(a.type)}" style="color:${a.shadow?'var(--crit)':'var(--accent)'};font-size:14px;flex-shrink:0"></i>
+            <div style="flex:1;min-width:0"><div class="mono" style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.hostname}</div><div style="font-size:10px;color:var(--text3)">${a.notes?.substring(0,55)||''}…</div></div>
+            <span style="color:${RC(a.risk_score)};font-weight:700;font-size:14px">${a.risk_score}</span>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><i class="ti ti-clock" style="color:var(--accent)"></i><div><div class="card-t">Histórico de Descobertas</div><div class="card-s">Mudanças na superfície de ataque ao longo do tempo</div></div></div>
+      <div class="card-bd" style="padding-top:6px">
+        ${ASM_TIMELINE.map(ev=>`<div style="display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--border)">
+          <span class="mono" style="font-size:10px;color:var(--text3);min-width:80px;flex-shrink:0">${ev.date}</span>
+          <div style="flex:1"><div style="font-size:11px;font-weight:500">${ev.event} — ${ev.assets_found} ativos encontrados ${ev.new_assets?`<span class="pill pc" style="font-size:9px">+${ev.new_assets} novos</span>`:''}</div><div style="font-size:10px;color:var(--text3)">${ev.changes.join(' · ')}</div></div>
+        </div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+
+  // ── EXTERNAL ASSETS ───────────────────────────────────────────────────────────
+  const assetsHTML = () => {
+    const filtered = ASM_CAT==='ALL' ? all : ASM_CAT==='shadow_it' ? all.filter(a=>a.shadow) : all.filter(a=>a.type===ASM_CAT&&!a.shadow);
+    return `<div>
+    <div class="frow">
+      <span style="font-size:11px;color:var(--text3);font-weight:600">CATEGORIA:</span>
+      <div class="fc ${ASM_CAT==='ALL'?'act':''}" onclick="ASM_CAT='ALL';render()">Todos (${all.length})</div>
+      ${ASM_CATEGORIES.map(c=>{const n=c.id==='shadow_it'?all.filter(a=>a.shadow).length:all.filter(a=>a.type===c.id&&!a.shadow).length;return n>0?`<div class="fc ${ASM_CAT===c.id?'act':''}" onclick="ASM_CAT='${c.id}';render()">${c.label} (${n})</div>`:''}).join('')}
+      <span style="margin-left:auto;font-size:11px;color:var(--text3)">${filtered.length} ativo(s)</span>
+    </div>
+    <div style="padding:12px 16px;display:flex;flex-direction:column;gap:8px">
+      ${filtered.map(a=>{
+        const cert=getCertStatus(a.ssl.days);
+        const hdrs=getHeadersGrade(a.headers.score);
+        const isExp=ASM_EXPAND===a.id;
+        return `<div style="background:var(--bg2);border:1px solid ${a.shadow?'rgba(255,76,76,.3)':isExp?'var(--border2)':'var(--border)'};border-radius:var(--r2);overflow:hidden">
+          <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer" onclick="ASM_EXPAND=ASM_EXPAND==='${a.id}'?null:'${a.id}';render()">
+            ${a.shadow?`<div style="background:var(--critbg);border-radius:var(--r);padding:6px;flex-shrink:0"><i class="ti ti-ghost" style="color:var(--crit);font-size:16px"></i></div>`:`<div style="background:var(--bg3);border-radius:var(--r);padding:6px;flex-shrink:0"><i class="ti ${assetIcon(a.type)}" style="color:var(--accent);font-size:16px"></i></div>`}
+            <div style="flex:1;min-width:0">
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                <span class="mono" style="font-size:12px;font-weight:600">${a.hostname}</span>
+                ${a.shadow?'<span class="pill pc" style="font-size:9px">SHADOW IT</span>':''}
+                ${a.vuln_ids.length?`<span class="pill pc" style="font-size:9px">${a.vuln_ids.length} CVE</span>`:''}
+              </div>
+              <div style="font-size:10px;color:var(--text3);margin-top:2px">${a.ip} · ${a.ports.map(portBadge).join('')}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;flex-shrink:0">
+              <div style="text-align:center"><div style="font-size:9px;color:var(--text3)">SSL</div>${sslGrade(a.ssl.grade)}</div>
+              <div style="text-align:center"><div style="font-size:9px;color:var(--text3)">CERT</div><span style="font-size:11px;font-weight:700;color:${cert.color}">${cert.label}</span></div>
+              <div style="text-align:center"><div style="font-size:9px;color:var(--text3)">HDR</div><span style="font-size:13px;font-weight:800;color:${hdrs.color}">${hdrs.grade}</span></div>
+              <span style="color:${RC(a.risk_score)};font-weight:800;font-size:18px">${a.risk_score}</span>
+              <i class="ti ti-chevron-${isExp?'up':'down'}" style="color:var(--text3);font-size:14px"></i>
+            </div>
+          </div>
+          ${isExp?`<div class="asm-expand">
+            <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px">
+              <div><div class="ds" style="margin-bottom:4px">Serviços Detectados</div>${a.services.map(s=>`<div style="font-size:11px;margin-bottom:4px"><span class="port-badge ${portRisky(s.port)?'port-risky':''}">${s.port}</span> <strong>${s.service}</strong> <span style="color:var(--text3)">${s.banner}</span> ${s.tech.map(t=>`<span class="tech-tag">${t}</span>`).join('')}</div>`).join('')}</div>
+              <div><div class="ds" style="margin-bottom:4px">Security Headers</div>
+                <div style="display:flex;gap:4px;flex-wrap:wrap">
+                  ${[['HSTS',a.headers.hsts],['CSP',a.headers.csp],['X-Frame',a.headers.xfo],['XCTO',a.headers.xcto],['Referrer',a.headers.referrer]].map(([l,v])=>`${headerDot(v)}<span style="font-size:9px;color:var(--text3)">${l}</span>`).join(' ')}
+                </div>
+                <div style="font-size:10px;color:var(--text3);margin-top:4px">Score: ${a.headers.score}/100 · Grade: ${hdrs.grade}</div>
+              </div>
+              <div><div class="ds" style="margin-bottom:4px">DNS Health</div>${[['SPF',a.dns.spf],['DKIM',a.dns.dkim],['DMARC',a.dns.dmarc],['DNSSEC',a.dns.dnssec]].map(([l,v])=>dnsDot(v,l)).join(' ')}</div>
+            </div>
+            ${a.notes?`<div class="nt ${a.risk_score>=70?'nc-':'nw'}" style="margin-bottom:8px"><i class="ti ti-info-circle" style="font-size:14px;flex-shrink:0"></i>${a.notes}</div>`:''}
+            ${a.shadow?`<div class="shadow-badge">👻 Discovery: ${a.discovery}</div>`:''}
+            ${a.vuln_ids.length?`<div style="margin-bottom:8px"><div class="ds" style="margin-bottom:4px">Vulnerabilidades Associadas</div>${a.vuln_ids.map(id=>`<span class="pill pc" style="font-size:9px;margin:2px;cursor:pointer" onclick="openDov('${id}')">${id}</span>`).join('')}</div>`:''}
+            <div class="btn-g">
+              ${a.shadow?`<button class="btn btn-s btn-p" onclick="asmAddCMDB('${a.id}')"><i class="ti ti-plus"></i> Adicionar ao CMDB</button><button class="btn btn-s btn-d" onclick="asmDecommission('${a.id}')"><i class="ti ti-trash"></i> Marcar Descontinuado</button>`:''}
+              <button class="btn btn-s" onclick="quickMsg('Analise o ativo externo ${a.hostname} (IP: ${a.ip}). Risk score: ${a.risk_score}. SSL grade: ${a.ssl.grade}. Security headers score: ${a.headers.score}/100. Vulnerabilidades: ${a.vuln_ids.join(',')||'nenhuma'}. O que o atacante vê neste ativo? Quais são os vetores de exploração mais prováveis e quais controles reduziriam o exposure score de ${a.risk_score}?')"><i class="ti ti-robot"></i> Análise de Exposição via IA</button>
+              <button class="btn btn-s" onclick="triggerRescan('${a.id}')"><i class="ti ti-refresh"></i> Re-scan</button>
+            </div>
+          </div>`:''}
+        </div>`;
+      }).join('')}
+    </div>
+    </div>`;
+  };
+
+  // ── CERTIFICATES ─────────────────────────────────────────────────────────────
+  const certsHTML = () => {
+    const certs = all.filter(a=>a.ssl.valid||a.ssl.expires).sort((a,b)=>(a.ssl.days??-999)-(b.ssl.days??-999));
+    const noCert= all.filter(a=>!a.ssl.valid&&!a.ssl.expires);
+    return `<div class="content">
+    <div class="g4">
+      <div class="mt"><div class="mt-l">Certificados Monitorados</div><div class="mt-v vi">${certs.length}</div></div>
+      <div class="mt"><div class="mt-l">Expirados</div><div class="mt-v vc">${certs.filter(a=>a.ssl.days<0).length}</div></div>
+      <div class="mt"><div class="mt-l">Vencendo < 30d</div><div class="mt-v ${certs.filter(a=>a.ssl.days>=0&&a.ssl.days<30).length>0?'vc':'vk'}">${certs.filter(a=>a.ssl.days>=0&&a.ssl.days<30).length}</div></div>
+      <div class="mt"><div class="mt-l">Sem SSL</div><div class="mt-v vc">${noCert.length}</div><div class="mt-s">ativos sem HTTPS</div></div>
+    </div>
+    ${noCert.length?`<div class="nt nc-"><i class="ti ti-lock-open" style="font-size:16px;flex-shrink:0"></i><strong>${noCert.length} ativo(s) sem SSL/TLS válido</strong> — tráfego não criptografado. Crítico para ativos expostos à internet.</div>`:''}
+    <div class="card">
+      <div class="card-hd"><i class="ti ti-certificate" style="color:var(--accent)"></i><div><div class="card-t">Inventário de Certificados SSL/TLS</div><div class="card-s">Ordenado por urgência de renovação</div></div></div>
+      <div class="tbl"><table>
+        <thead><tr><th>Hostname</th><th>Grade</th><th>Emissor</th><th>Expira</th><th>Dias</th><th>Protocolos</th><th>Status</th><th>Ação</th></tr></thead>
+        <tbody>
+          ${certs.map(a=>{const c=getCertStatus(a.ssl.days);return`<tr class="tr">
+            <td class="mono" style="font-size:11px">${a.hostname}</td>
+            <td>${sslGrade(a.ssl.grade)}</td>
+            <td style="font-size:11px;color:var(--text3)">${a.ssl.issuer||'—'}</td>
+            <td style="font-size:11px;color:var(--text3)">${a.ssl.expires||'—'}</td>
+            <td><span style="color:${c.color};font-weight:700">${c.label}</span></td>
+            <td style="font-size:10px">${(a.ssl.protocols||[]).map(p=>`<span style="color:${p.includes('1.0')||p.includes('1.1')?'var(--crit)':'var(--text3)'};font-size:9px;margin-right:4px">${p}</span>`).join('')}</td>
+            <td>${rpill(c.cls,c.label)}</td>
+            <td><button class="btn btn-s" onclick="asmRenewCert('${a.id}')"><i class="ti ti-refresh"></i> Renovar</button></td>
+          </tr>`}).join('')}
+          ${noCert.map(a=>`<tr class="tr"><td class="mono" style="font-size:11px">${a.hostname}</td><td><span class="ssl-grade" style="color:var(--crit)">—</span></td><td colspan="5" style="font-size:11px;color:var(--crit)">Sem certificado SSL — tráfego não criptografado</td><td><button class="btn btn-s btn-d" onclick="asmRenewCert('${a.id}')"><i class="ti ti-plus"></i> Emitir Cert</button></td></tr>`).join('')}
+        </tbody>
+      </table></div>
+    </div>
+    </div>`;
+  };
+
+  // ── SHADOW IT ─────────────────────────────────────────────────────────────────
+  const shadowHTML = () => {
+    const sh = all.filter(a => a.shadow);
+    return `<div class="content">
+    <div class="nt nc-"><i class="ti ti-ghost" style="font-size:16px;flex-shrink:0"></i><strong>Shadow IT</strong> — ativos descobertos por varredura ativa que NÃO constam no CMDB oficial. Sem owner, sem patch management, sem monitoramento. Cada um é um ponto cego do RBVM.</div>
+    <div class="g3">
+      <div class="mt"><div class="mt-l">Shadow IT Descoberto</div><div class="mt-v vc">${sh.length}</div><div class="mt-s">fora do CMDB</div></div>
+      <div class="mt"><div class="mt-l">Risco Médio</div><div class="mt-v vc">${Math.round(sh.reduce((s,a)=>s+a.risk_score,0)/Math.max(sh.length,1))}</div><div class="mt-s">exposure score</div></div>
+      <div class="mt"><div class="mt-l">Portas Críticas</div><div class="mt-v vc">${sh.flatMap(a=>a.ports).filter(portRisky).length}</div><div class="mt-s">expostas no shadow IT</div></div>
+    </div>
+    ${sh.map(a=>`<div class="card" style="border-left:3px solid var(--crit);margin-top:10px">
+      <div class="card-hd">
+        <div style="background:var(--critbg);border-radius:var(--r);padding:8px"><i class="ti ti-ghost" style="color:var(--crit);font-size:20px"></i></div>
+        <div><div class="card-t mono">${a.hostname}</div><div class="card-s">${a.ip} · Descoberto: ${a.last_scan}</div></div>
+        <div class="card-ac"><span style="color:${RC(a.risk_score)};font-weight:800;font-size:22px">${a.risk_score}</span></div>
+      </div>
+      <div class="card-bd">
+        <div class="shadow-badge">🔍 ${a.discovery}</div>
+        <div style="margin-bottom:10px"><div class="ds" style="margin-bottom:4px">Portas e Serviços Expostos</div>
+          ${a.services.map(s=>`<div style="font-size:11px;margin-bottom:4px;display:flex;align-items:center;gap:6px"><span class="port-badge port-risky">${s.port}</span><strong>${s.service}</strong><span style="color:var(--text3)">${s.banner}</span>${s.tech.map(t=>`<span class="tech-tag">${t}</span>`).join('')}</div>`).join('')}
+          <div style="margin-top:4px">${a.ports.map(portBadge).join('')}</div>
+        </div>
+        <div class="nt nc-" style="margin-bottom:10px"><i class="ti ti-alert-triangle" style="font-size:14px;flex-shrink:0"></i>${a.notes}</div>
+        <div class="btn-g">
+          <button class="btn btn-p btn-s" onclick="asmAddCMDB('${a.id}')"><i class="ti ti-database-plus"></i> Registrar no CMDB</button>
+          <button class="btn btn-d btn-s" onclick="asmDecommission('${a.id}')"><i class="ti ti-trash"></i> Marcar Descontinuado</button>
+          <button class="btn btn-s" onclick="escalate('${a.id}')"><i class="ti ti-arrow-up"></i> Escalar ao CISO</button>
+          <button class="btn btn-s" onclick="quickMsg('Um ativo Shadow IT foi descoberto: ${a.hostname} (${a.ip}). Portas abertas: ${a.ports.join(',')}. Serviços: ${a.services.map(s=>s.service+' '+s.banner).join(', ')}. Risk score: ${a.risk_score}. Gere: (1) análise do risco imediato, (2) hipóteses sobre quem criou este ativo e por quê, (3) passos de contenção imediata, (4) como evitar novos shadow IT.')"><i class="ti ti-robot"></i> Análise via IA</button>
+        </div>
+      </div>
+    </div>`).join('')}
+    </div>`;
+  };
+
+  const tabs = { overview:'Visão Geral', assets:`Ativos (${all.length})`, certs:'Certificados', shadow:`Shadow IT (${shadow.length})` };
+  const tabContent = { overview:overviewHTML, assets:assetsHTML, certs:certsHTML, shadow:shadowHTML };
+  const body = (tabContent[ASM_TAB]||overviewHTML)();
+
+  return `<div>
+  <div class="sbom-tabs">
+    ${Object.entries(tabs).map(([k,v])=>`<div class="sbom-tab ${ASM_TAB===k?'active':''}" onclick="asmTab('${k}')">${v}</div>`).join('')}
+    <div style="margin-left:auto;display:flex;align-items:center;gap:8px;padding:6px 0">
+      <span class="sbom-export" onclick="toast('ASM scan agendado — próximo ciclo: 24h','ts')"><i class="ti ti-radar-2"></i> Scan Agora</span>
+      <span class="sbom-export" onclick="quickMsg('Gere um relatório executivo de Attack Surface Management. Inclua: exposure score ${surfScore}/100, ${monitored.length} ativos externos monitorados, ${shadow.length} shadow IT detectados, principais riscos por categoria, top 3 ativos mais expostos e recomendações prioritárias de redução de superfície.')"><i class="ti ti-robot"></i> Relatório IA</span>
+    </div>
+  </div>
+  ${body}
+  </div>`;
+}
+
+window.asmTab         = t => { ASM_TAB=t; ASM_CAT='ALL'; ASM_EXPAND=null; render(); };
+window.asmAddCMDB     = id => { const a=EXTERNAL_ASSETS.find(x=>x.id===id); if(a){a.in_cmdb=true; toast(`${a.hostname} adicionado ao CMDB — atribuir owner e iniciar scans`,'ts'); render();} };
+window.asmDecommission= id => { const a=EXTERNAL_ASSETS.find(x=>x.id===id); if(a){ toast(`${a.hostname} marcado para descomissionamento — equipe de rede notificada`,'ts');} };
+window.asmRenewCert   = id => { const a=EXTERNAL_ASSETS.find(x=>x.id===id); if(a){ toast(`Renovação de certificado iniciada para ${a.hostname} via Let's Encrypt/Sectigo`,'ts');} };
 
 
 // ── START ─────────────────────────────────────────────────────────────────────
