@@ -196,6 +196,19 @@
 .debt-num{font-size:36px;font-weight:800;color:var(--crit);font-family:var(--mono)}
 .compliance-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
 .compliance-row:last-child{border-bottom:none}
+
+/* ── REPORTS ── */
+.rpt-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:16px;cursor:pointer;transition:all .15s;position:relative}
+.rpt-card:hover,.rpt-card.active{border-color:var(--accent);background:rgba(79,122,255,.06)}
+.rpt-card .rpt-icon{width:44px;height:44px;border-radius:var(--r2);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:10px}
+.rpt-card .rpt-name{font-size:13px;font-weight:600;margin-bottom:4px}
+.rpt-card .rpt-desc{font-size:11px;color:var(--text2);line-height:1.4}
+.rpt-card .rpt-audience{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-top:8px}
+.rpt-config{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r2);padding:16px}
+.rpt-hist-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r);background:var(--bg3);border:1px solid var(--border);margin-bottom:6px;cursor:pointer;transition:all .15s}
+.rpt-hist-item:hover{border-color:var(--border2);background:var(--bg4)}
+.ev-sel{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:8px 10px;margin-bottom:6px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:all .12s}
+.ev-sel:hover{border-color:var(--border2)}.ev-sel.selected{border-color:var(--accent);background:rgba(79,122,255,.08)}
 </style>
 </head>
 <body>
@@ -245,6 +258,10 @@
     <div class="sb-it" id="nav-compliance" onclick="setView('compliance')"><i class="ti ti-certificate"></i>Compliance / GRC</div>
     <div class="sb-it" id="nav-comms"      onclick="setView('comms')">     <i class="ti ti-send"></i>Comunicados</div>
     <div class="sb-it" id="nav-risk"       onclick="setView('risk')">      <i class="ti ti-chart-area"></i>Análise de Risco</div>
+  </div>
+  <div class="sb-lbl">Sprint 5</div>
+  <div class="sb-sec">
+    <div class="sb-it" id="nav-rptexport" onclick="setView('rptexport')"><i class="ti ti-file-analytics"></i>Reports &amp; Evidence<span class="sb-n ni" id="sb-rpt">—</span></div>
   </div>
   <div class="sb-lbl">Sprint 4</div>
   <div class="sb-sec">
@@ -355,6 +372,7 @@ function upd() {
   q('sb-asm',shadowCount>0?shadowCount+'!':EXTERNAL_ASSETS.length);
   const urgentPatches=PATCH_CAMPAIGNS.filter(c=>c.status==='in_progress'&&c.priority==='P0').length;
   q('sb-patch',urgentPatches>0?urgentPatches+'!':PATCH_CAMPAIGNS.filter(c=>c.status!=='completed').length);
+  q('sb-rpt',RPT_HISTORY.length||'NEW');
 }
 
 // ── NAVIGATION ────────────────────────────────────────────────────────────────
@@ -367,7 +385,7 @@ window.sft = s => { FST=s; render(); };
 // ── RENDER ────────────────────────────────────────────────────────────────────
 function render() {
   upd();
-  const M={dashboard,threatintel,metrics,vulns,assets,suppliers,playbooks,reclassify,exceptions,sla,cicd,compliance,comms,risk,integrations,agent,settings,lifecycle,dataquality,execintel,smartgroup,warroom,crownj,sbom,fpw,asm,patch};
+  const M={dashboard,threatintel,metrics,vulns,assets,suppliers,playbooks,reclassify,exceptions,sla,cicd,compliance,comms,risk,integrations,agent,settings,lifecycle,dataquality,execintel,smartgroup,warroom,crownj,sbom,fpw,asm,patch,rptexport};
   document.getElementById('main').innerHTML=(M[VIEW]||dashboard)();
   if(VIEW==='agent') rMsgs(false);
 }
@@ -1313,7 +1331,11 @@ let ASM_TAB    = 'overview';                    // asm active tab
 let ASM_CAT    = 'ALL';                         // asm category filter
 let ASM_EXPAND     = null;                       // expanded asset id
 let PATCH_TAB      = 'campaigns';               // patch active tab
-let PATCH_CAMP_SEL = null;                      // selected campaign id
+let PATCH_CAMP_SEL  = null;                     // selected campaign id
+let RPT_TAB        = 'generate';               // reports active tab
+let RPT_TYPE       = 'executive';              // selected report type
+let RPT_EV_SEL     = [];                       // selected vulns for evidence
+let RPT_HISTORY    = JSON.parse(localStorage.getItem('rbvm_reports')||'[]');
 
 // Apply persisted statuses
 VULNS.forEach(v => {
@@ -2767,6 +2789,507 @@ window.patchExecStep = (campId, stepIdx) => {
 window.patchSchedule = mwId => {
   const mw = MAINTENANCE_WINDOWS.find(m=>m.id===mwId);
   toast(`Janela ${mwId} confirmada — ${mw?.date} ${mw?.start}–${mw?.end}. CAB e squads notificados.`,'ts');
+};
+
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  SPRINT 5 — REPORTS & EVIDENCE EXPORT
+// ══════════════════════════════════════════════════════════════════════════════
+
+// ── REPORT TYPES DEFINITION ──────────────────────────────────────────────────
+const RPT_TYPES = [
+  { id:'executive',   icon:'ti-briefcase',      color:'var(--accent)', bg:'rgba(79,122,255,.1)',
+    name:'Sumário Executivo',      audience:'CISO · Diretoria · Comitê de Risco',
+    desc:'Postura de risco, KEVs ativas, SLA compliance, exposição financeira, tendência de MTTR, recomendações executivas e plano de ação.' },
+  { id:'compliance',  icon:'ti-certificate',    color:'#a084ff',       bg:'rgba(160,132,255,.1)',
+    name:'Compliance / Auditoria', audience:'GRC · Auditor Externo · BACEN',
+    desc:'Mapeamento NIST CSF 2.0, PCI DSS 4.0, ISO 27001:2022, LGPD e CMN 4.893 com status de controles, evidências e gaps.' },
+  { id:'squad',       icon:'ti-users',          color:'var(--success)', bg:'rgba(64,200,122,.1)',
+    name:'Técnico por Squad',      audience:'Tech Lead · Gestor de Engenharia',
+    desc:'Vulnerabilidades abertas por squad, MTTR real vs. meta, SLA compliance, campanhas de patch ativas e ações pendentes.' },
+  { id:'evidence',    icon:'ti-shield-check',   color:'var(--high)',   bg:'rgba(255,140,56,.1)',
+    name:'Pacote de Evidências',   audience:'Auditor Externo · Regulatório · GRC',
+    desc:'Audit trail completo por vulnerabilidade, confirmações de rescan, exceções aprovadas e cadeia de custódia auditável.' },
+  { id:'asm',         icon:'ti-radar-2',        color:'var(--crit)',   bg:'rgba(255,76,76,.1)',
+    name:'Attack Surface Report',  audience:'SOC · CISO · SecOps',
+    desc:'Ativos internet-facing, shadow IT detectado, certificados SSL/TLS, scores de exposição e recomendações de hardening.' },
+];
+
+// ── SHARED REPORT HTML WRAPPER ────────────────────────────────────────────────
+function rptWrap(title, subtitle, audience, body) {
+  const now = new Date().toLocaleDateString('pt-BR', {day:'2-digit',month:'long',year:'numeric'});
+  const ts  = new Date().toLocaleString('pt-BR');
+  return '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+    + '<title>RBVM Platform — ' + title + '</title>'
+    + '<style>'
+    + '*{margin:0;padding:0;box-sizing:border-box}'
+    + 'body{font-family:"Segoe UI",system-ui,sans-serif;background:#f1f5f9;color:#1e293b;font-size:13px;line-height:1.5}'
+    + '.page{max-width:960px;margin:0 auto;background:#fff;padding:48px;min-height:100vh;position:relative}'
+    + '.rh{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #1e293b;padding-bottom:18px;margin-bottom:28px}'
+    + '.logo{font-size:18px;font-weight:800;color:#1e293b;letter-spacing:-.5px}'
+    + '.logo-sub{font-size:11px;color:#64748b;margin-top:2px}'
+    + '.rh-right{text-align:right}'
+    + '.conf{background:#dc2626;color:#fff;padding:3px 10px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:.06em}'
+    + '.rdate{font-size:11px;color:#64748b;margin-top:6px}'
+    + '.rtitle{font-size:22px;font-weight:700;color:#1e293b;margin-bottom:4px}'
+    + '.rsubtitle{font-size:13px;color:#64748b}'
+    + '.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:20px 0}'
+    + '.metric{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:14px}'
+    + '.ml{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}'
+    + '.mv{font-size:24px;font-weight:800}'
+    + '.ms{font-size:10px;color:#94a3b8;margin-top:3px}'
+    + '.crit{color:#dc2626}.high{color:#d97706}.ok{color:#059669}.info{color:#3b82f6}'
+    + '.sh{font-size:14px;font-weight:700;color:#1e293b;margin:24px 0 10px;padding-bottom:8px;border-bottom:2px solid #e2e8f0;display:flex;align-items:center;gap:8px}'
+    + 'table{width:100%;border-collapse:collapse;margin:8px 0;font-size:12px}'
+    + 'th{background:#1e293b;color:#fff;padding:9px 12px;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.04em;font-weight:600}'
+    + 'td{padding:9px 12px;border-bottom:1px solid #f1f5f9;vertical-align:top}'
+    + 'tr:nth-child(even) td{background:#f8fafc}'
+    + '.pill{display:inline-block;padding:2px 8px;border-radius:12px;font-size:10px;font-weight:700}'
+    + '.pc{background:#fee2e2;color:#dc2626}.ph{background:#fef3c7;color:#d97706}'
+    + '.pm{background:#fef9c3;color:#ca8a04}.pl{background:#d1fae5;color:#059669}'
+    + '.pd{background:#d1fae5;color:#059669}.pi{background:#dbeafe;color:#1d4ed8}'
+    + '.pb-wrap{height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden;width:100%}'
+    + '.pb-fill{height:100%;border-radius:3px}'
+    + '.nt{background:#fef3c7;border:1px solid #fbbf24;border-radius:6px;padding:10px 14px;font-size:12px;color:#92400e;margin:8px 0}'
+    + '.nt-crit{background:#fee2e2;border-color:#fca5a5;color:#991b1b}'
+    + '.nt-ok{background:#d1fae5;border-color:#6ee7b7;color:#065f46}'
+    + '.at-row{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:11px}'
+    + '.at-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}'
+    + '.sig{margin-top:32px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}'
+    + '.sig-box{border-top:1px solid #1e293b;padding-top:8px;font-size:11px;color:#64748b}'
+    + '.sig-lbl{font-weight:600;color:#1e293b}'
+    + '.rf{margin-top:40px;padding-top:16px;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;color:#94a3b8;font-size:10px}'
+    + '.print-btn{position:fixed;top:20px;right:20px;background:#1e293b;color:#fff;border:none;padding:10px 18px;border-radius:8px;cursor:pointer;font-size:13px;z-index:999;box-shadow:0 4px 12px rgba(0,0,0,.2)}'
+    + '.print-btn:hover{background:#334155}'
+    + '.audit-block{background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:12px 16px;margin-bottom:12px}'
+    + '.audit-vuln{font-size:14px;font-weight:700;color:#1e293b;margin-bottom:8px;border-bottom:1px solid #e2e8f0;padding-bottom:8px}'
+    + '@media print{.print-btn{display:none!important}.page{padding:24px;max-width:none}body{background:#fff}tr{page-break-inside:avoid}.sh{page-break-before:avoid}}'
+    + '</style></head><body>'
+    + '<button class="print-btn" onclick="window.print()">🖨 Imprimir / Salvar PDF</button>'
+    + '<div class="page">'
+    + '<div class="rh"><div><div class="logo">RBVM Platform</div><div class="logo-sub">Enterprise Vulnerability &amp; Exposure Management</div></div>'
+    + '<div class="rh-right"><span class="conf">CONFIDENCIAL</span><div class="rdate">Gerado em: ' + ts + '</div><div class="rdate">Público: ' + audience + '</div></div></div>'
+    + '<div class="rtitle">' + title + '</div><div class="rsubtitle">' + subtitle + '</div>'
+    + body
+    + '<div class="rf"><span>RBVM Platform — Corporação XPTO · ' + now + '</span><span>Dados demonstrativos · © 2026 Andrews Ferreira · Todos os direitos reservados</span></div>'
+    + '</div></body></html>';
+}
+
+// ── 1. EXECUTIVE SUMMARY ──────────────────────────────────────────────────────
+function buildExecReport() {
+  const active = VULNS.filter(v => v.status !== 'Resolved' && v.status !== 'Closed with Evidence');
+  const crit   = active.filter(v => v.sev === 'CRITICAL').length;
+  const kev    = active.filter(v => v.kev).length;
+  const breach = active.filter(v => v.sla_used >= v.sla_max).length;
+  const lm     = MONTHLY_TRENDS[MONTHLY_TRENDS.length - 1];
+  const fin    = FMT(totalFinancialExposure(VULNS));
+  const shadow = EXTERNAL_ASSETS ? EXTERNAL_ASSETS.filter(a => a.shadow).length : 0;
+  const debt   = getPatchDebt(PATCH_RECORDS, VULNS);
+
+  const topVulns = [...active].sort((a,b) => b.final_score - a.final_score).slice(0, 8);
+  const sevColor = s => s==='CRITICAL'?'#dc2626':s==='HIGH'?'#d97706':s==='MEDIUM'?'#ca8a04':'#059669';
+  const sevPillStr = s => '<span class="pill ' + (s==='CRITICAL'?'pc':s==='HIGH'?'ph':s==='MEDIUM'?'pm':'pl') + '">' + s + '</span>';
+  const scoreStr = n => '<span style="font-weight:700;color:' + (n>=75?'#dc2626':n>=55?'#d97706':'#059669') + '">' + n + '</span>';
+
+  // SLA by team
+  const teams = [...new Set(active.map(v => v.team))];
+  const slaRows = teams.map(t => {
+    const tv = active.filter(v => v.team === t);
+    const tb = tv.filter(v => v.sla_used >= v.sla_max).length;
+    const pct = Math.round((1 - tb/Math.max(tv.length,1))*100);
+    return '<tr><td>' + t + '</td><td>' + tv.length + '</td><td>' + tb + '</td>'
+      + '<td><div class="pb-wrap"><div class="pb-fill" style="width:' + pct + '%;background:' + (pct>=80?'#059669':pct>=60?'#d97706':'#dc2626') + '"></div></div></td>'
+      + '<td style="font-weight:700;color:' + (pct>=80?'#059669':pct>=60?'#d97706':'#dc2626') + '">' + pct + '%</td></tr>';
+  }).join('');
+
+  let body = '';
+
+  // Metrics
+  body += '<div class="metrics" style="margin-top:20px">'
+    + '<div class="metric"><div class="ml">Vulns Abertas</div><div class="mv crit">' + active.length + '</div><div class="ms">Requerem ação</div></div>'
+    + '<div class="metric"><div class="ml">Críticas</div><div class="mv crit">' + crit + '</div><div class="ms">Risco máximo</div></div>'
+    + '<div class="metric"><div class="ml">CISA KEV Ativas</div><div class="mv crit">' + kev + '</div><div class="ms">Exploração confirmada</div></div>'
+    + '<div class="metric"><div class="ml">SLA Vencido</div><div class="mv crit">' + breach + '</div><div class="ms">Ação imediata</div></div>'
+    + '<div class="metric"><div class="ml">MTTR Críticas</div><div class="mv high">' + lm.mttr_crit + 'd</div><div class="ms">Meta: ≤ 7d</div></div>'
+    + '<div class="metric"><div class="ml">Exposição Fin.</div><div class="mv crit" style="font-size:16px">' + fin + '</div><div class="ms">Risco estimado BRL</div></div>'
+    + '<div class="metric"><div class="ml">Patch Debt</div><div class="mv high">' + debt + '</div><div class="ms">Ativo-dias acum.</div></div>'
+    + '<div class="metric"><div class="ml">Shadow IT</div><div class="mv crit">' + shadow + '</div><div class="ms">Fora do CMDB</div></div>'
+    + '</div>';
+
+  if (kev > 0) body += '<div class="nt nt-crit">⚠ ' + kev + ' vulnerabilidade(s) CISA KEV ativa(s). Exploração confirmada em ambiente real. SLA máximo: 72h para ativos internet-facing.</div>';
+
+  // Top vulnerabilities
+  body += '<div class="sh">🎯 Top ' + topVulns.length + ' Vulnerabilidades — Maior Risco</div>';
+  body += '<table><thead><tr><th>CVE / ID</th><th>Título</th><th>Sev.</th><th>Score</th><th>KEV</th><th>Ativo</th><th>Impacto</th><th>SLA</th></tr></thead><tbody>';
+  body += topVulns.map(v =>
+    '<tr><td style="font-family:monospace;font-size:11px">' + v.id + '</td>'
+    + '<td style="max-width:200px">' + v.title.substring(0,55) + (v.title.length>55?'…':'') + '</td>'
+    + '<td>' + sevPillStr(v.sev) + '</td>'
+    + '<td>' + scoreStr(v.final_score) + '</td>'
+    + '<td>' + (v.kev?'<span class="pill pc">KEV</span>':'—') + '</td>'
+    + '<td style="font-size:11px">' + v.asset + '</td>'
+    + '<td style="font-size:11px;color:#d97706;font-weight:600">' + v._fin.label + '</td>'
+    + '<td><span style="color:' + (v.sla_used>=v.sla_max?'#dc2626':'#94a3b8') + ';font-size:11px">' + v.sla_used + '/' + v.sla_max + 'd</span></td></tr>'
+  ).join('') + '</tbody></table>';
+
+  // SLA compliance by team
+  body += '<div class="sh">📊 SLA Compliance por Time</div>';
+  body += '<table><thead><tr><th>Time</th><th>Vulns Abertas</th><th>SLA Vencido</th><th>Compliance</th><th>%</th></tr></thead><tbody>' + slaRows + '</tbody></table>';
+
+  // Patch campaigns
+  const activeCamps = PATCH_CAMPAIGNS.filter(c => c.status !== 'completed');
+  if (activeCamps.length) {
+    body += '<div class="sh">🔧 Campanhas de Patch Ativas (' + activeCamps.length + ')</div>';
+    body += '<table><thead><tr><th>Campanha</th><th>Tipo</th><th>Priority</th><th>Ativos</th><th>Progresso</th><th>Due Date</th></tr></thead><tbody>';
+    body += activeCamps.map(c => {
+      const pct = Math.round(c.patched/Math.max(c.asset_count,1)*100);
+      return '<tr><td>' + c.name.substring(0,45) + '</td><td style="font-size:11px">' + c.type + '</td>'
+        + '<td><span class="pill ' + (c.priority==='P0'?'pc':'ph') + '">' + c.priority + '</span></td>'
+        + '<td>' + c.patched + '/' + c.asset_count + '</td>'
+        + '<td><div class="pb-wrap"><div class="pb-fill" style="width:' + pct + '%;background:' + (pct>=80?'#059669':'#3b82f6') + '"></div></div> ' + pct + '%</td>'
+        + '<td>' + c.due + '</td></tr>';
+    }).join('') + '</tbody></table>';
+  }
+
+  // Recommendations
+  body += '<div class="sh">💡 Recomendações Executivas</div>';
+  const recs = [
+    { priority:'CRÍTICO', text:'Corrigir todas as CISA KEV abertas em até 72h em ativos internet-facing (SLA regulatório)' },
+    { priority:'CRÍTICO', text:'Resolver os ' + breach + ' SLAs vencidos com escalonamento formal para gestores dos times' },
+    { priority:'ALTO',    text:'Investigar e registrar os ' + shadow + ' ativos Shadow IT descobertos na ASM — risco desconhecido' },
+    { priority:'ALTO',    text:'Concluir campanhas de patch P0 (OpenSSH, FortiOS) dentro dos prazos emergenciais definidos' },
+    { priority:'MÉDIO',   text:'Atingir compliance de SLA ≥ 90% em todos os times — meta para próximos 30 dias' },
+    { priority:'MÉDIO',   text:'Reduzir patch debt de ' + debt + ' ativo-dias priorizando vulnerabilidades críticas com SLA vencido' },
+  ];
+  body += '<table><thead><tr><th>Prioridade</th><th>Recomendação</th></tr></thead><tbody>';
+  body += recs.map(r => '<tr><td><span class="pill ' + (r.priority==='CRÍTICO'?'pc':r.priority==='ALTO'?'ph':'pm') + '">' + r.priority + '</span></td><td>' + r.text + '</td></tr>').join('');
+  body += '</tbody></table>';
+
+  // Signature
+  body += '<div class="sig" style="margin-top:32px">'
+    + '<div class="sig-box"><div class="sig-lbl">CISO</div><div>ciso@corp.example</div><div style="margin-top:20px">Assinatura: ___________________</div></div>'
+    + '<div class="sig-box"><div class="sig-lbl">Gerente de Segurança</div><div>sec-manager@corp.example</div><div style="margin-top:20px">Assinatura: ___________________</div></div>'
+    + '<div class="sig-box"><div class="sig-lbl">Data</div><div>' + new Date().toLocaleDateString('pt-BR') + '</div><div style="margin-top:20px">Classificação: CONFIDENCIAL</div></div>'
+    + '</div>';
+
+  return rptWrap('Sumário Executivo de Risco', 'Período: ' + new Date().toLocaleDateString('pt-BR', {month:'long',year:'numeric'}), 'CISO · Diretoria · Comitê de Risco', body);
+}
+
+// ── 2. COMPLIANCE REPORT ──────────────────────────────────────────────────────
+function buildComplianceReport(fw) {
+  const controls = COMPLIANCE_CONTROLS.filter(c => !fw || fw === 'ALL' || c.fw.includes(fw));
+  const implemented = controls.filter(c => c.status === 'implemented').length;
+  const partial     = controls.filter(c => c.status === 'partial').length;
+  const gap         = controls.filter(c => c.status === 'gap').length;
+  const pct         = Math.round(implemented / Math.max(controls.length,1) * 100);
+
+  let body = '<div class="metrics" style="margin-top:20px">'
+    + '<div class="metric"><div class="ml">Controles Analisados</div><div class="mv info">' + controls.length + '</div></div>'
+    + '<div class="metric"><div class="ml">Implementados</div><div class="mv ok">' + implemented + '</div></div>'
+    + '<div class="metric"><div class="ml">Parciais</div><div class="mv high">' + partial + '</div></div>'
+    + '<div class="metric"><div class="ml">Gaps</div><div class="mv crit">' + gap + '</div></div>'
+    + '<div class="metric"><div class="ml">Compliance Geral</div><div class="mv ' + (pct>=80?'ok':pct>=60?'high':'crit') + '">' + pct + '%</div></div>'
+    + '</div>';
+
+  if (gap > 0) body += '<div class="nt nt-crit">⚠ ' + gap + ' controle(s) com GAP identificado. Requerem plano de remediação documentado para próxima auditoria.</div>';
+
+  const fws = [...new Set(controls.map(c => c.fw.split(' ')[0]))];
+  fws.forEach(f => {
+    const fc = controls.filter(c => c.fw.includes(f));
+    const fpct = Math.round(fc.filter(c=>c.status==='implemented').length/Math.max(fc.length,1)*100);
+    body += '<div class="sh">📋 ' + f + ' — ' + fpct + '% compliance</div>';
+    body += '<table><thead><tr><th>Controle</th><th>Descrição</th><th>Status</th><th>Evidência</th><th>Gap / Ação</th></tr></thead><tbody>';
+    body += fc.map(c =>
+      '<tr><td style="font-family:monospace;font-size:11px;white-space:nowrap">' + c.control + '</td>'
+      + '<td>' + c.desc + '</td>'
+      + '<td><span class="pill ' + (c.status==='implemented'?'pd':c.status==='partial'?'ph':'pc') + '">' + (c.status==='implemented'?'OK':c.status==='partial'?'Parcial':'GAP') + '</span></td>'
+      + '<td style="font-size:11px;color:#64748b">' + (c.evidence||'—') + '</td>'
+      + '<td style="font-size:11px;color:' + (c.gap?'#dc2626':'#059669') + '">' + (c.gap||'Conforme') + '</td></tr>'
+    ).join('') + '</tbody></table>';
+  });
+
+  body += '<div class="sig" style="margin-top:32px">'
+    + '<div class="sig-box"><div class="sig-lbl">Responsável GRC</div><div style="margin-top:20px">Assinatura: ___________________</div></div>'
+    + '<div class="sig-box"><div class="sig-lbl">Auditor Interno</div><div style="margin-top:20px">Assinatura: ___________________</div></div>'
+    + '<div class="sig-box"><div class="sig-lbl">Data da Revisão</div><div>' + new Date().toLocaleDateString('pt-BR') + '</div></div>'
+    + '</div>';
+
+  return rptWrap('Relatório de Compliance e GRC', (fw&&fw!=='ALL'?fw:'NIST CSF 2.0 · PCI DSS 4.0 · ISO 27001:2022 · LGPD · CMN 4.893'), 'GRC · Auditor Externo · BACEN', body);
+}
+
+// ── 3. SQUAD TECHNICAL REPORT ─────────────────────────────────────────────────
+function buildSquadReport(squad) {
+  const active = VULNS.filter(v => v.status !== 'Resolved' && v.status !== 'Closed with Evidence');
+  const filtered = squad && squad !== 'ALL' ? active.filter(v => v.squad === squad || v.team === squad) : active;
+  const squads = squad && squad !== 'ALL' ? [squad] : [...new Set(active.map(v => v.squad||v.team))];
+
+  let body = '';
+  squads.forEach(sq => {
+    const sv = active.filter(v => (v.squad||v.team) === sq);
+    if (!sv.length) return;
+    const breach = sv.filter(v => v.sla_used >= v.sla_max).length;
+    const critCount = sv.filter(v => v.sev === 'CRITICAL').length;
+    const camp = PATCH_CAMPAIGNS.find(c => c.squad === sq && c.status === 'in_progress');
+
+    body += '<div class="sh">👥 Squad: ' + sq + '</div>';
+    body += '<div class="metrics">'
+      + '<div class="metric"><div class="ml">Vulns Abertas</div><div class="mv high">' + sv.length + '</div></div>'
+      + '<div class="metric"><div class="ml">Críticas</div><div class="mv crit">' + critCount + '</div></div>'
+      + '<div class="metric"><div class="ml">SLA Vencido</div><div class="mv ' + (breach>0?'crit':'ok') + '">' + breach + '</div></div>'
+      + (camp?'<div class="metric"><div class="ml">Campanha Patch</div><div class="mv info">' + camp.patched + '/' + camp.asset_count + '</div></div>':'')
+      + '</div>';
+
+    body += '<table><thead><tr><th>ID</th><th>Vulnerabilidade</th><th>Sev.</th><th>Score</th><th>Ativo</th><th>SLA</th><th>Status</th><th>Correção</th></tr></thead><tbody>';
+    body += sv.sort((a,b) => b.final_score - a.final_score).map(v =>
+      '<tr><td style="font-family:monospace;font-size:10px">' + (v.ticket||v.id) + '</td>'
+      + '<td style="max-width:180px">' + v.title.substring(0,50) + (v.title.length>50?'…':'') + '</td>'
+      + '<td><span class="pill ' + (v.sev==='CRITICAL'?'pc':v.sev==='HIGH'?'ph':v.sev==='MEDIUM'?'pm':'pl') + '">' + v.sev + '</span></td>'
+      + '<td style="font-weight:700;color:' + (v.final_score>=75?'#dc2626':v.final_score>=55?'#d97706':'#059669') + '">' + v.final_score + '</td>'
+      + '<td style="font-size:11px">' + v.asset + '</td>'
+      + '<td style="color:' + (v.sla_used>=v.sla_max?'#dc2626':'#64748b') + ';font-size:11px">' + v.sla_used + '/' + v.sla_max + 'd</td>'
+      + '<td style="font-size:10px">' + v.status + '</td>'
+      + '<td style="font-size:10px;max-width:140px">' + v.remediation.substring(0,70) + '…</td></tr>'
+    ).join('') + '</tbody></table>';
+  });
+
+  return rptWrap('Relatório Técnico por Squad', (squad&&squad!=='ALL'?squad:'Todos os Squads'), 'Tech Lead · Gestor de Engenharia · DevSecOps', body);
+}
+
+// ── 4. EVIDENCE PACKAGE ───────────────────────────────────────────────────────
+function buildEvidencePackage(vulnIds) {
+  let body = '<div class="nt nt-ok">✅ Este documento constitui o pacote oficial de evidências de remediação gerado pela plataforma RBVM. Adequado para auditorias PCI DSS 4.0, ISO 27001:2022, SOC 2 Type II, CMN 4.893/2021 e BACEN.</div>';
+
+  body += '<div class="sh">📋 Sumário das Vulnerabilidades</div>';
+  body += '<table><thead><tr><th>ID</th><th>Título</th><th>Sev.</th><th>Score</th><th>Status Final</th><th>MTTR</th></tr></thead><tbody>';
+  body += vulnIds.map(id => {
+    const v = VULNS.find(x => x.id === id);
+    const pr = PATCH_RECORDS.find(r => r.vuln_id === id && r.status === 'validated');
+    return v ? '<tr><td style="font-family:monospace;font-size:11px">' + id + '</td><td>' + v.title.substring(0,60) + '</td>'
+      + '<td><span class="pill ' + (v.sev==='CRITICAL'?'pc':v.sev==='HIGH'?'ph':'pm') + '">' + v.sev + '</span></td>'
+      + '<td style="font-weight:700">' + v.final_score + '</td>'
+      + '<td style="color:' + (pr?'#059669':'#d97706') + ';font-weight:600">' + (pr?'VALIDADO ✓':'Em remediação') + '</td>'
+      + '<td>' + (pr?pr.mttr_days+'d':'—') + '</td></tr>' : '';
+  }).join('') + '</tbody></table>';
+
+  vulnIds.forEach(id => {
+    const v = VULNS.find(x => x.id === id);
+    if (!v) return;
+    const events = getAuditTrail(id, AUDIT_ADDED);
+    const pr = PATCH_RECORDS.filter(r => r.vuln_id === id);
+
+    body += '<div style="page-break-before:auto;margin-top:24px">';
+    body += '<div class="sh">🔍 Vulnerabilidade: ' + id + '</div>';
+    body += '<div class="audit-block">';
+    body += '<div class="audit-vuln">' + v.title + ' — Score: ' + v.final_score + ' — ' + v.sev + '</div>';
+    body += '<table><thead><tr><th colspan="2">Detalhes Técnicos</th></tr></thead><tbody>'
+      + '<tr><td style="width:140px;color:#64748b">Ativo</td><td>' + v.asset + ' (' + v.env + ')</td></tr>'
+      + '<tr><td style="color:#64748b">Owner</td><td>' + v.owner + '</td></tr>'
+      + '<tr><td style="color:#64748b">Squad / BU</td><td>' + v.squad + ' / ' + v.bu + '</td></tr>'
+      + '<tr><td style="color:#64748b">CVSS / EPSS</td><td>' + v.cvss + ' / ' + (v.epss?Math.round(v.epss*100)+'%':'—') + '</td></tr>'
+      + '<tr><td style="color:#64748b">KEV / Exploit</td><td>' + (v.kev?'SIM — CISA KEV':'NÃO') + ' / ' + (v.exploit?'SIM':'NÃO') + '</td></tr>'
+      + '<tr><td style="color:#64748b">SLA</td><td>' + v.sla_used + '/' + v.sla_max + ' dias (' + (v.sla_used>=v.sla_max?'VENCIDO':'em prazo') + ')</td></tr>'
+      + '<tr><td style="color:#64748b">Status</td><td style="font-weight:700">' + v.status + '</td></tr>'
+      + '</tbody></table>';
+
+    if (events.length) {
+      body += '<div style="margin-top:12px;font-size:12px;font-weight:700;color:#1e293b;margin-bottom:6px">Audit Trail Completo</div>';
+      body += events.map(e =>
+        '<div class="at-row"><div class="at-dot" style="background:' + (e.actor==='system'?'#3b82f6':e.actor==='ai'?'#06b6d4':'#059669') + '"></div>'
+        + '<div><span style="font-family:monospace;font-size:10px;color:#94a3b8">' + e.ts + '</span> — <strong>' + e.action + '</strong>'
+        + (e.before&&e.after?' [' + e.before + ' → ' + e.after + ']':'')
+        + '<br><span style="color:#64748b">' + (e.detail||'') + '</span> — <em>' + (e.name||e.actor) + ' · ' + (e.src||'—') + '</em></div></div>'
+      ).join('');
+    }
+
+    if (pr.length) {
+      body += '<div style="margin-top:12px;font-size:12px;font-weight:700;color:#1e293b;margin-bottom:6px">Registros de Patch</div>';
+      body += pr.map(r =>
+        '<div style="background:#f1f5f9;border-radius:4px;padding:8px 12px;margin-bottom:4px;font-size:11px">'
+        + '<strong>' + r.asset + '</strong> — Patch: ' + r.patch + ' — Status: <span style="font-weight:700;color:' + (r.status==='validated'?'#059669':'#d97706') + '">' + r.status.toUpperCase() + '</span>'
+        + (r.deployed?'<br>Deployado: ' + r.deployed + (r.deployed_by?' por ' + r.deployed_by:''):'')
+        + (r.validated_at?'<br>Validado: ' + r.validated_at + ' por ' + (r.validated_by||'—'):'')
+        + (r.mttr_days!=null?'<br>MTTR: ' + r.mttr_days + ' dias':'')
+        + '</div>'
+      ).join('');
+    }
+
+    body += '</div></div>';
+  });
+
+  body += '<div class="sig" style="margin-top:32px">'
+    + '<div class="sig-box"><div class="sig-lbl">Analista de Segurança</div><div style="margin-top:20px">Assinatura: ___________________</div></div>'
+    + '<div class="sig-box"><div class="sig-lbl">Aprovador / CISO</div><div style="margin-top:20px">Assinatura: ___________________</div></div>'
+    + '<div class="sig-box"><div class="sig-lbl">Data do Pacote</div><div>' + new Date().toLocaleDateString('pt-BR') + '</div><div style="font-size:10px;color:#64748b">Hash de integridade: SHA256-DEMO-' + Math.random().toString(36).substring(2,10).toUpperCase() + '</div></div>'
+    + '</div>';
+
+  return rptWrap('Pacote de Evidências de Remediação', vulnIds.length + ' vulnerabilidade(s) · Auditoria oficial', 'Auditor Externo · GRC · BACEN · Regulatório', body);
+}
+
+// ── 5. ATTACK SURFACE REPORT ──────────────────────────────────────────────────
+function buildASMReport() {
+  if (!EXTERNAL_ASSETS || !EXTERNAL_ASSETS.length) return '<html><body>Dados ASM indisponíveis</body></html>';
+  const shadow = EXTERNAL_ASSETS.filter(a => a.shadow);
+  const monitored = EXTERNAL_ASSETS.filter(a => !a.shadow);
+  const certWarn = EXTERNAL_ASSETS.filter(a => a.ssl && a.ssl.days !== null && a.ssl.days < 90);
+  const risky = EXTERNAL_ASSETS.filter(a => a.risk_score >= 60);
+  const score = getAsmScore(EXTERNAL_ASSETS);
+
+  let body = '<div class="metrics" style="margin-top:20px">'
+    + '<div class="metric"><div class="ml">Exposure Score</div><div class="mv ' + (score>=60?'crit':'high') + '">' + score + '/100</div></div>'
+    + '<div class="metric"><div class="ml">Ativos Externos</div><div class="mv info">' + monitored.length + '</div></div>'
+    + '<div class="metric"><div class="ml">Shadow IT</div><div class="mv crit">' + shadow.length + '</div></div>'
+    + '<div class="metric"><div class="ml">Risco Alto+</div><div class="mv crit">' + risky.length + '</div></div>'
+    + '<div class="metric"><div class="ml">Certs < 90d</div><div class="mv high">' + certWarn.length + '</div></div>'
+    + '</div>';
+
+  body += '<div class="sh">🌐 Ativos Externos Monitorados</div>';
+  body += '<table><thead><tr><th>Hostname</th><th>IP</th><th>Tipo</th><th>SSL Grade</th><th>Cert</th><th>Headers</th><th>Score</th><th>CVEs</th></tr></thead><tbody>';
+  body += monitored.sort((a,b) => b.risk_score - a.risk_score).map(a =>
+    '<tr><td style="font-family:monospace;font-size:11px">' + a.hostname + '</td>'
+    + '<td style="font-family:monospace;font-size:11px;color:#94a3b8">' + a.ip + '</td>'
+    + '<td style="font-size:11px">' + a.category + '</td>'
+    + '<td style="font-weight:800;color:' + (a.ssl.grade==='A+'||a.ssl.grade==='A'?'#059669':a.ssl.grade==='B'?'#ca8a04':a.ssl.grade==='F'?'#dc2626':'#d97706') + '">' + a.ssl.grade + '</td>'
+    + '<td style="font-size:11px;color:' + (a.ssl.days===null?'#dc2626':a.ssl.days<30?'#dc2626':a.ssl.days<90?'#d97706':'#059669') + '">' + (a.ssl.days===null?'Sem cert':a.ssl.days+'d') + '</td>'
+    + '<td style="font-weight:700;color:' + (a.headers.score>=70?'#059669':a.headers.score>=40?'#d97706':'#dc2626') + '">' + a.headers.score + '/100</td>'
+    + '<td style="font-weight:800;color:' + (a.risk_score>=75?'#dc2626':a.risk_score>=55?'#d97706':'#059669') + '">' + a.risk_score + '</td>'
+    + '<td>' + (a.vuln_ids.length?'<span class="pill pc">'+a.vuln_ids.length+' CVE</span>':'<span class="pill pd">OK</span>') + '</td></tr>'
+  ).join('') + '</tbody></table>';
+
+  if (shadow.length) {
+    body += '<div class="sh">👻 Shadow IT — Ativos Não Catalogados</div>';
+    body += '<div class="nt nt-crit">⚠ ' + shadow.length + ' ativo(s) descobertos fora do CMDB. Sem owner, sem patch management, sem monitoramento. Requerem investigação e ação imediata.</div>';
+    body += shadow.map(a =>
+      '<div class="audit-block" style="border-left:3px solid #dc2626">'
+      + '<div class="audit-vuln">👻 ' + a.hostname + ' (' + a.ip + ') — Risk Score: ' + a.risk_score + '</div>'
+      + '<strong>Método de descoberta:</strong> ' + a.discovery + '<br>'
+      + '<strong>Portas abertas:</strong> ' + a.ports.join(', ') + '<br>'
+      + '<strong>Observações:</strong> ' + a.notes + '</div>'
+    ).join('');
+  }
+
+  return rptWrap('Relatório de Attack Surface Management', 'Superfície de Ataque Externa — Análise Completa', 'SOC · CISO · SecOps · Threat Intelligence', body);
+}
+
+// ── OPEN REPORT IN NEW TAB ────────────────────────────────────────────────────
+function openReport(htmlContent, title) {
+  const win = window.open('', '_blank');
+  if (!win) { toast('Popup bloqueado. Permita popups para esta página.','te'); return; }
+  win.document.write(htmlContent);
+  win.document.close();
+  const entry = { id:'RPT-'+String(RPT_HISTORY.length+1).padStart(3,'0'), title, ts:new Date().toISOString(), type:RPT_TYPE };
+  RPT_HISTORY.unshift(entry);
+  if (RPT_HISTORY.length > 20) RPT_HISTORY.pop();
+  localStorage.setItem('rbvm_reports', JSON.stringify(RPT_HISTORY));
+  toast('Relatório aberto em nova aba — use Ctrl+P para salvar como PDF','ts');
+  render();
+}
+
+// ── MAIN REPORTS VIEW ─────────────────────────────────────────────────────────
+function rptexport() {
+  const allActive = VULNS.filter(v => v.status !== 'Resolved' && v.status !== 'Closed with Evidence');
+  const squads = [...new Set(allActive.map(v => v.squad||v.team))];
+
+  const generateTab = () => `<div class="content">
+    <div class="nt ni-"><i class="ti ti-info-circle" style="font-size:16px;flex-shrink:0"></i>Selecione o tipo de relatório, configure os filtros e clique em <strong>Gerar Relatório</strong>. O documento abre em nova aba em formato HTML pronto para impressão ou export como PDF (Ctrl+P → Salvar como PDF).</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:16px">
+      ${RPT_TYPES.map(t => `<div class="rpt-card ${RPT_TYPE===t.id?'active':''}" onclick="RPT_TYPE='${t.id}';render()">
+        <div class="rpt-icon" style="background:${t.bg};color:${t.color}"><i class="ti ${t.icon}"></i></div>
+        <div class="rpt-name">${t.name}</div>
+        <div class="rpt-desc">${t.desc.substring(0,90)}${t.desc.length>90?'…':''}</div>
+        <div class="rpt-audience" style="color:${t.color}">${t.audience}</div>
+      </div>`).join('')}
+    </div>
+    <div class="rpt-config">
+      <div class="ds" style="margin-bottom:12px">Configuração — ${RPT_TYPES.find(t=>t.id===RPT_TYPE)?.name||''}</div>
+      <div class="g2" style="gap:12px;margin-bottom:12px">
+        ${RPT_TYPE==='squad'?`<div class="ff"><div class="fl">Squad</div><select class="fi" id="rpt-squad"><option value="ALL">Todos os Squads</option>${squads.map(s=>`<option>${s}</option>`).join('')}</select></div>`:''}
+        ${RPT_TYPE==='compliance'?`<div class="ff"><div class="fl">Framework</div><select class="fi" id="rpt-fw"><option value="ALL">Todos</option><option>NIST</option><option>PCI</option><option>ISO</option><option>LGPD</option><option>CMN</option></select></div>`:''}
+        <div class="ff"><div class="fl">Período de Referência</div><select class="fi" id="rpt-period"><option>Maio 2024</option><option>Abril 2024</option><option>Q1 2024</option></select></div>
+        <div class="ff"><div class="fl">Classificação</div><select class="fi"><option>CONFIDENCIAL</option><option>RESTRITO</option><option>INTERNO</option></select></div>
+      </div>
+      <div class="btn-g">
+        <button class="btn btn-p" onclick="execGenerateReport()"><i class="ti ti-file-analytics"></i> Gerar Relatório — Abrir em Nova Aba</button>
+        <button class="btn" onclick="quickMsg('Com base nos dados atuais da plataforma, gere o conteúdo completo para um ${RPT_TYPES.find(t=>t.id===RPT_TYPE)?.name||'Relatório'} de segurança. Inclua: métricas atuais, análise de risco, recomendações priorizadas e próximos passos.')"><i class="ti ti-robot"></i> Rascunho via Agente IA</button>
+      </div>
+    </div>
+  </div>`;
+
+  const evidenceTab = () => `<div class="content">
+    <div class="nt nw"><i class="ti ti-shield-check" style="font-size:16px;flex-shrink:0"></i>Selecione as vulnerabilidades para incluir no pacote de evidências. O documento gerado inclui audit trail completo, registros de patch e confirmações de rescan — adequado para PCI DSS, ISO 27001, SOC 2, BACEN.</div>
+    <div class="g2">
+      <div>
+        <div class="ds" style="margin-bottom:8px">Selecionar Vulnerabilidades (${RPT_EV_SEL.length} selecionadas)</div>
+        ${VULNS.map(v=>`<div class="ev-sel ${RPT_EV_SEL.includes(v.id)?'selected':''}" onclick="rptEvToggle('${v.id}')">
+          <i class="ti ti-${RPT_EV_SEL.includes(v.id)?'circle-check':'circle'}" style="color:${RPT_EV_SEL.includes(v.id)?'var(--accent)':'var(--text3)'};font-size:14px;flex-shrink:0"></i>
+          ${SP(v.sev)}
+          <div style="flex:1;min-width:0"><div class="mono" style="font-size:11px">${v.id}</div><div style="font-size:10px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.title}</div></div>
+          <span style="font-size:10px;color:${v.status==='Closed with Evidence'?'var(--success)':'var(--text3)'}">${v.status}</span>
+        </div>`).join('')}
+      </div>
+      <div>
+        <div class="ds" style="margin-bottom:8px">Conteúdo do Pacote</div>
+        ${[['ti-list-check','Audit trail cronológico completo'],['ti-refresh','Evidências de rescan técnico'],['ti-ticket','Registros de ticketing e SLA'],['ti-shield-x','Exceções aprovadas'],['ti-package','Registros de patch aplicado'],['ti-lock','Cadeia de custódia com hash de integridade']].map(([icon,label])=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:11px"><i class="ti ${icon}" style="color:var(--success);font-size:13px"></i>${label}</div>`).join('')}
+        <div class="btn-g" style="margin-top:12px">
+          <button class="btn btn-p" onclick="execEvidencePackage()" ${RPT_EV_SEL.length===0?'disabled':''}>
+            <i class="ti ti-shield-check"></i> Gerar Pacote (${RPT_EV_SEL.length} vulns)
+          </button>
+          <button class="btn" onclick="RPT_EV_SEL=VULNS.map(v=>v.id);render()"><i class="ti ti-select-all"></i> Selecionar Todas</button>
+          <button class="btn" onclick="RPT_EV_SEL=[];render()"><i class="ti ti-deselect"></i> Limpar</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  const historyTab = () => `<div class="content">
+    ${RPT_HISTORY.length===0?`<div class="nt ni-"><i class="ti ti-info-circle" style="font-size:16px;flex-shrink:0"></i>Nenhum relatório gerado ainda nesta sessão. Acesse a aba "Gerar Relatório" para criar o primeiro.</div>`:''}
+    ${RPT_HISTORY.map(r=>`<div class="rpt-hist-item" onclick="rptRegenerate('${r.id}')">
+      <i class="ti ti-file-analytics" style="color:var(--accent);font-size:20px;flex-shrink:0"></i>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:600">${r.title}</div>
+        <div style="font-size:10px;color:var(--text3)">${new Date(r.ts).toLocaleString('pt-BR')} · Tipo: ${r.type}</div>
+      </div>
+      <button class="btn btn-s"><i class="ti ti-refresh"></i> Regerar</button>
+    </div>`).join('')}
+    ${RPT_HISTORY.length>0?`<button class="btn btn-s" style="margin-top:8px" onclick="RPT_HISTORY=[];localStorage.removeItem('rbvm_reports');render()"><i class="ti ti-trash"></i> Limpar histórico</button>`:''}
+  </div>`;
+
+  const tabs = { generate:'Gerar Relatório', evidence:'Pacote de Evidências', history:`Histórico (${RPT_HISTORY.length})` };
+  const tabFns = { generate:generateTab, evidence:evidenceTab, history:historyTab };
+  const body = (tabFns[RPT_TAB]||generateTab)();
+
+  return `<div>
+  <div class="sbom-tabs">
+    ${Object.entries(tabs).map(([k,v])=>`<div class="sbom-tab ${RPT_TAB===k?'active':''}" onclick="rptTab('${k}')">${v}</div>`).join('')}
+  </div>
+  ${body}
+  </div>`;
+}
+
+window.rptTab      = t => { RPT_TAB = t; render(); };
+window.rptEvToggle = id => { RPT_EV_SEL.includes(id) ? RPT_EV_SEL.splice(RPT_EV_SEL.indexOf(id),1) : RPT_EV_SEL.push(id); render(); };
+window.execGenerateReport = () => {
+  const sq  = document.getElementById('rpt-squad')?.value || 'ALL';
+  const fw  = document.getElementById('rpt-fw')?.value    || 'ALL';
+  let html;
+  if      (RPT_TYPE==='executive')  html = buildExecReport();
+  else if (RPT_TYPE==='compliance') html = buildComplianceReport(fw);
+  else if (RPT_TYPE==='squad')      html = buildSquadReport(sq);
+  else if (RPT_TYPE==='evidence')   { RPT_TAB='evidence'; render(); return; }
+  else if (RPT_TYPE==='asm')        html = buildASMReport();
+  else                              html = buildExecReport();
+  const title = RPT_TYPES.find(t=>t.id===RPT_TYPE)?.name || RPT_TYPE;
+  openReport(html, title);
+};
+window.execEvidencePackage = () => {
+  if (!RPT_EV_SEL.length) { toast('Selecione ao menos uma vulnerabilidade','te'); return; }
+  openReport(buildEvidencePackage(RPT_EV_SEL), 'Pacote de Evidências (' + RPT_EV_SEL.length + ' vulns)');
+};
+window.rptRegenerate = id => {
+  const r = RPT_HISTORY.find(x=>x.id===id);
+  if (!r) return;
+  RPT_TYPE = r.type;
+  execGenerateReport();
 };
 
 
