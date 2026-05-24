@@ -167,6 +167,35 @@
 .cert-bar-fill{height:100%;border-radius:4px;transition:width .3s}
 .asm-expand{background:var(--bg4);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-top:8px}
 .tech-tag{font-size:9px;padding:2px 7px;border-radius:4px;background:rgba(79,122,255,.12);color:var(--accent);font-weight:600;margin:2px;display:inline-block}
+
+/* ── PATCH MANAGEMENT ── */
+.pc-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:16px;margin-bottom:10px;transition:border-color .15s}
+.pc-card:hover{border-color:var(--border2)}
+.pc-card.emergency{border-left:3px solid var(--crit)}
+.pc-card.patch_tuesday{border-left:3px solid var(--high)}
+.pc-card.sca_update{border-left:3px solid var(--accent)}
+.pc-card.eol_migration{border-left:3px solid #a084ff}
+.pc-card.hardening{border-left:3px solid var(--med)}
+.mw-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin-bottom:8px;display:flex;gap:14px;align-items:flex-start}
+.mw-type-emergency{background:var(--critbg);color:var(--crit);font-size:9px;font-weight:700;padding:3px 7px;border-radius:4px;text-transform:uppercase;white-space:nowrap}
+.mw-type-standard{background:var(--medbg);color:var(--med);font-size:9px;font-weight:700;padding:3px 7px;border-radius:4px;text-transform:uppercase;white-space:nowrap}
+.mw-type-self_service{background:var(--successbg);color:var(--success);font-size:9px;font-weight:700;padding:3px 7px;border-radius:4px;text-transform:uppercase;white-space:nowrap}
+.mw-time{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text);min-width:80px}
+.patch-step{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)}
+.patch-step:last-child{border-bottom:none}
+.ps-n{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.pbs-done{background:var(--successbg);color:var(--success)}
+.pbs-act{background:rgba(79,122,255,.2);color:var(--accent);animation:puls 2s ease-in-out infinite}
+.pbs-idle{background:var(--bg4);color:var(--text3)}
+.velocity-bar{display:flex;align-items:flex-end;gap:6px;height:80px;padding:0 4px}
+.vb-group{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1}
+.vb-bars{display:flex;gap:3px;align-items:flex-end;height:64px}
+.vb-bar{width:14px;border-radius:3px 3px 0 0;transition:height .3s}
+.vb-lbl{font-size:9px;color:var(--text3)}
+.patch-debt-badge{background:var(--critbg);border:2px solid rgba(255,76,76,.3);border-radius:var(--r2);padding:14px 20px;display:flex;align-items:center;gap:16px}
+.debt-num{font-size:36px;font-weight:800;color:var(--crit);font-family:var(--mono)}
+.compliance-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.compliance-row:last-child{border-bottom:none}
 </style>
 </head>
 <body>
@@ -216,6 +245,10 @@
     <div class="sb-it" id="nav-compliance" onclick="setView('compliance')"><i class="ti ti-certificate"></i>Compliance / GRC</div>
     <div class="sb-it" id="nav-comms"      onclick="setView('comms')">     <i class="ti ti-send"></i>Comunicados</div>
     <div class="sb-it" id="nav-risk"       onclick="setView('risk')">      <i class="ti ti-chart-area"></i>Análise de Risco</div>
+  </div>
+  <div class="sb-lbl">Sprint 4</div>
+  <div class="sb-sec">
+    <div class="sb-it" id="nav-patch" onclick="setView('patch')"><i class="ti ti-package"></i>Patch Management<span class="sb-n nh" id="sb-patch">—</span></div>
   </div>
   <div class="sb-lbl">Sprint 3</div>
   <div class="sb-sec">
@@ -274,6 +307,7 @@ import { getSlaRemaining, getEscalationLevel }          from './src/utils/sla.js
 import { sevPill, statusPill, slaBar, envPill, formatDate } from './src/utils/helpers.js';
 import { estimateFinancialImpact, totalFinancialExposure, formatBRL } from './src/utils/financial.js';
 import { AUDIT_BASE, getAuditTrail } from './src/data/audit.js';
+import { PATCH_CAMPAIGNS, MAINTENANCE_WINDOWS, PATCH_RECORDS, PATCH_VELOCITY, getPatchDebt, getCampaignTypeLabel, getPatchStatusMeta } from './src/data/patches.js';
 import { EXTERNAL_ASSETS, ASM_CATEGORIES, ASM_TIMELINE, getAsmScore, getCertStatus, getHeadersGrade } from './src/data/asm.js';
 import { SBOM_APPS, SBOM_COMPONENTS, LICENSE_RISKS, getSbomStats } from './src/data/sbom.js';
 import { FP_RECORDS, FP_SCANNER_STATS, getFPStats }                    from './src/data/fpw.js';
@@ -319,6 +353,8 @@ function upd() {
   const fpSt=getFPStats();     q('sb-fp',fpSt.pending);
   const shadowCount=EXTERNAL_ASSETS.filter(a=>a.shadow).length;
   q('sb-asm',shadowCount>0?shadowCount+'!':EXTERNAL_ASSETS.length);
+  const urgentPatches=PATCH_CAMPAIGNS.filter(c=>c.status==='in_progress'&&c.priority==='P0').length;
+  q('sb-patch',urgentPatches>0?urgentPatches+'!':PATCH_CAMPAIGNS.filter(c=>c.status!=='completed').length);
 }
 
 // ── NAVIGATION ────────────────────────────────────────────────────────────────
@@ -331,7 +367,7 @@ window.sft = s => { FST=s; render(); };
 // ── RENDER ────────────────────────────────────────────────────────────────────
 function render() {
   upd();
-  const M={dashboard,threatintel,metrics,vulns,assets,suppliers,playbooks,reclassify,exceptions,sla,cicd,compliance,comms,risk,integrations,agent,settings,lifecycle,dataquality,execintel,smartgroup,warroom,crownj,sbom,fpw,asm};
+  const M={dashboard,threatintel,metrics,vulns,assets,suppliers,playbooks,reclassify,exceptions,sla,cicd,compliance,comms,risk,integrations,agent,settings,lifecycle,dataquality,execintel,smartgroup,warroom,crownj,sbom,fpw,asm,patch};
   document.getElementById('main').innerHTML=(M[VIEW]||dashboard)();
   if(VIEW==='agent') rMsgs(false);
 }
@@ -1275,7 +1311,9 @@ let SBOM_FILTER_CVE = false;
 let FP_LOCAL = JSON.parse(localStorage.getItem('rbvm_fp_records')||'[]'); // user-added FPs
 let ASM_TAB    = 'overview';                    // asm active tab
 let ASM_CAT    = 'ALL';                         // asm category filter
-let ASM_EXPAND = null;                          // expanded asset id
+let ASM_EXPAND     = null;                       // expanded asset id
+let PATCH_TAB      = 'campaigns';               // patch active tab
+let PATCH_CAMP_SEL = null;                      // selected campaign id
 
 // Apply persisted statuses
 VULNS.forEach(v => {
@@ -2449,6 +2487,287 @@ window.asmTab         = t => { ASM_TAB=t; ASM_CAT='ALL'; ASM_EXPAND=null; render
 window.asmAddCMDB     = id => { const a=EXTERNAL_ASSETS.find(x=>x.id===id); if(a){a.in_cmdb=true; toast(`${a.hostname} adicionado ao CMDB — atribuir owner e iniciar scans`,'ts'); render();} };
 window.asmDecommission= id => { const a=EXTERNAL_ASSETS.find(x=>x.id===id); if(a){ toast(`${a.hostname} marcado para descomissionamento — equipe de rede notificada`,'ts');} };
 window.asmRenewCert   = id => { const a=EXTERNAL_ASSETS.find(x=>x.id===id); if(a){ toast(`Renovação de certificado iniciada para ${a.hostname} via Let's Encrypt/Sectigo`,'ts');} };
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  SPRINT 4 — PATCH MANAGEMENT
+// ══════════════════════════════════════════════════════════════════════════════
+function patch() {
+  const activeCamps  = PATCH_CAMPAIGNS.filter(c => c.status !== 'completed');
+  const p0Running    = activeCamps.filter(c => c.priority === 'P0').length;
+  const totalAssets  = PATCH_CAMPAIGNS.reduce((s,c) => s + c.asset_count, 0);
+  const totalPatched = PATCH_CAMPAIGNS.reduce((s,c) => s + c.patched, 0);
+  const debtVal      = getPatchDebt(PATCH_RECORDS, VULNS);
+  const validatedRec = PATCH_RECORDS.filter(r => r.status === 'validated');
+  const avgMTTR      = validatedRec.length
+    ? (validatedRec.reduce((s,r) => s + (r.mttr_days||0), 0) / validatedRec.length).toFixed(1)
+    : '—';
+
+  // ── VELOCITY CHART ─────────────────────────────────────────────────────────
+  const maxV = Math.max(...PATCH_VELOCITY.map(w => w.deployed));
+  const velocityChart = `
+    <div class="velocity-bar">
+      ${PATCH_VELOCITY.map(w => {
+        const hD = Math.round((w.deployed / maxV) * 60);
+        const hV = Math.round((w.validated / maxV) * 60);
+        return `<div class="vb-group">
+          <div class="vb-bars">
+            <div class="vb-bar" style="height:${hD}px;background:var(--accent);opacity:.8" title="${w.deployed} deployados"></div>
+            <div class="vb-bar" style="height:${hV}px;background:var(--success)" title="${w.validated} validados"></div>
+          </div>
+          <div class="vb-lbl">${w.week}</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="display:flex;gap:12px;margin-top:4px;font-size:10px">
+      <span><span style="color:var(--accent)">■</span> Deployado</span>
+      <span><span style="color:var(--success)">■</span> Validado</span>
+      <span style="margin-left:auto;color:var(--text3)">Total semana atual: ${PATCH_VELOCITY[PATCH_VELOCITY.length-1].deployed} deployados</span>
+    </div>`;
+
+  // ── CAMPAIGNS TAB ──────────────────────────────────────────────────────────
+  const campaignsHTML = () => `<div class="content">
+    <div class="g4">
+      <div class="mt"><div class="mt-l">Campanhas Ativas</div><div class="mt-v ${p0Running?'vc':'vi'}">${activeCamps.length}</div><div class="mt-s">${p0Running} emergenciais P0</div></div>
+      <div class="mt"><div class="mt-l">Ativos em Campanha</div><div class="mt-v vi">${totalAssets}</div><div class="mt-s">${totalPatched} patched (${Math.round(totalPatched/Math.max(totalAssets,1)*100)}%)</div></div>
+      <div class="mt"><div class="mt-l">MTTR Real (patch)</div><div class="mt-v ${avgMTTR>7?'vh':'vk'}">${avgMTTR}d</div><div class="mt-s">Meta: ≤ 7 dias</div></div>
+      <div class="mt"><div class="mt-l">Patch Debt</div><div class="mt-v vc">${debtVal}</div><div class="mt-s">ativo-dias acumulados</div></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:2px;flex-wrap:wrap">
+      ${['ALL','emergency','patch_tuesday','sca_update','eol_migration'].map(t => {
+        const label = t==='ALL'?'Todas':getCampaignTypeLabel(t).label;
+        const n = t==='ALL'?activeCamps.length:activeCamps.filter(c=>c.type===t).length;
+        return n>0?`<div class="fc ${!PATCH_CAMP_SEL&&t==='ALL'||false?'act':''}" onclick="patchFilter('${t}')">${label} (${n})</div>`:''
+      }).join('')}
+      <button class="btn btn-p btn-s" style="margin-left:auto" onclick="openModal('newcampaign')"><i class="ti ti-plus"></i> Nova Campanha</button>
+    </div>
+    ${activeCamps.map(c => {
+      const tp = getCampaignTypeLabel(c.type);
+      const pct = Math.round(c.patched / Math.max(c.asset_count,1) * 100);
+      const done = c.steps.filter(s => s.done).length;
+      const nextStep = c.steps.find(s => !s.done);
+      const expanded = PATCH_CAMP_SEL === c.id;
+      return `<div class="pc-card ${c.type}">
+        <div style="display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;cursor:pointer" onclick="PATCH_CAMP_SEL=PATCH_CAMP_SEL==='${c.id}'?null:'${c.id}';render()">
+          <div style="flex:1;min-width:240px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
+              <span class="pill ${tp.cls}" style="font-size:9px">${tp.label}</span>
+              <span class="pill ${c.priority==='P0'?'pc':'ph'}" style="font-size:9px">${c.priority}</span>
+              ${c.status==='in_progress'?'<span class="pill pp" style="font-size:9px">EM ANDAMENTO</span>':c.status==='planned'?'<span class="pill pn" style="font-size:9px">PLANEJADO</span>':''}
+              <span class="mono" style="font-size:10px;color:var(--text3)">${c.change_id||'sem CHG'}</span>
+            </div>
+            <div style="font-size:13px;font-weight:600;margin-bottom:3px">${c.name}</div>
+            <div style="font-size:10px;color:var(--text3);margin-bottom:6px">Trigger: ${c.trigger}</div>
+            <div style="font-size:11px;color:var(--text2)">Lead: <strong>${c.lead}</strong> · Due: <strong>${c.due}</strong></div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;min-width:160px">
+            <div style="font-size:11px;color:var(--text2)">${c.patched}/${c.asset_count} ativos · ${done}/${c.steps.length} etapas</div>
+            <div style="width:160px"><div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:2px"><span>Progresso</span><span>${pct}%</span></div>
+              <div class="pb" style="height:6px"><div class="pbf" style="width:${pct}%;background:${pct===100?'var(--success)':c.priority==='P0'?'var(--crit)':'var(--accent)'}"></div></div>
+            </div>
+            <i class="ti ti-chevron-${expanded?'up':'down'}" style="color:var(--text3);font-size:14px"></i>
+          </div>
+        </div>
+        ${expanded?`<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+          <div class="g2" style="margin-bottom:12px">
+            <div>
+              <div class="ds">Etapas da Campanha</div>
+              ${c.steps.map(s => {
+                const isNext = s === c.steps.find(x=>!x.done);
+                return `<div class="patch-step">
+                  <div class="ps-n ${s.done?'pbs-done':isNext?'pbs-act':'pbs-idle'}">${s.n}</div>
+                  <div style="flex:1">
+                    <div style="font-size:11px;color:${s.done?'var(--text2)':'var(--text)'};${s.done?'text-decoration:line-through':''};">${s.label}</div>
+                    <div style="font-size:9px;color:var(--text3)">${s.auto?'🤖 Automático':'👤 Manual'}</div>
+                  </div>
+                  ${s.done?'<i class="ti ti-check" style="color:var(--success);font-size:13px"></i>':isNext?`<button class="btn btn-s btn-o" onclick="event.stopPropagation();patchExecStep('${c.id}',${s.n-1})"><i class="ti ti-play"></i> Executar</button>`:''}
+                </div>`;
+              }).join('')}
+            </div>
+            <div>
+              <div class="ds">Rollback Plan</div>
+              <div style="background:var(--bg4);border-radius:var(--r);padding:8px 12px;font-size:11px;color:var(--text2);font-family:var(--mono);line-height:1.5;margin-bottom:10px">${c.rollback}</div>
+              ${c.notes?`<div class="nt ni-"><i class="ti ti-info-circle" style="font-size:14px;flex-shrink:0"></i>${c.notes}</div>`:''}
+              ${c.window_id?`<div style="margin-top:10px"><div class="ds">Janela de Manutenção</div>${(() => { const mw=MAINTENANCE_WINDOWS.find(m=>m.id===c.window_id); return mw?`<div style="font-size:11px;color:var(--text2)"><strong>${mw.date} ${mw.start}–${mw.end}</strong> · ${mw.squad} · ${mw.duration_h}h · Aprovado: ${mw.approved_by||'—'}</div>`:'—'; })()}</div>`:''}
+            </div>
+          </div>
+          <div class="btn-g">
+            ${nextStep&&c.status==='in_progress'?`<button class="btn btn-p btn-s" onclick="event.stopPropagation();patchExecStep('${c.id}',${c.steps.indexOf(nextStep)})"><i class="ti ti-play"></i> Executar Próxima Etapa</button>`:''}
+            <button class="btn btn-s" onclick="event.stopPropagation();patchTab('status')"><i class="ti ti-list"></i> Status por Ativo</button>
+            <button class="btn btn-s" onclick="event.stopPropagation();quickMsg('Gere um relatório de progresso para a campanha de patch ${c.id}: ${c.name}. Progresso: ${c.patched}/${c.asset_count} ativos, ${c.steps.filter(s=>s.done).length}/${c.steps.length} etapas. Trigger: ${c.trigger}. Identifique riscos de não conclusão dentro do prazo ${c.due} e recomende ações para acelerar.')"><i class="ti ti-robot"></i> Relatório IA</button>
+          </div>
+        </div>`:''}
+      </div>`;
+    }).join('')}
+  </div>`;
+
+  // ── MAINTENANCE WINDOWS TAB ────────────────────────────────────────────────
+  const windowsHTML = () => `<div class="content">
+    <div class="g4">
+      <div class="mt"><div class="mt-l">Janelas Agendadas</div><div class="mt-v vi">${MAINTENANCE_WINDOWS.length}</div><div class="mt-s">próximas 4</div></div>
+      <div class="mt"><div class="mt-l">Emergenciais</div><div class="mt-v vc">${MAINTENANCE_WINDOWS.filter(m=>m.type==='emergency').length}</div></div>
+      <div class="mt"><div class="mt-l">Padrão</div><div class="mt-v vi">${MAINTENANCE_WINDOWS.filter(m=>m.type==='standard').length}</div></div>
+      <div class="mt"><div class="mt-l">Self-Service</div><div class="mt-v vk">${MAINTENANCE_WINDOWS.filter(m=>m.type==='self_service').length}</div></div>
+    </div>
+    <div class="nt ni-"><i class="ti ti-info-circle" style="font-size:16px;flex-shrink:0"></i>Janelas emergenciais requerem aprovação do CISO. Janelas padrão passam pelo CAB quinzenal. Self-service são pré-aprovadas para squads de desenvolvimento sem downtime.</div>
+    ${MAINTENANCE_WINDOWS.sort((a,b)=>a.date.localeCompare(b.date)).map(mw => {
+      const camp = PATCH_CAMPAIGNS.find(c => c.id === mw.campaign_id);
+      const typeClass = `mw-type-${mw.type}`;
+      const daysUntil = Math.ceil((new Date(mw.date) - new Date('2024-05-21')) / 86400000);
+      return `<div class="mw-card">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;min-width:90px">
+          <div class="mw-time">${mw.start}</div>
+          <div style="font-size:10px;color:var(--text3)">${mw.date}</div>
+          <div style="font-size:9px;color:${daysUntil<=1?'var(--crit)':daysUntil<=3?'var(--high)':'var(--text3)'}">Em ${daysUntil}d</div>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap">
+            <span class="${typeClass}">${mw.type==='emergency'?'EMERGENCIAL':mw.type==='standard'?'PADRÃO':'SELF-SERVICE'}</span>
+            <strong style="font-size:12px">${mw.name}</strong>
+          </div>
+          <div style="font-size:11px;color:var(--text2);margin-bottom:4px">Squad: ${mw.squad} · Duração: ${mw.duration_h}h (${mw.start}–${mw.end}) · Recorrência: ${mw.recurrence==='one-time'?'Única':mw.recurrence==='monthly'?'Mensal':'Quinzenal'}</div>
+          <div style="font-size:10px;color:var(--text3);margin-bottom:4px">Sistemas: ${Array.isArray(mw.systems)?mw.systems.join(' · '):mw.systems}</div>
+          <div style="display:flex;gap:10px;font-size:10px;flex-wrap:wrap">
+            <span>Aprovado: <strong>${mw.approved_by||'Pendente'}</strong></span>
+            <span>Rollback: <strong>${mw.rollback_time_min}min</strong></span>
+            <span>Impacto: <strong>${mw.impact}</strong></span>
+          </div>
+          ${camp?`<div style="margin-top:6px"><span class="pill pi" style="font-size:9px">${camp.id}</span> <span style="font-size:11px;color:var(--text2)">${camp.name}</span></div>`:''}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0">
+          <button class="btn btn-s btn-p" onclick="patchSchedule('${mw.id}')"><i class="ti ti-calendar-plus"></i> Agendar</button>
+          <button class="btn btn-s" onclick="toast('CAB notificado sobre ${mw.name}','ts')"><i class="ti ti-send"></i> Notificar CAB</button>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+
+  // ── PATCH STATUS TAB ───────────────────────────────────────────────────────
+  const statusHTML = () => {
+    const byStatus = s => PATCH_RECORDS.filter(r => r.status === s).length;
+    return `<div>
+    <div class="frow">
+      ${['planned','scheduled','in_progress','deployed','validated','failed'].map(s => {
+        const m = getPatchStatusMeta(s);
+        const n = byStatus(s);
+        return n>0?`<span class="pill ${m.cls}" style="font-size:10px">${m.label} (${n})</span>`:'';
+      }).join('')}
+      <span style="margin-left:auto;font-size:11px;color:var(--text3)">${PATCH_RECORDS.length} registros</span>
+    </div>
+    <div style="padding:12px 16px">
+    <div class="tbl"><table>
+      <thead><tr><th>Registro</th><th>Vulnerabilidade</th><th>Ativo</th><th>Patch</th><th>Status</th><th>Agendado</th><th>Deployado</th><th>Validado</th><th>MTTR</th><th>Validador</th></tr></thead>
+      <tbody>${PATCH_RECORDS.map(r => {
+        const m = getPatchStatusMeta(r.status);
+        const v = VULNS.find(x=>x.id===r.vuln_id);
+        return `<tr class="tr" onclick="r.vuln_id&&openDov('${r.vuln_id}')">
+          <td class="mono" style="font-size:10px;color:var(--text3)">${r.id}</td>
+          <td>${v?SP(v.sev):'—'} <span class="mono" style="font-size:10px">${r.vuln_id}</span></td>
+          <td style="font-size:11px;font-weight:500;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.asset}</td>
+          <td style="font-size:10px;color:var(--text3);font-family:var(--mono);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.patch}</td>
+          <td><span class="pill ${m.cls}" style="font-size:9px">${m.label}</span></td>
+          <td style="font-size:10px;color:var(--text3)">${r.scheduled?.substring(0,10)||'—'}</td>
+          <td style="font-size:10px;color:${r.deployed?'var(--success)':'var(--text3)'}">${r.deployed?.substring(0,10)||'—'}</td>
+          <td style="font-size:10px;color:${r.validated_at?'var(--success)':'var(--text3)'}">${r.validated_at?.substring(0,10)||'—'}</td>
+          <td style="font-weight:700;color:${r.mttr_days!=null?r.mttr_days>7?'var(--crit)':'var(--success)':'var(--text3)'}">${r.mttr_days!=null?r.mttr_days+'d':'—'}</td>
+          <td style="font-size:10px;color:var(--text3);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.validated_by||'—'}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>
+    </div></div>`;
+  };
+
+  // ── ANALYTICS TAB ─────────────────────────────────────────────────────────
+  const analyticsHTML = () => {
+    const squads = ['Linux SRE','Network Security','Windows SRE','DevSecOps','Backend Platform'];
+    const compliance = squads.map(sq => {
+      const camps = PATCH_CAMPAIGNS.filter(c => c.squad === sq);
+      if (!camps.length) return { squad:sq, pct:100, ok:true };
+      const total = camps.reduce((s,c)=>s+c.asset_count,0);
+      const patched = camps.reduce((s,c)=>s+c.patched,0);
+      return { squad:sq, pct:Math.round(patched/Math.max(total,1)*100), ok:patched/Math.max(total,1)>=0.9 };
+    });
+    const failedRecords = PATCH_RECORDS.filter(r=>r.rollback);
+    const failRate = (failedRecords.length/Math.max(PATCH_RECORDS.length,1)*100).toFixed(1);
+
+    return `<div class="content">
+    <div class="patch-debt-badge">
+      <div><div style="font-size:11px;font-weight:700;color:var(--crit);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">⚖ PATCH DEBT ACUMULADO</div>
+        <div class="debt-num">${debtVal}</div>
+        <div style="font-size:11px;color:var(--text2);margin-top:4px">ativo-dias sem patch · ponderado por criticidade</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:2px">Cada dia sem patch em ativo crítico adiciona 4 pts · Alto = 2 pts · Médio = 1 pt</div>
+      </div>
+      <div style="margin-left:auto">
+        <button class="btn btn-s btn-d" onclick="quickMsg('O patch debt acumulado é ${debtVal} ativo-dias. Analise quais campanhas de patch reduziriam mais rapidamente este número e priorize. Inclua: top 3 ações com maior redução de debt, estimativa de ativo-dias liberados por ação e prazo recomendado.')"><i class="ti ti-robot"></i> Reduzir Debt via IA</button>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-hd"><i class="ti ti-chart-bar" style="color:var(--accent)"></i><div><div class="card-t">Patch Velocity — Últimas 5 Semanas</div><div class="card-s"><span style="color:var(--accent)">■</span> Deployado &nbsp;<span style="color:var(--success)">■</span> Validado</div></div></div>
+        <div class="card-bd">${velocityChart}</div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><i class="ti ti-target" style="color:var(--accent)"></i><div><div class="card-t">Compliance de Patch por Squad</div><div class="card-s">Meta: ≥ 90% patched dentro do SLA</div></div></div>
+        <div class="card-bd" style="padding-top:6px">
+          ${compliance.map(sq => `<div class="compliance-row">
+            <div style="font-size:12px;min-width:140px;font-weight:500">${sq.squad}</div>
+            <div style="flex:1"><div class="pb" style="height:6px"><div class="pbf" style="width:${sq.pct}%;background:${sq.pct>=90?'var(--success)':sq.pct>=70?'var(--high)':'var(--crit)'}"></div></div></div>
+            <div style="font-size:12px;font-weight:700;color:${sq.ok?'var(--success)':'var(--crit)'};min-width:40px;text-align:right">${sq.pct}%</div>
+            ${sq.ok?'<i class="ti ti-check" style="color:var(--success);font-size:13px;margin-left:6px"></i>':'<i class="ti ti-alert-triangle" style="color:var(--crit);font-size:13px;margin-left:6px"></i>'}
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="g3">
+      <div class="mt"><div class="mt-l">MTTR Real (patch)</div><div class="mt-v ${avgMTTR>7?'vh':'vk'}">${avgMTTR}d</div><div class="mt-s">Meta: ≤ 7d críticas</div></div>
+      <div class="mt"><div class="mt-l">Taxa de Falha (rollback)</div><div class="mt-v ${failRate>5?'vc':'vk'}">${failRate}%</div><div class="mt-s">${failedRecords.length} rollbacks</div></div>
+      <div class="mt"><div class="mt-l">Patches Validados</div><div class="mt-v vk">${validatedRec.length}</div><div class="mt-s">com evidência de scan</div></div>
+    </div>
+    </div>`;
+  };
+
+  const tabs = { campaigns:`Campanhas (${activeCamps.length})`, windows:'Janelas de Manutenção', status:'Status por Ativo', analytics:'Analytics' };
+  const tabFns = { campaigns:campaignsHTML, windows:windowsHTML, status:statusHTML, analytics:analyticsHTML };
+  const body = (tabFns[PATCH_TAB]||campaignsHTML)();
+
+  return `<div>
+  <div class="sbom-tabs">
+    ${Object.entries(tabs).map(([k,v])=>`<div class="sbom-tab ${PATCH_TAB===k?'active':''}" onclick="patchTab('${k}')">${v}</div>`).join('')}
+    <div style="margin-left:auto;display:flex;align-items:center;gap:8px;padding:6px 0">
+      <span class="sbom-export" onclick="quickMsg('Gere um relatório executivo de Patch Management. Inclua: ${activeCamps.length} campanhas ativas, ${p0Running} P0 emergenciais, MTTR real ${avgMTTR} dias, patch debt ${debtVal} ativo-dias, compliance por squad e recomendações para atingir 90% de compliance em 30 dias.')"><i class="ti ti-robot"></i> Relatório Executivo</span>
+    </div>
+  </div>
+  ${body}
+  </div>`;
+}
+
+window.patchTab      = t => { PATCH_TAB=t; PATCH_CAMP_SEL=null; render(); };
+window.patchFilter   = t => { PATCH_CAMP_SEL=null; render(); };
+window.patchExecStep = (campId, stepIdx) => {
+  const c = PATCH_CAMPAIGNS.find(x=>x.id===campId);
+  if (!c || !c.steps[stepIdx]) return;
+  c.steps[stepIdx].done = true;
+  // Check if this step patches an asset
+  if (c.steps[stepIdx].label.toLowerCase().includes('patch')) {
+    c.patched = Math.min(c.patched + 1, c.asset_count);
+    // Find and update a matching PATCH_RECORD
+    const pr = PATCH_RECORDS.find(r=>r.vuln_id===c.vuln_ids?.[0]&&r.status==='scheduled');
+    if (pr) { pr.status='deployed'; pr.deployed=new Date().toISOString().replace('T',' ').substring(0,16); }
+    addAuditEvent(c.vuln_ids?.[0]||campId, {actor:'user',name:'Patch Manager',icon:'ti-package',action:`Patch deployado — campanha ${campId} etapa ${stepIdx+1}`,before:null,after:null,detail:c.steps[stepIdx].label,src:'Patch Management'});
+  }
+  // Check if last step
+  if (c.steps.every(s=>s.done)) {
+    c.status='completed'; c.patched=c.asset_count;
+    toast(`Campanha ${campId} concluída! Todos os ${c.asset_count} ativos patched.`,'ts');
+  } else {
+    toast(`Etapa ${stepIdx+1} concluída — ${c.name}`,'ts');
+  }
+  render();
+};
+window.patchSchedule = mwId => {
+  const mw = MAINTENANCE_WINDOWS.find(m=>m.id===mwId);
+  toast(`Janela ${mwId} confirmada — ${mw?.date} ${mw?.start}–${mw?.end}. CAB e squads notificados.`,'ts');
+};
 
 
 // ── START ─────────────────────────────────────────────────────────────────────
