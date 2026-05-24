@@ -122,6 +122,30 @@
 .ap-wrap{overflow-x:auto;padding:10px 0}
 .ap-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:10px;margin-top:8px}
 .ap-diff-low{color:var(--crit)}.ap-diff-med{color:var(--high)}.ap-diff-hi{color:var(--success)}
+
+/* ── SBOM ── */
+.sbom-tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);padding:0 16px;background:var(--bg2)}
+.sbom-tab{padding:9px 14px;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;white-space:nowrap}
+.sbom-tab:hover{color:var(--text)}.sbom-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.eco-badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;padding:2px 7px;border-radius:4px;font-weight:600}
+.eco-maven{background:rgba(200,50,50,.15);color:#e05050}.eco-npm{background:rgba(200,50,50,.1);color:#cc4444}
+.eco-pypi{background:rgba(50,100,200,.15);color:#5080e0}.eco-docker{background:rgba(0,180,200,.1);color:#00b4c8}
+.eco-system{background:rgba(120,120,120,.15);color:#999}
+.dep-direct{background:rgba(255,140,56,.12);color:var(--high);font-size:9px;padding:2px 6px;border-radius:4px;font-weight:600}
+.dep-trans{background:var(--bg4);color:var(--text3);font-size:9px;padding:2px 6px;border-radius:4px;font-weight:600}
+.lic-critical{color:var(--crit);font-weight:700}.lic-high{color:var(--high);font-weight:700}
+.lic-medium{color:var(--med)}.lic-none{color:var(--text3)}
+.sbom-export{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:var(--r);border:1px solid var(--border2);background:var(--bg3);color:var(--text2);font-size:11px;cursor:pointer;transition:all .15s}
+.sbom-export:hover{background:var(--bg4);color:var(--text)}
+/* ── FALSE POSITIVE ── */
+.fp-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:16px;margin-bottom:10px;transition:border-color .15s}
+.fp-card:hover{border-color:var(--border2)}
+.fp-status-accepted{border-left:3px solid var(--success)}.fp-status-rejected{border-left:3px solid var(--crit)}
+.fp-status-under_review{border-left:3px solid var(--high);animation:fpPulse 2.5s ease-in-out infinite}
+@keyframes fpPulse{0%,100%{border-left-color:var(--high)}50%{border-left-color:rgba(255,140,56,.3)}}
+.fp-quote{background:var(--bg4);border-left:2px solid var(--accent);border-radius:0 var(--r) var(--r) 0;padding:8px 12px;font-size:11px;color:var(--text2);line-height:1.5;margin:6px 0;font-style:italic}
+.scanner-bar{height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;margin-top:3px}
+.scanner-bar-fill{height:100%;border-radius:3px}
 </style>
 </head>
 <body>
@@ -172,6 +196,11 @@
     <div class="sb-it" id="nav-comms"      onclick="setView('comms')">     <i class="ti ti-send"></i>Comunicados</div>
     <div class="sb-it" id="nav-risk"       onclick="setView('risk')">      <i class="ti ti-chart-area"></i>Análise de Risco</div>
   </div>
+  <div class="sb-lbl">Sprint 2</div>
+  <div class="sb-sec">
+    <div class="sb-it" id="nav-sbom" onclick="setView('sbom')"><i class="ti ti-box-multiple"></i>SBOM<span class="sb-n nh" id="sb-sbom">—</span></div>
+    <div class="sb-it" id="nav-fpw"  onclick="setView('fpw')"> <i class="ti ti-shield-question"></i>False Positives<span class="sb-n nh" id="sb-fp">—</span></div>
+  </div>
   <div class="sb-lbl">Segurança Avançada</div>
   <div class="sb-sec">
     <div class="sb-it" id="nav-warroom"  onclick="setView('warroom')"> <i class="ti ti-alert-hexagon"></i>Zero-day War Room<span class="sb-n nc" id="sb-wr">2</span></div>
@@ -220,6 +249,8 @@ import { getSlaRemaining, getEscalationLevel }          from './src/utils/sla.js
 import { sevPill, statusPill, slaBar, envPill, formatDate } from './src/utils/helpers.js';
 import { estimateFinancialImpact, totalFinancialExposure, formatBRL } from './src/utils/financial.js';
 import { AUDIT_BASE, getAuditTrail } from './src/data/audit.js';
+import { SBOM_APPS, SBOM_COMPONENTS, LICENSE_RISKS, getSbomStats } from './src/data/sbom.js';
+import { FP_RECORDS, FP_SCANNER_STATS, getFPStats }                    from './src/data/fpw.js';
 import { WAR_ROOM_INCIDENTS }              from './src/data/warroom.js';
 import { CROWN_JEWELS, getProtectionColor, getDifficultyLabel } from './src/data/crownj.js';
 
@@ -258,6 +289,8 @@ function upd() {
   q('sb-cicd',CICD_FINDINGS.filter(f=>f.status==='open').length);
   q('sb-sup',SUPPLIER_VULNS.filter(v=>v.status==='Overdue'||v.status==='New').length);
   q('sb-pb',PLAYBOOKS.filter(p=>p.status==='active').length);
+  const sbomSt=getSbomStats(); q('sb-sbom',sbomSt.withCves);
+  const fpSt=getFPStats();     q('sb-fp',fpSt.pending);
 }
 
 // ── NAVIGATION ────────────────────────────────────────────────────────────────
@@ -270,7 +303,7 @@ window.sft = s => { FST=s; render(); };
 // ── RENDER ────────────────────────────────────────────────────────────────────
 function render() {
   upd();
-  const M={dashboard,threatintel,metrics,vulns,assets,suppliers,playbooks,reclassify,exceptions,sla,cicd,compliance,comms,risk,integrations,agent,settings,lifecycle,dataquality,execintel,smartgroup,warroom,crownj};
+  const M={dashboard,threatintel,metrics,vulns,assets,suppliers,playbooks,reclassify,exceptions,sla,cicd,compliance,comms,risk,integrations,agent,settings,lifecycle,dataquality,execintel,smartgroup,warroom,crownj,sbom,fpw};
   document.getElementById('main').innerHTML=(M[VIEW]||dashboard)();
   if(VIEW==='agent') rMsgs(false);
 }
@@ -883,6 +916,7 @@ window.openDov = function(id) {
       btns.push(`<button class="btn btn-d" onclick="dovStillPresent('${id}')"><i class="ti ti-refresh-alert"></i> Still Vulnerable</button>`);
     }
     if(st==='Closed with Evidence') btns.push(`<span class="pill pd" style="padding:6px 10px;font-size:11px"><i class="ti ti-lock"></i> Encerrado com evidência</span>`);
+    if(!['Closed with Evidence','Fixed Confirmed'].includes(st)) btns.push(`<button class="btn" onclick="openFPContest('${id}')"><i class="ti ti-shield-question"></i> Contestar FP</button>`);
     btns.push(`<button class="btn" onclick="aiComm('${id}')"><i class="ti ti-robot"></i> IA</button>`);
     btns.push(`<button class="btn" onclick="notifyOwner('${id}')"><i class="ti ti-send"></i> Notificar</button>`);
     btns.push(`<button class="btn" onclick="openRC('${id}')"><i class="ti ti-adjustments"></i> Reclassificar</button>`);
@@ -1205,6 +1239,12 @@ let AUDIT_ADDED = LS.get('audit')       || {};  // {vulnId: [events]}
 let LC_VULN_ID  = 'CVE-2024-23897';            // selected lifecycle vuln
 let WR_SEL     = 'WR-001';                      // selected war room incident
 let CJ_SEL     = 'CJ-001';                      // selected crown jewel
+let SBOM_TAB   = 'overview';                    // sbom active tab: overview|components|licenses|eol
+let FP_TAB     = 'queue';                       // fp active tab: queue|stats|history
+let SBOM_FILTER_APP = 'ALL';
+let SBOM_FILTER_ECO = 'ALL';
+let SBOM_FILTER_CVE = false;
+let FP_LOCAL = JSON.parse(localStorage.getItem('rbvm_fp_records')||'[]'); // user-added FPs
 
 // Apply persisted statuses
 VULNS.forEach(v => {
@@ -1846,6 +1886,300 @@ function crownj() {
   </div>`;
 }
 window.cjSelect = id => { CJ_SEL = id; render(); };
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  SPRINT 2A — SBOM (Software Bill of Materials)
+// ══════════════════════════════════════════════════════════════════════════════
+function sbom() {
+  const st = getSbomStats();
+  const filtered = SBOM_COMPONENTS.filter(c => {
+    if (SBOM_FILTER_APP !== 'ALL' && !c.apps.includes(SBOM_FILTER_APP)) return false;
+    if (SBOM_FILTER_ECO !== 'ALL' && c.ecosystem !== SBOM_FILTER_ECO) return false;
+    if (SBOM_FILTER_CVE && c.cves.length === 0) return false;
+    return true;
+  });
+
+  const ecoBadge = eco => {
+    const m = {maven:'eco-maven',npm:'eco-npm',pypi:'eco-pypi',docker:'eco-docker',system:'eco-system'};
+    return `<span class="eco-badge ${m[eco]||'eco-system'}">${eco}</span>`;
+  };
+  const licClass = r => ({critical:'lic-critical',high:'lic-high',medium:'lic-medium',none:'lic-none'}[r]||'lic-none');
+
+  const overviewHTML = () => `
+    <div class="content">
+    <div class="g6" style="margin-bottom:0">
+      <div class="mt"><div class="mt-l">Componentes Total</div><div class="mt-v vi">${SBOM_APPS.reduce((s,a)=>s+a.components_total,0).toLocaleString()}</div><div class="mt-s">${SBOM_APPS.length} aplicações</div></div>
+      <div class="mt"><div class="mt-l">Com CVE Conhecida</div><div class="mt-v vc">${st.withCves}</div><div class="mt-s">${st.totalCves} CVEs total</div></div>
+      <div class="mt"><div class="mt-l">Diretos Vuln.</div><div class="mt-v vc">${st.directVuln}</div><div class="mt-s">dependência direta</div></div>
+      <div class="mt"><div class="mt-l">EOL / EOS</div><div class="mt-v vc">${st.eolComps}</div><div class="mt-s">sem suporte ativo</div></div>
+      <div class="mt"><div class="mt-l">Risco de Licença</div><div class="mt-v vh">${st.licRisk}</div><div class="mt-s">análise jurídica</div></div>
+      <div class="mt"><div class="mt-l">Cobertura SBOM</div><div class="mt-v vk">${SBOM_APPS.length}/5</div><div class="mt-s">aplicações com SBOM</div></div>
+    </div>
+    <div class="nt nw" style="margin:14px 0 0"><i class="ti ti-alert-triangle" style="font-size:16px;flex-shrink:0"></i><strong>PCI DSS 4.0 Req 6.3.2</strong> e <strong>Executive Order 14028</strong> exigem SBOM para todos os sistemas críticos. ${st.eolComps} componente(s) EOL em produção requerem plano de substituição documentado.</div>
+    <div class="card" style="margin-top:14px">
+      <div class="card-hd"><i class="ti ti-apps" style="color:var(--accent)"></i><div><div class="card-t">Aplicações com SBOM ativo</div><div class="card-s">Cobertura por scanner · último scan · componentes</div></div>
+        <div class="card-ac">
+          <span class="sbom-export" onclick="toast('Export CycloneDX JSON gerado — download disponível em ambiente com backend','ts')"><i class="ti ti-file-code"></i> CycloneDX</span>
+          <span class="sbom-export" onclick="toast('Export SPDX 2.3 gerado','ts')"><i class="ti ti-file-text"></i> SPDX 2.3</span>
+        </div>
+      </div>
+      <div class="tbl"><table>
+        <thead><tr><th>Aplicação</th><th>Tipo</th><th>Squad</th><th>Scanner</th><th>Último Scan</th><th>Total Comp.</th><th>Com CVE</th><th>Risco Lic.</th></tr></thead>
+        <tbody>${SBOM_APPS.map(a=>`<tr class="tr" onclick="SBOM_FILTER_APP='${a.id}';SBOM_TAB='components';render()">
+          <td style="font-weight:500">${a.name}</td>
+          <td>${ecoBadge(a.type)}</td>
+          <td style="font-size:11px;color:var(--text2)">${a.squad}</td>
+          <td style="font-size:11px;color:var(--text3)">${a.scanner}</td>
+          <td style="font-size:11px;color:var(--text3)">${a.last_scan}</td>
+          <td style="font-weight:700">${a.components_total.toLocaleString()}</td>
+          <td style="color:${a.components_vuln>0?'var(--crit)':'var(--success)'};font-weight:700">${a.components_vuln}</td>
+          <td style="color:${a.license_risk>0?'var(--high)':'var(--text3)'}">
+            ${a.license_risk>0?`<span class="pill ph" style="font-size:9px">${a.license_risk} comp.</span>`:'<span style="font-size:10px">—</span>'}
+          </td>
+        </tr>`).join('')}</tbody>
+      </table></div>
+    </div>
+    </div>`;
+
+  const componentsHTML = () => `
+    <div>
+    <div class="frow">
+      <span style="font-size:11px;color:var(--text3);font-weight:600">APP:</span>
+      <div class="fc ${SBOM_FILTER_APP==='ALL'?'act':''}" onclick="SBOM_FILTER_APP='ALL';render()">Todas</div>
+      ${SBOM_APPS.map(a=>`<div class="fc ${SBOM_FILTER_APP===a.id?'act':''}" onclick="SBOM_FILTER_APP='${a.id}';render()">${a.name}</div>`).join('')}
+      <span style="font-size:11px;color:var(--text3);font-weight:600;margin-left:10px">ECOSSISTEMA:</span>
+      ${['ALL','maven','npm','pypi','docker','system'].map(e=>`<div class="fc ${SBOM_FILTER_ECO===e?'act':''}" onclick="SBOM_FILTER_ECO='${e}';render()">${e==='ALL'?'Todos':e}</div>`).join('')}
+      <div class="fc ${SBOM_FILTER_CVE?'act':''}" onclick="SBOM_FILTER_CVE=!SBOM_FILTER_CVE;render()">⚠ Só com CVE</div>
+      <span style="margin-left:auto;font-size:11px;color:var(--text3)">${filtered.length} componente(s)</span>
+    </div>
+    <div style="padding:12px 16px">
+    <div class="tbl"><table>
+      <thead><tr><th>Componente</th><th>Versão atual</th><th>Última</th><th>Ecossistema</th><th>Tipo</th><th>Licença</th><th>EOL</th><th>CVEs</th><th>Aplicações</th><th>Ação</th></tr></thead>
+      <tbody>${filtered.map(c=>{
+        const licRisk=LICENSE_RISKS[c.license];
+        const hasVuln=c.cves.length>0;
+        return `<tr class="tr" style="${hasVuln?'background:rgba(255,76,76,.03)':''}">
+          <td style="font-weight:${hasVuln?'600':'400'}">${c.name}</td>
+          <td class="mono" style="color:${c.eol?'var(--crit)':hasVuln?'var(--high)':'var(--text2)'}">${c.version}</td>
+          <td class="mono" style="color:${c.version===c.latest?'var(--success)':'var(--text3)'}">${c.latest}</td>
+          <td>${ecoBadge(c.ecosystem)}</td>
+          <td><span class="${c.dep_type==='direct'?'dep-direct':'dep-trans'}">${c.dep_type==='direct'?'Direta':'Transitiva'}</span></td>
+          <td class="${licRisk?licClass(licRisk.level):'lic-none'}">${c.license}</td>
+          <td>${c.eol?`<span class="pill pc" style="font-size:9px" title="${c.eol_date}">EOL</span>`:'<span style="color:var(--success);font-size:10px">✓</span>'}</td>
+          <td>${c.cves.length>0?`<span class="pill pc" style="font-size:9px" title="${c.cves.join(', ')}">${c.cves.length} CVE</span>`:'<span style="color:var(--success);font-size:10px">—</span>'}</td>
+          <td style="font-size:10px;color:var(--text3)">${c.apps.map(id=>SBOM_APPS.find(a=>a.id===id)?.name||id).join(', ')}</td>
+          <td>${c.can_upgrade?`<button class="btn btn-s btn-o" onclick="sbomUpgrade('${c.id}')"><i class="ti ti-arrow-up"></i> Upgrade</button>`:`<span class="pill pn" style="font-size:9px">Manual</span>`}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>
+    </div></div>`;
+
+  const licensesHTML = () => `
+    <div class="content">
+    <div class="nt nc-"><i class="ti ti-gavel" style="font-size:16px;flex-shrink:0"></i><strong>Risco Jurídico:</strong> Componentes GPL/AGPL em produto proprietário sem autorização podem exigir liberação do código fonte ou gerar litígio. Revisão legal obrigatória.</div>
+    ${SBOM_COMPONENTS.filter(c=>c.license_risk!=='none').map(c=>{const lr=LICENSE_RISKS[c.license];return`<div class="card" style="margin-top:10px;border-left:3px solid ${lr?.level==='critical'?'var(--crit)':'var(--high)'}">
+      <div class="card-hd"><i class="ti ti-gavel" style="color:${lr?.level==='critical'?'var(--crit)':'var(--high)'}"></i><div><div class="card-t">${c.name} v${c.version} — ${lr?.label||c.license}</div><div class="card-s">Usado em: ${c.apps.map(id=>SBOM_APPS.find(a=>a.id===id)?.name||id).join(', ')}</div></div><div class="card-ac"><span class="pill ${lr?.level==='critical'?'pc':'ph'}">${lr?.level?.toUpperCase()||'RISCO'}</span></div></div>
+      <div class="card-bd"><div style="font-size:12px;color:var(--text2);margin-bottom:8px">${lr?.desc||''}</div><div class="nt nw"><i class="ti ti-arrow-right" style="font-size:14px;flex-shrink:0"></i>${c.upgrade_note}</div>
+      <button class="btn btn-s" style="margin-top:8px" onclick="quickMsg('Analise o risco jurídico do componente ${c.name} (licença ${c.license}) usado em produto proprietário. Qual o risco real? Quais alternativas com licença permissiva oferecem funcionalidade similar? Qual o plano de substituição recomendado?')"><i class="ti ti-robot"></i> Análise Jurídica via IA</button></div>
+    </div>`;}).join('')}
+    <div class="card" style="margin-top:10px">
+      <div class="card-hd"><i class="ti ti-check" style="color:var(--success)"></i><div><div class="card-t">Licenças Permissivas (${SBOM_COMPONENTS.filter(c=>c.license_risk==='none').length} componentes)</div></div></div>
+      <div class="card-bd" style="display:flex;gap:6px;flex-wrap:wrap">
+        ${[...new Set(SBOM_COMPONENTS.filter(c=>c.license_risk==='none').map(c=>c.license))].map(l=>`<span class="pill pd" style="font-size:10px">${l}</span>`).join('')}
+      </div>
+    </div>
+    </div>`;
+
+  const eolHTML = () => `
+    <div class="content">
+    <div class="nt nc-"><i class="ti ti-calendar-x" style="font-size:16px;flex-shrink:0"></i><strong>Componentes EOL/EOS</strong> não recebem patches de segurança. Cada novo CVE descoberto é permanentemente não corrigível na versão em uso. Risco cresce mensalmente.</div>
+    ${SBOM_COMPONENTS.filter(c=>c.eol).map(c=>`<div class="card" style="margin-top:10px;border-left:3px solid var(--crit)">
+      <div class="card-hd"><i class="ti ti-calendar-x" style="color:var(--crit)"></i><div><div class="card-t">${c.name} v${c.version}</div><div class="card-s">EOL desde ${c.eol_date||'data não publicada'} · Ecossistema: ${c.ecosystem} · Usado em: ${c.apps.map(id=>SBOM_APPS.find(a=>a.id===id)?.name||id).join(', ')}</div></div><div class="card-ac"><span class="pill pc">EOL</span>${c.cves.length?`<span class="pill pc" style="font-size:9px">${c.cves.length} CVEs sem patch</span>`:''}</div></div>
+      <div class="card-bd"><div class="nt nw" style="margin-bottom:8px"><i class="ti ti-arrow-up" style="font-size:14px;flex-shrink:0"></i><strong>Plano de Upgrade:</strong> ${c.upgrade_note}</div>
+      <div class="btn-g"><button class="btn btn-s btn-p" onclick="sbomUpgrade('${c.id}')"><i class="ti ti-ticket"></i> Criar Ticket de Upgrade</button><button class="btn btn-s" onclick="quickMsg('Crie um plano de migração para ${c.name} v${c.version} (EOL desde ${c.eol_date}). Alternativas compatíveis, breaking changes, esforço estimado em story points e riscos do processo de migração.')"><i class="ti ti-robot"></i> Plano de Migração via IA</button></div></div>
+    </div>`).join('')}
+    </div>`;
+
+  const tabs = { overview:'Visão Geral', components:'Componentes', licenses:'Licenças', eol:'EOL Tracker' };
+  const tabContent = { overview: overviewHTML, components: componentsHTML, licenses: licensesHTML, eol: eolHTML };
+  const body = (tabContent[SBOM_TAB]||overviewHTML)();
+
+  return `<div>
+  <div class="sbom-tabs">
+    ${Object.entries(tabs).map(([k,v])=>`<div class="sbom-tab ${SBOM_TAB===k?'active':''}" onclick="sbomTab('${k}')">${v}</div>`).join('')}
+    <div style="margin-left:auto;display:flex;align-items:center;gap:8px;padding:6px 0">
+      <span class="sbom-export" onclick="toast('Scan SBOM agendado para todos os repos','ts')"><i class="ti ti-refresh"></i> Re-scan All</span>
+    </div>
+  </div>
+  ${body}
+  </div>`;
+}
+window.sbomTab = t => { SBOM_TAB=t; SBOM_FILTER_APP='ALL'; SBOM_FILTER_ECO='ALL'; SBOM_FILTER_CVE=false; render(); };
+window.sbomUpgrade = id => {
+  const c = SBOM_COMPONENTS.find(x=>x.id===id);
+  if(!c) return;
+  toast(`Ticket de upgrade criado: ${c.name} ${c.version} → ${c.latest}`,'ts');
+  addAuditEvent(c.vuln_ids?.[0]||c.id, {actor:'user',name:'SBOM Module',icon:'ti-box-multiple',action:`Upgrade de componente solicitado: ${c.name} ${c.version} → ${c.latest}`,before:null,after:null,detail:c.upgrade_note,src:'SBOM'});
+};
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  SPRINT 2B — FALSE POSITIVE WORKFLOW
+// ══════════════════════════════════════════════════════════════════════════════
+function fpw() {
+  const allFP = [...FP_RECORDS, ...FP_LOCAL];
+  const pending  = allFP.filter(r=>r.status==='under_review');
+  const accepted = allFP.filter(r=>r.status==='accepted');
+  const rejected = allFP.filter(r=>r.status==='rejected');
+  const fpSt = getFPStats();
+
+  const statusBadge = s => ({
+    accepted:    '<span class="pill pd" style="font-size:10px">FP Aceito</span>',
+    rejected:    '<span class="pill pc" style="font-size:10px">TP Confirmado</span>',
+    under_review:'<span class="pill ph" style="font-size:10px">Em Revisão</span>',
+  }[s]||`<span class="pill pn" style="font-size:10px">${s}</span>`);
+
+  const renderFPCard = (r, showActions=false) => {
+    const v = VULNS.find(x=>x.id===r.vuln_id)||{title:r.vuln_id,source:r.scanner};
+    return `<div class="fp-card fp-status-${r.status}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+        <span class="mono" style="color:var(--accent);font-size:11px">${r.id}</span>
+        ${statusBadge(r.status)}
+        <span class="pill pn" style="font-size:9px">${r.scanner}</span>
+        <span style="font-size:11px;color:var(--text2)">• ${v.title?.substring(0,50)||r.vuln_id}</span>
+        <span style="margin-left:auto;font-size:10px;color:var(--text3)">${r.created}</span>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:6px">Contestado por: <strong style="color:var(--text2)">${r.contestant}</strong>${r.reviewer?` · Revisor: <strong style="color:var(--text2)">${r.reviewer}</strong>`:' · <em>Aguardando revisor</em>'}</div>
+      <div class="fp-quote">${r.justification}</div>
+      ${r.evidence?`<div style="font-size:10px;color:var(--text3);margin-top:4px"><i class="ti ti-paperclip" style="font-size:11px"></i> Evidência: ${r.evidence}</div>`:''}
+      ${r.reviewer_note?`<div style="margin-top:8px;padding:8px;background:var(--bg4);border-radius:var(--r);font-size:11px;color:${r.status==='accepted'?'var(--success)':'var(--crit)'}"><strong>Decisão do revisor:</strong> ${r.reviewer_note}</div>`:''}
+      ${showActions&&r.status==='under_review'?`<div class="btn-g" style="margin-top:10px">
+        <button class="btn btn-o btn-s" onclick="fpAccept('${r.id}')"><i class="ti ti-check"></i> Aceitar como FP</button>
+        <button class="btn btn-d btn-s" onclick="fpReject('${r.id}')"><i class="ti ti-x"></i> Rejeitar (TP confirmado)</button>
+        <button class="btn btn-s" onclick="fpRequestInfo('${r.id}')"><i class="ti ti-info-circle"></i> Pedir mais evidência</button>
+        <button class="btn btn-s" onclick="quickMsg('Analise a contestação de falso positivo ${r.id} para a vulnerabilidade ${r.vuln_id} detectada pelo scanner ${r.scanner}. Justificativa do contestante: ${r.justification.substring(0,120)}. Com base na técnica do scanner e no contexto fornecido, qual a probabilidade real de ser um FP? Quais evidências adicionais ajudariam a decidir?')"><i class="ti ti-robot"></i> Análise via IA</button>
+      </div>`:''}
+    </div>`;
+  };
+
+  const queueHTML = () => `
+    <div class="content">
+    ${pending.length===0?'<div class="nt nok"><i class="ti ti-check" style="font-size:16px;flex-shrink:0"></i>Fila vazia — nenhuma contestação pendente de revisão.</div>':
+      `<div class="nt nw"><i class="ti ti-clock" style="font-size:16px;flex-shrink:0"></i><strong>${pending.length} contestação(ões) aguardando revisão.</strong> Meta: revisar em até 48h para não impactar o backlog de remediação.</div>
+      ${pending.map(r=>renderFPCard(r,true)).join('')}`}
+    <div style="margin-top:14px">
+      <button class="btn btn-p btn-s" onclick="openFPContest(null)"><i class="ti ti-plus"></i> Contestar Finding</button>
+    </div>
+    </div>`;
+
+  const statsHTML = () => `
+    <div class="content">
+    <div class="g4" style="margin-bottom:0">
+      <div class="mt"><div class="mt-l">Total Contestações</div><div class="mt-v vi">${allFP.length}</div></div>
+      <div class="mt"><div class="mt-l">FP Aceitos</div><div class="mt-v vk">${accepted.length}</div></div>
+      <div class="mt"><div class="mt-l">TP Confirmados</div><div class="mt-v vc">${rejected.length}</div></div>
+      <div class="mt"><div class="mt-l">FP Rate Médio</div><div class="mt-v vh">${fpSt.avgRate}%</div><div class="mt-s">por scanner</div></div>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <div class="card-hd"><i class="ti ti-chart-bar" style="color:var(--accent)"></i><div><div class="card-t">Taxa de Falso Positivo por Scanner</div><div class="card-s">FP Rate = contestações aceitas / total findings × 100</div></div></div>
+      <div class="card-bd">
+        ${FP_SCANNER_STATS.sort((a,b)=>b.fp_rate-a.fp_rate).map(s=>{
+          const pct=Math.min(100,s.fp_rate*8); // scale for visual
+          const color=s.fp_rate>5?'var(--crit)':s.fp_rate>2?'var(--high)':'var(--success)';
+          return `<div style="margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+              <span style="color:var(--text2)">${s.scanner}</span>
+              <span style="font-weight:700;color:${color}">${s.fp_rate}% FP · ${s.fp_accepted} aceitos / ${s.fp_contested} contestados / ${s.total_findings} findings</span>
+            </div>
+            <div class="scanner-bar"><div class="scanner-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+          </div>`;
+        }).join('')}
+        <div class="nt ni-" style="margin-top:12px"><i class="ti ti-info-circle" style="font-size:14px;flex-shrink:0"></i>FP Rate > 5% indica necessidade de ajuste de configuração do scanner ou revisão de escopo de cobertura.</div>
+      </div>
+    </div>
+    </div>`;
+
+  const historyHTML = () => `
+    <div class="content">
+    ${[...accepted,...rejected].sort((a,b)=>b.created.localeCompare(a.created)).map(r=>renderFPCard(r,false)).join('')}
+    </div>`;
+
+  const tabs = { queue:`Fila de Revisão (${pending.length})`, stats:'Taxas por Scanner', history:'Histórico' };
+  const tabContent = { queue:queueHTML, stats:statsHTML, history:historyHTML };
+  const body = (tabContent[FP_TAB]||queueHTML)();
+
+  return `<div>
+  <div class="sbom-tabs">
+    ${Object.entries(tabs).map(([k,v])=>`<div class="sbom-tab ${FP_TAB===k?'active':''}" onclick="fpTab('${k}')">${v}</div>`).join('')}
+  </div>
+  ${body}
+  </div>`;
+}
+window.fpTab = t => { FP_TAB=t; render(); };
+
+window.fpAccept = id => {
+  const r=FP_RECORDS.find(x=>x.id===id)||FP_LOCAL.find(x=>x.id===id);
+  if(!r) return;
+  r.status='accepted'; r.reviewer='security-lead@corp.example'; r.resolved=new Date().toISOString().slice(0,10);
+  r.reviewer_note='FP aceito após análise. Evidências validadas. Finding marcado como FP — não reabrir sem nova evidência.';
+  // Mark vuln as false positive in status
+  const v=VULNS.find(x=>x.id===r.vuln_id);
+  if(v){ saveStatus(r.vuln_id,'Closed with Evidence'); addAuditEvent(r.vuln_id,{actor:'user',name:'Security Lead',icon:'ti-shield-check',action:`Falso Positivo aceito (${id}) — finding encerrado`,before:'In Progress',after:'Closed with Evidence',detail:`Scanner: ${r.scanner}. Contestação: ${r.id}. Evidência validada.`,src:'FP Workflow'}); }
+  LS.set('fp_records',FP_LOCAL);
+  toast(`${id}: FP aceito — finding encerrado`,'ts'); render();
+};
+
+window.fpReject = id => {
+  const r=FP_RECORDS.find(x=>x.id===id)||FP_LOCAL.find(x=>x.id===id);
+  if(!r) return;
+  r.status='rejected'; r.reviewer='security-lead@corp.example'; r.resolved=new Date().toISOString().slice(0,10);
+  r.reviewer_note='Contestação rejeitada. Finding confirmado como True Positive. Manter no backlog e cobrar remediação.';
+  addAuditEvent(r.vuln_id,{actor:'user',name:'Security Lead',icon:'ti-x',action:`FP rejeitado (${id}) — True Positive confirmado`,before:null,after:null,detail:`Scanner ${r.scanner} correto. Contestação improcedente.`,src:'FP Workflow'});
+  LS.set('fp_records',FP_LOCAL);
+  toast(`${id}: Contestação rejeitada — TP confirmado`,'te'); render();
+};
+
+window.fpRequestInfo = id => {
+  toast(`Solicitação de evidência adicional enviada para o contestante via email/Slack`,'ts');
+};
+
+window.openFPContest = vulnId => {
+  const vulnOpts = VULNS.map(v=>`<option value="${v.id}" ${v.id===vulnId?'selected':''}>${v.id} — ${v.title.substring(0,50)}</option>`).join('');
+  document.getElementById('mc').innerHTML=`
+  <div class="modal-t"><i class="ti ti-shield-question" style="color:var(--high)"></i>Contestar Finding como Falso Positivo</div>
+  <div class="nt nw" style="margin-bottom:12px"><i class="ti ti-alert-triangle" style="font-size:14px;flex-shrink:0"></i>FP incorreto pode mascarar risco real. Inclua evidências técnicas concretas que o revisor possa validar de forma independente.</div>
+  <div class="fr">
+    <div class="ff"><div class="fl">Vulnerabilidade</div><select class="fi" id="fp-vuln">${vulnOpts}</select></div>
+    <div class="ff"><div class="fl">Scanner / Ferramenta</div><select class="fi" id="fp-scanner"><option>Tenable VM</option><option>Qualys VMDR</option><option>Snyk</option><option>SonarQube</option><option>Checkov</option><option>Trivy</option><option>Rapid7</option><option>Microsoft Defender</option></select></div>
+  </div>
+  <div class="ff" style="margin-bottom:12px"><div class="fl">Justificativa Técnica Detalhada</div><textarea class="fi" id="fp-just" placeholder="Por que este finding é um falso positivo neste ambiente específico? Inclua: versão afetada vs versão em uso, configuração específica que mitiga, isolamento de rede, etc."></textarea></div>
+  <div class="ff" style="margin-bottom:12px"><div class="fl">Evidências Disponíveis</div><input class="fi" id="fp-ev" placeholder="Ex: diagrama de rede, config dump, scan de confirmação, log de sistema..."/></div>
+  <div class="modal-ft">
+    <button class="btn" onclick="closeMod()">Cancelar</button>
+    <button class="btn btn-p" onclick="submitFPContest()"><i class="ti ti-send"></i> Submeter para Revisão</button>
+  </div>`;
+  document.getElementById('mbg').classList.add('open');
+};
+
+window.submitFPContest = () => {
+  const vulnId  = document.getElementById('fp-vuln')?.value;
+  const scanner = document.getElementById('fp-scanner')?.value;
+  const just    = document.getElementById('fp-just')?.value;
+  const ev      = document.getElementById('fp-ev')?.value;
+  if(!just||just.length<20){ toast('Justificativa muito curta. Adicione detalhes técnicos.','te'); return; }
+  const newFP = {
+    id:`FP-${String(FP_RECORDS.length+FP_LOCAL.length+1).padStart(3,'0')}`,
+    vuln_id:vulnId, scanner, status:'under_review',
+    contestant:'current.user@corp.example', reviewer:null,
+    justification:just, evidence:ev||'Sem evidência adicional',
+    reviewer_note:null, created:new Date().toISOString().slice(0,10), resolved:null,
+  };
+  FP_LOCAL.push(newFP);
+  LS.set('fp_records',FP_LOCAL);
+  addAuditEvent(vulnId,{actor:'user',name:'Security Analyst',icon:'ti-shield-question',action:`Falso Positivo contestado — ${newFP.id}`,before:'In Progress',after:'In Progress',detail:`Scanner: ${scanner}. Motivo: ${just.substring(0,80)}...`,src:'FP Workflow'});
+  toast(`${newFP.id} submetido para revisão`,'ts');
+  closeMod(); FP_TAB='queue'; render();
+};
 
 
 // ── START ─────────────────────────────────────────────────────────────────────
