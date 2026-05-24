@@ -209,6 +209,36 @@
 .rpt-hist-item:hover{border-color:var(--border2);background:var(--bg4)}
 .ev-sel{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:8px 10px;margin-bottom:6px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:all .12s}
 .ev-sel:hover{border-color:var(--border2)}.ev-sel.selected{border-color:var(--accent);background:rgba(79,122,255,.08)}
+
+/* ── RED TEAM ── */
+.rt-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:18px;margin-bottom:12px;border-left:3px solid var(--crit)}
+.rt-stat{background:var(--bg3);border-radius:var(--r);padding:10px 14px;text-align:center}
+.rt-stat-val{font-size:22px;font-weight:800}.rt-stat-lbl{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.rt-finding{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin-bottom:8px;cursor:pointer;transition:all .15s}
+.rt-finding:hover{border-color:var(--border2)}.rt-finding.open{border-color:var(--accent)}
+.blind-spot{background:var(--critbg);border:2px solid rgba(255,76,76,.4);border-radius:var(--r);padding:8px 12px;font-size:11px;color:var(--crit);margin-bottom:6px}
+.confirmed-tag{background:var(--successbg);border:1px solid rgba(64,200,122,.3);border-radius:4px;padding:2px 7px;font-size:9px;font-weight:700;color:var(--success)}
+.corr-box{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:16px}
+.corr-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-size:11px}
+.corr-item:last-child{border-bottom:none}
+/* ── BUG BOUNTY ── */
+.bb-report{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r2);padding:14px;margin-bottom:8px;transition:all .15s}
+.bb-report:hover{border-color:var(--border2)}
+.bb-report.triaging{border-left:3px solid var(--high)}
+.bb-report.accepted{border-left:3px solid var(--accent)}
+.bb-report.resolved{border-left:3px solid var(--success)}
+.bb-report.duplicate,.bb-report.invalid,.bb-report.oos{border-left:3px solid var(--border);opacity:.75}
+.disclosure-timer{background:var(--critbg);border-radius:var(--r);padding:4px 9px;font-size:10px;font-weight:700;color:var(--crit)}
+.disclosure-ok{background:var(--successbg);color:var(--success)}
+.bounty-amount{font-size:15px;font-weight:800;color:var(--success);font-family:var(--mono)}
+.researcher-badge{background:var(--bg4);border-radius:var(--r);padding:3px 8px;font-size:10px;font-weight:600;color:var(--text2);font-family:var(--mono)}
+.bb-bounty-table tr:nth-child(odd) td{background:var(--bg4)}
+.scope-tag{font-size:10px;padding:2px 7px;border-radius:4px;background:var(--successbg);color:var(--success);margin:2px;display:inline-block}
+.oos-tag{font-size:10px;padding:2px 7px;border-radius:4px;background:var(--critbg);color:var(--crit);margin:2px;display:inline-block}
+.stat-ring-wrap{position:relative;width:100px;height:100px}
+.stat-ring-wrap svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.stat-ring-val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700}
+
 </style>
 </head>
 <body>
@@ -258,6 +288,11 @@
     <div class="sb-it" id="nav-compliance" onclick="setView('compliance')"><i class="ti ti-certificate"></i>Compliance / GRC</div>
     <div class="sb-it" id="nav-comms"      onclick="setView('comms')">     <i class="ti ti-send"></i>Comunicados</div>
     <div class="sb-it" id="nav-risk"       onclick="setView('risk')">      <i class="ti ti-chart-area"></i>Análise de Risco</div>
+  </div>
+  <div class="sb-lbl">Sprint 6</div>
+  <div class="sb-sec">
+    <div class="sb-it" id="nav-redteam"  onclick="setView('redteam')">  <i class="ti ti-sword"></i>Red Team<span class="sb-n nc" id="sb-rt">—</span></div>
+    <div class="sb-it" id="nav-bugbounty" onclick="setView('bugbounty')"><i class="ti ti-bug-off"></i>Bug Bounty<span class="sb-n nh" id="sb-bb">—</span></div>
   </div>
   <div class="sb-lbl">Sprint 5</div>
   <div class="sb-sec">
@@ -324,6 +359,8 @@ import { getSlaRemaining, getEscalationLevel }          from './src/utils/sla.js
 import { sevPill, statusPill, slaBar, envPill, formatDate } from './src/utils/helpers.js';
 import { estimateFinancialImpact, totalFinancialExposure, formatBRL } from './src/utils/financial.js';
 import { AUDIT_BASE, getAuditTrail } from './src/data/audit.js';
+import { RT_ENGAGEMENTS, RT_FINDINGS, RT_CORRELATION, getRTTypeLabel } from './src/data/redteam.js';
+import { BB_PROGRAMS, BB_REPORTS, getBBStatusMeta, getDisclosureDays }  from './src/data/bugbounty.js';
 import { PATCH_CAMPAIGNS, MAINTENANCE_WINDOWS, PATCH_RECORDS, PATCH_VELOCITY, getPatchDebt, getCampaignTypeLabel, getPatchStatusMeta } from './src/data/patches.js';
 import { EXTERNAL_ASSETS, ASM_CATEGORIES, ASM_TIMELINE, getAsmScore, getCertStatus, getHeadersGrade } from './src/data/asm.js';
 import { SBOM_APPS, SBOM_COMPONENTS, LICENSE_RISKS, getSbomStats } from './src/data/sbom.js';
@@ -373,6 +410,10 @@ function upd() {
   const urgentPatches=PATCH_CAMPAIGNS.filter(c=>c.status==='in_progress'&&c.priority==='P0').length;
   q('sb-patch',urgentPatches>0?urgentPatches+'!':PATCH_CAMPAIGNS.filter(c=>c.status!=='completed').length);
   q('sb-rpt',RPT_HISTORY.length||'NEW');
+  const rtBlindSpots = RT_FINDINGS.filter(f=>f.new_finding).length;
+  q('sb-rt', rtBlindSpots>0?rtBlindSpots+'⚠':RT_FINDINGS.length);
+  const bbTriaging = BB_REPORTS.filter(r=>r.status==='triaging').length;
+  q('sb-bb', bbTriaging>0?bbTriaging+'!':BB_REPORTS.filter(r=>r.status==='accepted').length);
 }
 
 // ── NAVIGATION ────────────────────────────────────────────────────────────────
@@ -385,7 +426,7 @@ window.sft = s => { FST=s; render(); };
 // ── RENDER ────────────────────────────────────────────────────────────────────
 function render() {
   upd();
-  const M={dashboard,threatintel,metrics,vulns,assets,suppliers,playbooks,reclassify,exceptions,sla,cicd,compliance,comms,risk,integrations,agent,settings,lifecycle,dataquality,execintel,smartgroup,warroom,crownj,sbom,fpw,asm,patch,rptexport};
+  const M={dashboard,threatintel,metrics,vulns,assets,suppliers,playbooks,reclassify,exceptions,sla,cicd,compliance,comms,risk,integrations,agent,settings,lifecycle,dataquality,execintel,smartgroup,warroom,crownj,sbom,fpw,asm,patch,rptexport,redteam,bugbounty};
   document.getElementById('main').innerHTML=(M[VIEW]||dashboard)();
   if(VIEW==='agent') rMsgs(false);
 }
@@ -1336,6 +1377,11 @@ let RPT_TAB        = 'generate';               // reports active tab
 let RPT_TYPE       = 'executive';              // selected report type
 let RPT_EV_SEL     = [];                       // selected vulns for evidence
 let RPT_HISTORY    = JSON.parse(localStorage.getItem('rbvm_reports')||'[]');
+let RT_TAB         = 'engagements';             // red team active tab
+let RT_ENG_SEL     = 'RT-2024-001';            // selected engagement
+let RT_FIND_EXP    = null;                      // expanded finding id
+let BB_TAB         = 'submissions';             // bug bounty active tab
+let BB_RPT_EXP     = null;                      // expanded BB report
 
 // Apply persisted statuses
 VULNS.forEach(v => {
@@ -3291,6 +3337,281 @@ window.rptRegenerate = id => {
   RPT_TYPE = r.type;
   execGenerateReport();
 };
+
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  SPRINT 6A — RED TEAM INTEGRATION
+// ══════════════════════════════════════════════════════════════════════════════
+function redteam() {
+  const eng     = RT_ENGAGEMENTS.find(e => e.id === RT_ENG_SEL) || RT_ENGAGEMENTS[0];
+  const engFinds= RT_FINDINGS.filter(f => f.engagement_id === RT_ENG_SEL);
+  const newFinds= engFinds.filter(f => f.new_finding);
+  const confirmd= engFinds.filter(f => !f.new_finding);
+  const allBlind= RT_FINDINGS.filter(f => f.new_finding);
+
+  const rtType  = getRTTypeLabel(eng.type);
+  const sevColor= s => s==='CRITICAL'?'var(--crit)':s==='HIGH'?'var(--high)':'var(--med)';
+  const sevPillLocal = s => `<span class="pill ${s==='CRITICAL'?'pc':s==='HIGH'?'ph':'pm'}" style="font-size:9px">${s}</span>`;
+
+  // ── ENGAGEMENTS TAB ─────────────────────────────────────────────────────────
+  const engTab = () => `<div class="content">
+    <div class="g4">
+      <div class="mt"><div class="mt-l">Engagements</div><div class="mt-v vi">${RT_ENGAGEMENTS.length}</div><div class="mt-s">exercícios concluídos</div></div>
+      <div class="mt"><div class="mt-l">Total Findings</div><div class="mt-v vc">${RT_FINDINGS.length}</div><div class="mt-s">${RT_FINDINGS.filter(f=>f.severity==='CRITICAL').length} críticos</div></div>
+      <div class="mt"><div class="mt-l">Scanner Blind Spots</div><div class="mt-v vc">${allBlind.length}</div><div class="mt-s">RT encontrou, scanner perdeu</div></div>
+      <div class="mt"><div class="mt-l">Dwell Máximo</div><div class="mt-v vc">${Math.max(...RT_ENGAGEMENTS.map(e=>e.dwell_days))}d</div><div class="mt-s">não detectado</div></div>
+    </div>
+    <div class="nt nc-"><i class="ti ti-sword" style="font-size:16px;flex-shrink:0"></i><strong>${allBlind.length} blind spots identificados</strong> — vulnerabilidades que <strong>um atacante real explorou</strong> mas que o scanner não detectou. Estes são os gaps mais críticos do programa de segurança.</div>
+    ${RT_ENGAGEMENTS.map(e => {
+      const tp=getRTTypeLabel(e.type);
+      const isS=RT_ENG_SEL===e.id;
+      return `<div class="rt-card" style="cursor:pointer;border-left-color:${tp.color}${isS?';border:2px solid var(--accent)':''}" onclick="RT_ENG_SEL='${e.id}';render()">
+        <div style="display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap">
+          <div style="flex:1;min-width:240px">
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
+              <span class="pill ${tp.cls}" style="font-size:9px"><i class="ti ${tp.icon}"></i> ${tp.label}</span>
+              ${rpill('pd','CONCLUÍDO')}
+              <span style="font-size:11px;color:var(--text3)">${e.start} → ${e.end} · ${e.duration_days}d</span>
+            </div>
+            <div style="font-size:14px;font-weight:700;margin-bottom:4px">${e.name}</div>
+            <div style="font-size:11px;color:var(--text2);margin-bottom:8px">${e.firm} · Lead: ${e.lead}</div>
+            <div style="font-size:11px;color:var(--text2);line-height:1.5">${e.results_summary}</div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;min-width:240px">
+            <div class="rt-stat"><div class="rt-stat-val vc">${e.crit}</div><div class="rt-stat-lbl">Críticos</div></div>
+            <div class="rt-stat"><div class="rt-stat-val vc">${e.new_findings}</div><div class="rt-stat-lbl">Blind Spots</div></div>
+            <div class="rt-stat"><div class="rt-stat-val vh">${e.dwell_days}d</div><div class="rt-stat-lbl">Dwell Time</div></div>
+            <div class="rt-stat"><div class="rt-stat-val vh">${e.mtti_hours}h</div><div class="rt-stat-lbl">MTTI</div></div>
+            <div class="rt-stat"><div class="rt-stat-val vk">${e.mttc_hours}h</div><div class="rt-stat-lbl">MTTC</div></div>
+            <div class="rt-stat"><div class="rt-stat-val vi">${e.findings_total}</div><div class="rt-stat-lbl">Total Finds</div></div>
+          </div>
+        </div>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+            ${e.objectives_achieved.map(o=>`<span style="font-size:10px;color:var(--success)"><i class="ti ti-check"></i> ${o}</span>`).join('')}
+            ${e.objectives_partial.map(o=>`<span style="font-size:10px;color:var(--high)"><i class="ti ti-minus"></i> ${o}</span>`).join('')}
+          </div>
+          <div style="font-size:10px;color:var(--text3)">Escopo: ${e.scope.slice(0,3).join(' · ')}${e.scope.length>3?' + '+(e.scope.length-3)+' mais':''}</div>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+
+  // ── FINDINGS TAB ────────────────────────────────────────────────────────────
+  const findingsTab = () => `<div>
+    <div class="frow">
+      ${RT_ENGAGEMENTS.map(e=>`<div class="fc ${RT_ENG_SEL===e.id?'act':''}" onclick="RT_ENG_SEL='${e.id}';render()">${e.id} (${RT_FINDINGS.filter(f=>f.engagement_id===e.id).length} finds)</div>`).join('')}
+      <span style="margin-left:auto;font-size:11px;color:var(--text3)">${engFinds.length} findings · ${newFinds.length} blind spots</span>
+    </div>
+    <div style="padding:12px 16px;display:flex;flex-direction:column;gap:8px">
+      ${engFinds.sort((a,b)=>{ const o={'CRITICAL':0,'HIGH':1,'MEDIUM':2}; return (o[a.severity]??3)-(o[b.severity]??3); }).map(f => {
+        const isExp = RT_FIND_EXP === f.id;
+        return `<div class="rt-finding ${isExp?'open':''}" onclick="RT_FIND_EXP=RT_FIND_EXP==='${f.id}'?null:'${f.id}';render()">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            ${sevPillLocal(f.severity)}
+            ${f.new_finding?`<span class="blind-spot" style="padding:2px 8px;margin:0">⚠ SCANNER BLIND SPOT</span>`:`<span class="confirmed-tag">Scanner Confirmado</span>`}
+            <div style="flex:1;font-size:12px;font-weight:600">${f.title}</div>
+            <span class="pill pai" style="font-size:9px">${f.technique}</span>
+            <i class="ti ti-chevron-${isExp?'up':'down'}" style="color:var(--text3);font-size:13px"></i>
+          </div>
+          <div style="font-size:10px;color:var(--text3);margin-top:4px">${f.tactic} · Dwell: ${f.dwell_h}h · ${f.detection}</div>
+          ${isExp?`<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+            <div class="ds" style="margin-bottom:8px">Cadeia de Ataque</div>
+            <div style="overflow-x:auto">${attackPathSVG(f)}</div>
+            <div style="margin-top:10px"><div class="ds">Impacto Demonstrado</div><div style="font-size:12px;color:var(--text2);line-height:1.5;margin-top:4px">${f.impact}</div></div>
+            <div style="margin-top:10px"><div class="ds">Recomendação de Correção</div><div style="font-size:12px;color:var(--text2);margin-top:4px">${f.remediation}</div></div>
+            ${f.vuln_id?`<div style="margin-top:8px"><div class="ds">Vulnerabilidade Vinculada</div><button class="btn btn-s" onclick="event.stopPropagation();openDov('${f.vuln_id}')"><i class="ti ti-arrow-right"></i> ${f.vuln_id} no RBVM</button></div>`:''}
+            ${f.scanner_note?`<div class="nt ${f.new_finding?'nc-':'ni-'}" style="margin-top:8px"><i class="ti ti-info-circle" style="font-size:14px;flex-shrink:0"></i>${f.scanner_note}</div>`:''}
+            <div class="btn-g" style="margin-top:10px">
+              <button class="btn btn-s btn-p" onclick="event.stopPropagation();quickMsg('O Red Team encontrou: ${f.title} (${f.technique}). Impacto: ${f.impact}. ${f.new_finding?'O SCANNER NÃO DETECTOU ESTE FINDING.':''} Gere um plano de remediação detalhado e avalie se outros ativos similares podem ser afetados por este vetor.')"><i class="ti ti-robot"></i> Plano via IA</button>
+              ${f.new_finding?`<button class="btn btn-s btn-d" onclick="event.stopPropagation();toast('Blind spot ${f.id} adicionado à fila de vulnerabilidades para triagem','ts')"><i class="ti ti-plus"></i> Criar Vuln no RBVM</button>`:''}
+            </div>
+          </div>`:''}
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+
+  // ── CORRELATION TAB ─────────────────────────────────────────────────────────
+  const corrTab = () => {
+    const allVulns = VULNS.filter(v=>v.status!=='Resolved');
+    const rtLinked = RT_FINDINGS.filter(f=>f.vuln_id).map(f=>f.vuln_id);
+    const coveredByScanner = allVulns.filter(v=>rtLinked.includes(v.id));
+    const blindSpots = RT_FINDINGS.filter(f=>f.new_finding);
+    const notTested  = allVulns.filter(v=>!rtLinked.includes(v.id)).slice(0,6);
+    const totalVulns = allVulns.length;
+    const covPct = Math.round(coveredByScanner.length/Math.max(totalVulns,1)*100);
+
+    return `<div class="content">
+    <div class="nt nc-"><i class="ti ti-alert-triangle" style="font-size:16px;flex-shrink:0"></i><strong>Análise crítica:</strong> O red team encontrou <strong>${blindSpots.length} vulnerabilidades críticas que o scanner não detectou</strong>. Isso representa blind spots reais no programa de segurança — pontos onde um atacante real teria vantagem.</div>
+    <div class="g3">
+      <div class="mt"><div class="mt-l">Vulns no Scanner</div><div class="mt-v vi">${totalVulns}</div><div class="mt-s">abertas</div></div>
+      <div class="mt"><div class="mt-l">RT Confirmou Scanner</div><div class="mt-v vk">${coveredByScanner.length}</div><div class="mt-s">dupla validação</div></div>
+      <div class="mt"><div class="mt-l">Scanner Perdeu (RT)</div><div class="mt-v vc">${blindSpots.length}</div><div class="mt-s">blind spots críticos</div></div>
+    </div>
+    <div class="g2">
+      <div class="corr-box">
+        <div class="ds" style="margin-bottom:10px">✅ Dupla Validação — Scanner + Red Team</div>
+        <div style="font-size:11px;color:var(--text2);margin-bottom:8px">Vulnerabilidades que o scanner detectou E o red team confirmou como exploráveis</div>
+        ${coveredByScanner.map(v=>`<div class="corr-item">
+          <i class="ti ti-shield-check" style="color:var(--success);font-size:13px;flex-shrink:0"></i>
+          ${SP(v.sev)}<span class="mono" style="font-size:10px">${v.id}</span>
+          <span style="font-size:11px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.title.substring(0,40)}</span>
+          <button class="btn btn-s" style="margin-left:auto;padding:2px 7px;font-size:10px" onclick="openDov('${v.id}')"><i class="ti ti-arrow-right"></i></button>
+        </div>`).join('')}
+      </div>
+      <div class="corr-box" style="border-color:rgba(255,76,76,.3);background:var(--critbg)">
+        <div class="ds" style="margin-bottom:10px;color:var(--crit)">⚠ SCANNER BLIND SPOTS — Red Team Encontrou, Scanner PERDEU</div>
+        <div style="font-size:11px;color:var(--crit);margin-bottom:8px;font-weight:600">Estes são os gaps mais perigosos: um atacante real os exploraria, o scanner não alertaria.</div>
+        ${blindSpots.map(f=>`<div class="corr-item">
+          <i class="ti ti-eye-off" style="color:var(--crit);font-size:13px;flex-shrink:0"></i>
+          ${sevPillLocal(f.severity)}<span style="font-size:11px;font-weight:600">${f.title.substring(0,40)}</span>
+          <span class="pill pai" style="font-size:8px;margin-left:auto">${f.technique}</span>
+        </div>`).join('')}
+        <div class="btn-g" style="margin-top:10px">
+          <button class="btn btn-s btn-d" onclick="quickMsg('O red team identificou ${blindSpots.length} blind spots que o scanner não detectou: ${blindSpots.map(f=>f.title).join(', ')}. Gere um plano para fechar esses gaps: (1) ajustes de configuração do scanner para cobrir esses vetores, (2) ferramentas ou técnicas complementares de detecção, (3) controles compensatórios imediatos.')"><i class="ti ti-robot"></i> Fechar Gaps via IA</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:0">
+      <div class="card-hd"><i class="ti ti-chart-area" style="color:var(--accent)"></i><div><div class="card-t">Cobertura de Teste por Severidade</div></div></div>
+      <div class="card-bd">
+        ${['CRITICAL','HIGH','MEDIUM'].map(sev => {
+          const total = allVulns.filter(v=>v.sev===sev).length;
+          const covered = coveredByScanner.filter(v=>v.sev===sev).length;
+          const pct = Math.round(covered/Math.max(total,1)*100);
+          return `<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+            <span>${SP(sev)} ${sev}</span>
+            <span style="color:var(--text3)">${covered}/${total} vulns cobertas pelo RT · ${pct}%</span>
+          </div><div class="pb" style="height:6px"><div class="pbf" style="width:${pct}%;background:${pct>=75?'var(--success)':pct>=40?'var(--high)':'var(--crit)'}"></div></div></div>`;
+        }).join('')}
+      </div>
+    </div>
+    </div>`;
+  };
+
+  const tabs = { engagements:'Engagements', findings:`Findings (${engFinds.length})`, correlation:'Correlação Scanner × RT' };
+  const tabFns = { engagements:engTab, findings:findingsTab, correlation:corrTab };
+  const body = (tabFns[RT_TAB]||engTab)();
+  return `<div><div class="sbom-tabs">
+    ${Object.entries(tabs).map(([k,v])=>`<div class="sbom-tab ${RT_TAB===k?'active':''}" onclick="rtTab('${k}')">${v}</div>`).join('')}
+    <div style="margin-left:auto;display:flex;align-items:center;gap:8px;padding:6px 0">
+      <span class="sbom-export" onclick="openReport(buildExecReport(),'Sumário Executivo')"><i class="ti ti-file-analytics"></i> Relatório RT</span>
+    </div>
+  </div>${body}</div>`;
+}
+window.rtTab = t => { RT_TAB=t; RT_FIND_EXP=null; render(); };
+
+// ══════════════════════════════════════════════════════════════════════════════
+//  SPRINT 6B — BUG BOUNTY MANAGEMENT
+// ══════════════════════════════════════════════════════════════════════════════
+function bugbounty() {
+  const prog    = BB_PROGRAMS[0];
+  const reports = BB_REPORTS;
+  const triaging= reports.filter(r=>r.status==='triaging');
+  const accepted= reports.filter(r=>r.status==='accepted');
+  const resolved= reports.filter(r=>r.status==='resolved');
+
+  const sevColor= s => s==='CRITICAL'?'var(--crit)':s==='HIGH'?'var(--high)':'var(--med)';
+  const sev2cls = s => s==='CRITICAL'?'pc':s==='HIGH'?'ph':s==='MEDIUM'?'pm':'pl';
+
+  const renderReport = (r, showActions=false) => {
+    const st   = getBBStatusMeta(r.status);
+    const disc = getDisclosureDays(r);
+    const isExp= BB_RPT_EXP===r.id;
+    return `<div class="bb-report ${r.status}" onclick="BB_RPT_EXP=BB_RPT_EXP==='${r.id}'?null:'${r.id}';render()">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+        <span class="mono" style="font-size:10px;color:var(--text3)">${r.id}</span>
+        <span class="pill ${sev2cls(r.severity)}" style="font-size:9px">${r.severity}</span>
+        <span class="pill ${st.cls}" style="font-size:9px">${st.label}</span>
+        ${r.bounty_brl?`<span class="bounty-amount">R$ ${r.bounty_brl.toLocaleString('pt-BR')}</span>`:''}
+        ${disc!==null?`<span class="disclosure-timer ${disc<=30?'':'disclosure-ok'}">${disc<=0?'DISCLOSURE HOJE!':disc+'d p/ disclosure'}</span>`:''}
+        <span class="researcher-badge">@${r.researcher} ★${r.researcher_rep}</span>
+        <span style="margin-left:auto;font-size:10px;color:var(--text3)">${r.submitted}</span>
+      </div>
+      <div style="font-size:12px;font-weight:600;margin-bottom:3px">${r.title}</div>
+      <div style="font-size:10px;color:var(--text3)">${r.category}</div>
+      ${isExp?`<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+        <div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:8px">${r.description}</div>
+        <div class="ds">Impacto</div><div style="font-size:12px;color:var(--text2);margin-bottom:8px">${r.impact}</div>
+        <div class="ds">Passos para Reproduzir</div>
+        <div style="background:var(--bg4);border-radius:var(--r);padding:8px 12px;font-size:11px;font-family:var(--mono);color:var(--text2);line-height:1.6;margin-bottom:8px;white-space:pre-line">${r.steps_to_reproduce}</div>
+        ${r.triage_note?`<div class="nt ni-"><i class="ti ti-info-circle" style="font-size:14px;flex-shrink:0"></i><strong>Nota do triagem:</strong> ${r.triage_note}</div>`:''}
+        ${showActions?`<div class="btn-g" style="margin-top:10px">
+          <button class="btn btn-o btn-s" onclick="event.stopPropagation();bbAccept('${r.id}')"><i class="ti ti-check"></i> Aceitar (Válido)</button>
+          <button class="btn btn-s" onclick="event.stopPropagation();bbDuplicate('${r.id}')"><i class="ti ti-copy"></i> Duplicado</button>
+          <button class="btn btn-d btn-s" onclick="event.stopPropagation();bbInvalid('${r.id}')"><i class="ti ti-x"></i> Inválido</button>
+          <button class="btn btn-s" onclick="event.stopPropagation();bbOOS('${r.id}')"><i class="ti ti-minus"></i> Fora Escopo</button>
+          <button class="btn btn-s" onclick="event.stopPropagation();quickMsg('Analise este report de bug bounty: ${r.title.replace(/'/g,"\'")}. Categoria: ${r.category}. Severidade declarada: ${r.severity}. Descrição: ${r.description.substring(0,100).replace(/'/g,"\'")}. É válido? Qual o impacto real? Qual deveria ser a severidade e o valor de bounty baseado na tabela PCI e LGPD?')"><i class="ti ti-robot"></i> Análise IA</button>
+        </div>`:''}
+      </div>`:''}
+    </div>`;
+  };
+
+  // ── PROGRAMA TAB ─────────────────────────────────────────────────────────────
+  const programTab = () => `<div class="content">
+    <div class="g4">
+      <div class="mt"><div class="mt-l">Reports Total</div><div class="mt-v vi">${prog.stats.total_reports}</div></div>
+      <div class="mt"><div class="mt-l">Válidos</div><div class="mt-v vk">${prog.stats.valid}</div><div class="mt-s">${Math.round(prog.stats.valid/prog.stats.total_reports*100)}% taxa</div></div>
+      <div class="mt"><div class="mt-l">Total Pago</div><div class="mt-v vk" style="font-size:17px">R$ ${prog.stats.total_paid_brl.toLocaleString('pt-BR')}</div></div>
+      <div class="mt"><div class="mt-l">MTTR Médio</div><div class="mt-v vh">${prog.stats.avg_resolution_days}d</div><div class="mt-s">Meta: ≤ 30d</div></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-hd"><i class="ti ti-target" style="color:var(--accent)"></i><div><div class="card-t">Escopo do Programa</div><div class="card-s">${prog.platform} · Status: ${prog.status.toUpperCase()}</div></div></div>
+        <div class="card-bd">
+          <div class="ds" style="margin-bottom:6px">In Scope</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px">${prog.scope.map(s=>`<span class="scope-tag">${s}</span>`).join('')}</div>
+          <div class="ds" style="margin-bottom:6px">Out of Scope</div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px">${prog.out_of_scope.map(s=>`<span class="oos-tag">${s}</span>`).join('')}</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd"><i class="ti ti-currency-dollar" style="color:var(--success)"></i><div><div class="card-t">Bounty Table</div><div class="card-s">Valores em BRL</div></div></div>
+        <div class="card-bd">
+          <table class="bb-bounty-table"><tbody>
+            ${Object.entries(prog.bounty_table).map(([sev,val])=>`<tr>
+              <td><span class="pill ${sev==='critical'?'pc':sev==='high'?'ph':sev==='medium'?'pm':sev==='low'?'pl':'pn'}" style="font-size:9px">${sev.toUpperCase()}</span></td>
+              <td style="font-family:var(--mono);font-weight:700;color:var(--success)">${val}</td>
+            </tr>`).join('')}
+          </tbody></table>
+          <div class="nt ni-" style="margin-top:10px"><i class="ti ti-info-circle" style="font-size:14px;flex-shrink:0"></i>Safe Harbor ativo. Researchers atuando de boa-fé não serão processados. Responsible Disclosure: 90 dias.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><i class="ti ti-chart-bar" style="color:var(--accent)"></i><div><div class="card-t">Distribuição de Reports</div></div></div>
+      <div class="card-bd" style="display:flex;gap:16px;flex-wrap:wrap">
+        ${[['triaging','Em Triagem',reports.filter(r=>r.status==='triaging').length,'var(--high)'],['accepted','Aceitos',reports.filter(r=>r.status==='accepted').length,'var(--accent)'],['resolved','Resolvidos',resolved.length,'var(--success)'],['duplicate','Duplicados',reports.filter(r=>r.status==='duplicate').length,'var(--text3)'],['invalid','Inválidos',reports.filter(r=>r.status==='invalid').length,'var(--text3)'],['oos','Fora Escopo',reports.filter(r=>r.status==='oos').length,'var(--med)']].map(([s,l,n,c])=>`<div style="text-align:center"><div style="font-size:22px;font-weight:800;color:${c}">${n}</div><div style="font-size:10px;color:var(--text3)">${l}</div></div>`).join('')}
+      </div>
+    </div>
+  </div>`;
+
+  // ── SUBMISSÕES TAB ───────────────────────────────────────────────────────────
+  const subsTab = () => `<div class="content">
+    ${triaging.length?`<div><div style="font-size:12px;font-weight:700;color:var(--high);margin-bottom:8px;display:flex;align-items:center;gap:6px"><i class="ti ti-clock"></i> ${triaging.length} aguardando triagem — responder em ${prog.response_sla_h}h</div>${triaging.map(r=>renderReport(r,true)).join('')}</div>`:'<div class="nt nok"><i class="ti ti-check" style="font-size:16px;flex-shrink:0"></i>Sem reports aguardando triagem.</div>'}
+    ${accepted.length?`<div style="margin-top:16px"><div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px"><i class="ti ti-check"></i> ${accepted.length} aceitos — bounty determinado · disclosure countdown ativo</div>${accepted.map(r=>renderReport(r,false)).join('')}</div>`:''}
+    ${resolved.length?`<div style="margin-top:16px"><div style="font-size:12px;font-weight:700;color:var(--success);margin-bottom:8px"><i class="ti ti-lock"></i> ${resolved.length} resolvidos e pagos</div>${resolved.map(r=>renderReport(r,false)).join('')}</div>`:''}
+    <div style="margin-top:16px">
+      ${reports.filter(r=>['duplicate','invalid','oos'].includes(r.status)).map(r=>renderReport(r,false)).join('')}
+    </div>
+  </div>`;
+
+  const tabs = { program:'Programa', submissions:`Submissões (${triaging.length} em triagem)`, stats:'Estatísticas' };
+  const tabFns = { program:programTab, submissions:subsTab, stats:() => programTab() };
+  const body = (tabFns[BB_TAB]||programTab)();
+
+  return `<div><div class="sbom-tabs">
+    ${Object.entries(tabs).map(([k,v])=>`<div class="sbom-tab ${BB_TAB===k?'active':''}" onclick="bbTab('${k}')">${v}</div>`).join('')}
+  </div>${body}</div>`;
+}
+
+window.bbTab      = t => { BB_TAB=t; BB_RPT_EXP=null; render(); };
+window.bbAccept   = id => { const r=BB_REPORTS.find(x=>x.id===id); if(r){ r.status='accepted'; r.disclosure_deadline=new Date(Date.now()+90*86400000).toISOString().slice(0,10); r.bounty_brl=r.severity==='CRITICAL'?15000:r.severity==='HIGH'?5000:1200; addAuditEvent('BB_'+id,{actor:'user',name:'Security Analyst',icon:'ti-check',action:'Bug Bounty aceito — '+id,before:'triaging',after:'accepted',detail:'Bounty: R$ '+r.bounty_brl+' · Disclosure: '+r.disclosure_deadline,src:'Bug Bounty'}); toast(id+' aceito — R$ '+r.bounty_brl.toLocaleString('pt-BR')+' de bounty · disclosure 90 dias','ts'); render(); } };
+window.bbDuplicate= id => { const r=BB_REPORTS.find(x=>x.id===id); if(r){ r.status='duplicate'; toast(id+': marcado como duplicado','ts'); render(); } };
+window.bbInvalid  = id => { const r=BB_REPORTS.find(x=>x.id===id); if(r){ r.status='invalid'; toast(id+': marcado como inválido','ts'); render(); } };
+window.bbOOS      = id => { const r=BB_REPORTS.find(x=>x.id===id); if(r){ r.status='oos'; toast(id+': marcado como fora de escopo','ts'); render(); } };
 
 
 // ── START ─────────────────────────────────────────────────────────────────────
