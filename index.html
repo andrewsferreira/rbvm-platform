@@ -3,15 +3,10 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <meta name="description" content="RBVM Platform — Enterprise Vulnerability &amp; Exposure Management"/>
+  <meta name="description" content="RBVM Platform — Enterprise Vulnerability & Exposure Management"/>
   <meta name="author" content="Andrews Ferreira"/>
-  <meta name="robots" content="noindex,nofollow"/>
   <title>RBVM Platform — Enterprise Vulnerability &amp; Exposure Management</title>
-
-  <!-- Icons -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"/>
-
-  <!-- Design System -->
   <link rel="stylesheet" href="src/styles/tokens.css"/>
   <link rel="stylesheet" href="src/styles/themes.css"/>
   <link rel="stylesheet" href="src/styles/layout.css"/>
@@ -19,24 +14,74 @@
   <link rel="stylesheet" href="src/styles/modules.css"/>
 </head>
 <body>
-  <!-- App shell is injected here by src/main.js → src/app.js → initApp() -->
-  <div id="app"></div>
 
-  <!-- Toast notification (outside #app for z-index layering) -->
-  <div id="toast"><i class="ti ti-check"></i><span id="tm"></span></div>
+<div class="app">
 
-  <!-- Fallback for JavaScript disabled -->
-  <noscript>
-    <div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:system-ui;color:#e8eaf0;background:#0d0f14;text-align:center;padding:40px">
-      <div>
-        <div style="font-size:48px;margin-bottom:16px">🛡️</div>
-        <h2 style="margin-bottom:8px">RBVM Platform</h2>
-        <p style="color:#8b90a0">JavaScript is required to run this application.</p>
+  <!-- ── TOPBAR ─────────────────────────────────────────────────────────────── -->
+  <div class="topbar">
+    <div class="logo"><i class="ti ti-shield-search"></i>RBVM Platform<span class="logo-badge">AI</span></div>
+    <div class="topbar-mid">
+      <div class="tb-sw"><i class="ti ti-search"></i><input class="tb-search" id="gs" placeholder="Buscar CVE, ativo, time, ticket..." oninput="gS(this.value)"/></div>
+      <button class="tb-pill cr" onclick="fBySev('CRITICAL')"><i class="ti ti-alert-triangle" style="font-size:12px"></i><span id="pc-n">—</span> Críticas</button>
+      <button class="tb-pill wa" onclick="window.setView&&setView('sla')"><i class="ti ti-clock-x" style="font-size:12px"></i><span id="ps-n">—</span> SLA vencidos</button>
+      <button class="tb-pill md" onclick="window.setView&&setView('cicd')"><i class="ti ti-player-stop" style="font-size:12px"></i><span id="pb-n">—</span> Bloqueados</button>
+    </div>
+    <div class="topbar-right">
+      <div class="tb-ic" onclick="window.openModal&&openModal('report')" title="Relatório"><i class="ti ti-file-analytics"></i></div>
+      <div class="tb-ic" onclick="window.setTheme&&setTheme(document.documentElement.getAttribute('data-theme')==='dark'?'white':'dark')" title="Alternar Tema"><i class="ti ti-sun"></i></div>
+      <div class="tb-ic" onclick="window.setView&&setView('settings')" title="Configurações"><i class="ti ti-settings"></i></div>
+      <div class="av" title="CISO">SC</div>
+    </div>
+  </div>
+
+  <!-- ── SIDEBAR ────────────────────────────────────────────────────────────── -->
+  <div class="sidebar">
+    <div id="sidebar-inner">
+      <!-- Filled by src/app.js → renderSidebar() on boot -->
+      <div class="sb-lbl">Carregando navegação...</div>
+      <div class="sb-sec" style="padding:10px;color:var(--text3);font-size:11px">
+        <div class="sb-it active"><i class="ti ti-layout-dashboard"></i>Dashboard</div>
       </div>
     </div>
-  </noscript>
+  </div>
 
-  <!-- Application entrypoint (ES Module) -->
-  <script type="module" src="src/main.js"></script>
+  <!-- ── MAIN CONTENT ───────────────────────────────────────────────────────── -->
+  <main class="main-area" id="main">
+    <!-- Boot fallback — visible while JS loads, replaced on first render() -->
+    <div id="boot-fallback" style="display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:16px;color:var(--text2)">
+      <i class="ti ti-shield-search" style="font-size:52px;color:var(--accent);opacity:.4"></i>
+      <div style="font-size:15px;font-weight:700;color:var(--text)">RBVM Platform</div>
+      <div style="font-size:12px;opacity:.6">Carregando módulos...</div>
+      <div style="display:flex;gap:4px;margin-top:4px">
+        <div class="td"></div><div class="td"></div><div class="td"></div>
+      </div>
+      <div id="boot-status" style="font-size:10px;color:var(--text3);margin-top:8px;font-family:monospace"></div>
+    </div>
+  </main>
+
+  <!-- ── FOOTER ─────────────────────────────────────────────────────────────── -->
+  <footer class="app-footer">
+    © 2026 Andrews Ferreira. Todos os direitos reservados. &nbsp;·&nbsp; Dados demonstrativos — ambiente de showcase.
+  </footer>
+
+</div><!-- /.app -->
+
+<!-- ── DRAWER (DETAIL OVERLAY) ──────────────────────────────────────────────── -->
+<div class="dov" id="dov">
+  <div class="dov-cl" onclick="closeDov()"><i class="ti ti-x"></i></div>
+  <div id="dov-c" style="display:flex;flex-direction:column;height:100%;overflow:hidden"></div>
+</div>
+
+<!-- ── MODAL ────────────────────────────────────────────────────────────────── -->
+<div class="modal-bg" id="mbg">
+  <div class="modal"><div id="mc"></div></div>
+</div>
+
+<!-- ── TOAST ────────────────────────────────────────────────────────────────── -->
+<div id="toast"><i class="ti ti-check"></i><span id="tm"></span></div>
+
+<!-- ── APPLICATION ENTRY POINT ──────────────────────────────────────────────── -->
+<script type="module" src="src/main.js"></script>
+
 </body>
 </html>
