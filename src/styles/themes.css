@@ -1,0 +1,82 @@
+/* =============================================================================
+   RBVM Platform — Themes (Dark / White)
+   © 2026 Andrews Ferreira. Todos os direitos reservados.
+   ============================================================================= */
+
+/* ── DEFAULT / DARK THEME ───────────────────────────────────────────────────── */
+:root,
+[data-theme="dark"] {
+  --bg:      #0d0f14;
+  --bg2:     #141720;
+  --bg3:     #1c2030;
+  --bg4:     #242840;
+
+  --border:  rgba(255, 255, 255, .07);
+  --border2: rgba(255, 255, 255, .12);
+
+  --text:    #e8eaf0;
+  --text2:   #8b90a0;
+  --text3:   #555a6e;
+
+  --accent:  #4f7aff;
+  --accent2: #2c4fd6;
+
+  /* Component surfaces */
+  --card-bg:      var(--bg2);
+  --input-bg:     var(--bg3);
+  --sidebar-bg:   var(--bg2);
+  --topbar-bg:    var(--bg2);
+  --modal-bg:     var(--bg2);
+  --modal-overlay: rgba(0, 0, 0, .65);
+
+  /* Scrollbar */
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: var(--bg4);
+
+  /* Topbar pill */
+  --topbar-search-bg: var(--bg3);
+}
+
+/* ── WHITE / LIGHT THEME ────────────────────────────────────────────────────── */
+[data-theme="white"] {
+  --bg:      #f1f5fb;
+  --bg2:     #ffffff;
+  --bg3:     #f0f3f9;
+  --bg4:     #e2e8f4;
+
+  --border:  rgba(0, 0, 0, .08);
+  --border2: rgba(0, 0, 0, .16);
+
+  --text:    #1e293b;
+  --text2:   #475569;
+  --text3:   #94a3b8;
+
+  --accent:  #3b5bff;
+  --accent2: #2445d4;
+
+  /* Component surfaces */
+  --card-bg:      #ffffff;
+  --input-bg:     #f8fafc;
+  --sidebar-bg:   #ffffff;
+  --topbar-bg:    #ffffff;
+  --modal-bg:     #ffffff;
+  --modal-overlay: rgba(15, 23, 42, .55);
+
+  /* Scrollbar */
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: var(--bg4);
+
+  /* Topbar pill */
+  --topbar-search-bg: var(--bg3);
+}
+
+/* ── THEME TRANSITION ───────────────────────────────────────────────────────── */
+*, *::before, *::after {
+  transition: background-color var(--transition-slow),
+              border-color var(--transition-slow),
+              color var(--transition-slow);
+}
+/* Exclude transition from animations */
+.tb-pill, .wr-dot, .blind-spot, .retest-card.failed, .wr-banner {
+  transition: none;
+}
