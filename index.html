@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>RBVM Platform — Enterprise Vulnerability & Exposure Management</title>
+<title>RiskBridge — Vulnerability & Exposure Management Command Center</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"/>
 <style>
 :root{--bg:#0d0f14;--bg2:#141720;--bg3:#1c2030;--bg4:#242840;--border:rgba(255,255,255,.07);--border2:rgba(255,255,255,.12);--text:#e8eaf0;--text2:#8b90a0;--text3:#555a6e;--accent:#4f7aff;--accent2:#2c4fd6;--crit:#ff4c4c;--critbg:rgba(255,76,76,.12);--high:#ff8c38;--highbg:rgba(255,140,56,.12);--med:#f0c040;--medbg:rgba(240,192,64,.12);--low:#40c87a;--lowbg:rgba(64,200,122,.12);--success:#40c87a;--successbg:rgba(64,200,122,.12);--ai:#00d4d4;--aibg:rgba(0,212,212,.1);--font:'Segoe UI',system-ui,sans-serif;--mono:'Cascadia Code','Fira Code',monospace;--r:8px;--r2:12px;--sw:224px;--th:48px}
@@ -263,7 +263,7 @@
 <div class="app">
 
 <div class="topbar">
-  <div class="logo"><i class="ti ti-shield-search"></i>RBVM Platform<span class="logo-badge">AI</span></div>
+  <div class="logo"><i class="ti ti-shield-search"></i>RiskBridge<span class="logo-badge">BETA</span></div>
   <div class="topbar-mid">
     <div class="tb-sw"><i class="ti ti-search"></i><input class="tb-search" id="gs" placeholder="Buscar CVE, ativo, time, ticket..." oninput="gS(this.value)"/></div>
     <button class="tb-pill cr" onclick="fBySev('CRITICAL')"><i class="ti ti-alert-triangle" style="font-size:12px"></i><span id="pc-n">—</span> Críticas</button>
@@ -342,7 +342,7 @@
 </div>
 
 <div class="main-area" id="main"></div>
-<div class="app-footer">© 2026 Andrews Ferreira. Todos os direitos reservados. Conceito proprietário de produto de cibersegurança. Demonstração pública apenas para fins de portfólio.</div>
+<div class="app-footer">© 2026 Andrews Ferreira. Todos os direitos reservados. RiskBridge é um conceito proprietário de produto de cibersegurança. Demonstração pública apenas para fins de portfólio.</div>
 </div><!-- /.app -->
 
 <div class="dov" id="dov">
@@ -435,7 +435,7 @@ window.sft = s => { FST=s; render(); };
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
 function render() {
-  try { upd(); } catch(e) { console.warn('[RBVM] upd() warn:', e.message); }
+  try { upd(); } catch(e) { console.warn('[RiskBridge] upd() warn:', e.message); }
   const sb = document.getElementById('sidebar-inner');
   if(sb) {
     document.querySelectorAll('.sb-it').forEach(function(e){e.classList.remove('active');});
@@ -443,13 +443,13 @@ function render() {
     if(n) n.classList.add('active');
   }
   const main = document.getElementById('main');
-  if(!main) { console.error('[RBVM] #main not found'); return; }
+  if(!main) { console.error('[RiskBridge] #main not found'); return; }
   const M = {dashboard,threatintel,metrics,vulns,assets,suppliers,playbooks,reclassify,exceptions,sla,cicd,compliance,comms,risk,integrations,agent,settings,lifecycle,dataquality,execintel,smartgroup,warroom,crownj,sbom,fpw,asm,patch,rptexport,offensive};
   try {
     main.innerHTML = (M[VIEW] || dashboard)();
     if(VIEW === 'agent') rMsgs(false);
   } catch(e) {
-    console.error('[RBVM] Error in module', VIEW, e);
+    console.error('[RiskBridge] Error in module', VIEW, e);
     const errDiv = document.createElement('div');
     errDiv.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;padding:40px;text-align:center';
     errDiv.innerHTML = '<i class="ti ti-alert-triangle" style="font-size:48px;color:var(--high)"></i>'
@@ -1345,7 +1345,7 @@ GUARDRAILS DE GOVERNANÇA:
   const sourceMeta={
     vulns_total:VULNS.length, vulns_active:activeVulns.length,
     period:'últimos 6 meses', data_date:'2024-05-22',
-    sources_used:['RBVM Platform Dataset','CISA KEV','EPSS/FIRST','MONTHLY_TRENDS','KRI_ALERTS','COMPLIANCE_CONTROLS','SUPPLIER_VULNS','CICD_FINDINGS'],
+    sources_used:['RiskBridge Dataset','CISA KEV','EPSS/FIRST','MONTHLY_TRENDS','KRI_ALERTS','COMPLIANCE_CONTROLS','SUPPLIER_VULNS','CICD_FINDINGS'],
     limitations:['Dados mockados para demonstração','Integrações reais não conectadas','Valores financeiros são estimativas','Sem dados em tempo real'],
     vulns_referenced:activeVulns.filter(v=>v.kev||v.sla_used>=v.sla_max).map(v=>v.id).slice(0,6),
   };
@@ -2900,7 +2900,7 @@ function rptWrap(title, subtitle, audience, body) {
   const now = new Date().toLocaleDateString('pt-BR', {day:'2-digit',month:'long',year:'numeric'});
   const ts  = new Date().toLocaleString('pt-BR');
   return '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-    + '<title>RBVM Platform — ' + title + '</title>'
+    + '<title>RiskBridge — ' + title + '</title>'
     + '<style>'
     + '*{margin:0;padding:0;box-sizing:border-box}'
     + 'body{font-family:"Segoe UI",system-ui,sans-serif;background:#f1f5f9;color:#1e293b;font-size:13px;line-height:1.5}'
@@ -2947,11 +2947,11 @@ function rptWrap(title, subtitle, audience, body) {
     + '</style></head><body>'
     + '<button class="print-btn" onclick="window.print()">🖨 Imprimir / Salvar PDF</button>'
     + '<div class="page">'
-    + '<div class="rh"><div><div class="logo">RBVM Platform</div><div class="logo-sub">Enterprise Vulnerability &amp; Exposure Management</div></div>'
+    + '<div class="rh"><div><div class="logo">RiskBridge</div><div class="logo-sub">Vulnerability &amp; Exposure Management Command Center</div></div>'
     + '<div class="rh-right"><span class="conf">CONFIDENCIAL</span><div class="rdate">Gerado em: ' + ts + '</div><div class="rdate">Público: ' + audience + '</div></div></div>'
     + '<div class="rtitle">' + title + '</div><div class="rsubtitle">' + subtitle + '</div>'
     + body
-    + '<div class="rf"><span>RBVM Platform — Corporação XPTO · ' + now + '</span><span>Dados demonstrativos · © 2026 Andrews Ferreira · Todos os direitos reservados</span></div>'
+    + '<div class="rf"><span>RiskBridge — Corporação XPTO · ' + now + '</span><span>Dados demonstrativos · © 2026 Andrews Ferreira · Todos os direitos reservados</span></div>'
     + '</div></body></html>';
 }
 
@@ -3642,7 +3642,7 @@ window.setOffensive = tab => {
 try {
   render();
 } catch(e) {
-  console.error('[RBVM] Initial render failed:', e);
+  console.error('[RiskBridge] Initial render failed:', e);
   const m = document.getElementById('main');
   if(m) m.innerHTML = '<div style="padding:40px;color:var(--high);font-family:monospace;font-size:12px"><strong>⚠ Erro de carregamento</strong><br><br>' + e.message + '<br><br>Abra F12 → Console para detalhes.</div>';
 }
