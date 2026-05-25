@@ -60,8 +60,8 @@ function upd() {
   q('sb-cicd',CICD_FINDINGS.filter(f=>f.status==='open').length);
   q('sb-sup',SUPPLIER_VULNS.filter(v=>v.status==='Overdue'||v.status==='New').length);
   q('sb-pb',PLAYBOOKS.filter(p=>p.status==='active').length);
-  const sbomSt=getSbomStats(); q('sb-sbom',sbomSt.withCves);
-  const fpSt=getFPStats();     q('sb-fp',fpSt.pending);
+  try { const sbomSt=getSbomStats(); q('sb-sbom',sbomSt.withCves); } catch(e) {}
+  try { const fpSt=getFPStats(); q('sb-fp',fpSt.pending); } catch(e) {}
   const shadowCount=EXTERNAL_ASSETS.filter(a=>a.shadow).length;
   q('sb-asm',shadowCount>0?shadowCount+'!':EXTERNAL_ASSETS.length);
   const urgentPatches=PATCH_CAMPAIGNS.filter(c=>c.status==='in_progress'&&c.priority==='P0').length;
@@ -117,14 +117,42 @@ function renderSidebar() {
   `).join('');
 }
 
+function renderModuleError(view, err) {
+  return `<div style="display:flex;align-items:center;justify-content:center;height:100%;flex-direction:column;gap:12px;padding:40px;text-align:center">
+    <i class="ti ti-alert-triangle" style="font-size:48px;color:var(--high)"></i>
+    <div style="font-size:15px;font-weight:700">Módulo temporariamente indisponível</div>
+    <div style="font-size:12px;color:var(--text2)">Módulo: <strong>${view}</strong></div>
+    <div style="background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:8px 14px;font-size:11px;font-family:monospace;color:var(--high);max-width:460px;word-break:break-all">${err?.message||'Unknown error'}</div>
+    <button class="btn btn-p btn-s" onclick="setView('dashboard')"><i class="ti ti-arrow-left"></i> Voltar ao Dashboard</button>
+    <div style="font-size:10px;color:var(--text3)">Abra DevTools Console (F12) para detalhes.</div>
+  </div>`;
+}
+
 function render() {
-  upd();
-  // Rebuild sidebar (reflects current view, language, badge counts)
+  console.info('[RBVM] render() VIEW='+VIEW);
+  // Defensive upd — never crash
+  try { upd(); } catch(e) { console.warn('[RBVM] upd() warning:', e.message); }
+
+  // Sidebar
   const sb = document.getElementById('sidebar-inner');
-  if (sb) sb.innerHTML = renderSidebar();
+  if (sb) {
+    try { sb.innerHTML = renderSidebar(); }
+    catch(e) { console.warn('[RBVM] renderSidebar() warning:', e.message); }
+  }
+
+  // Main content
+  const main = document.getElementById('main');
+  if (!main) { console.error('[RBVM] #main element not found'); return; }
+
   const M={dashboard,threatintel,metrics,vulns,assets,suppliers,playbooks,reclassify,exceptions,sla,cicd,compliance,comms,risk,integrations,agent,settings,lifecycle,dataquality,execintel,smartgroup,warroom,crownj,sbom,fpw,asm,patch,rptexport,offensive};
-  document.getElementById('main').innerHTML=(M[VIEW]||dashboard)();
-  if(VIEW==='agent') rMsgs(false);
+  try {
+    main.innerHTML = (M[VIEW] || dashboard)();
+  } catch(e) {
+    console.error('[RBVM] module render error in', VIEW, ':', e);
+    try { main.innerHTML = renderModuleError(VIEW, e); } catch { main.innerHTML = '<p style="color:var(--crit);padding:20px">Erro crítico de renderização</p>'; }
+  }
+
+  if (VIEW==='agent') { try { rMsgs(false); } catch(e) {} }
 }
 
 // ── SHARED HTML HELPERS ───────────────────────────────────────────────────────
@@ -3356,62 +3384,7 @@ window.bbReject   = id => { const f=BB_FINDINGS.find(x=>x.id===id); if(f){f.tria
 
 
 
-// ── START ─────────────────────────────────────────────────────────────────────
-function initApp() {
-  // Load preferences and apply before first paint
-  const prefs = loadPreferences();
-  if (prefs.theme)    { document.documentElement.setAttribute('data-theme', prefs.theme); }
-  if (prefs.language) { setLang(prefs.language); }
-
-  // Build app shell
-  document.getElementById('app').innerHTML = `
-    <div class="app">
-      <div class="topbar">
-        <div class="logo"><i class="ti ti-shield-search"></i>RBVM Platform<span class="logo-badge">AI</span></div>
-        <div class="topbar-mid">
-          <div class="tb-sw"><i class="ti ti-search"></i><input class="tb-search" id="gs" placeholder="${t('topbar.search')}" oninput="gS(this.value)"/></div>
-          <button class="tb-pill cr" onclick="fBySev('CRITICAL')"><i class="ti ti-alert-triangle" style="font-size:12px"></i><span id="pc-n">—</span> ${t('topbar.critical')}</button>
-          <button class="tb-pill wa" onclick="setView('sla')"><i class="ti ti-clock-x" style="font-size:12px"></i><span id="ps-n">—</span> ${t('topbar.slaBreached')}</button>
-          <button class="tb-pill md" onclick="setView('cicd')"><i class="ti ti-player-stop" style="font-size:12px"></i><span id="pb-n">—</span> ${t('topbar.blocked')}</button>
-        </div>
-        <div class="topbar-right">
-          <div class="tb-ic" onclick="openModal('report')" title="Relatório"><i class="ti ti-file-analytics"></i></div>
-          <div class="tb-ic" onclick="setTheme(document.documentElement.getAttribute('data-theme')==='dark'?'white':'dark')" title="Alternar Tema"><i class="ti ti-sun"></i></div>
-          <div class="tb-ic" onclick="setView('settings')"><i class="ti ti-settings"></i></div>
-          <div class="av" title="CISO">SC</div>
-        </div>
-      </div>
-      <div class="sidebar"><div id="sidebar-inner"></div></div>
-      <div class="main-area" id="main"></div>
-      <div class="app-footer">${t('footer.copyright')} &nbsp;·&nbsp; ${t('footer.demoData')}</div>
-    </div>
-    <div class="dov" id="dov">
-      <div class="dov-cl" onclick="closeDov()"><i class="ti ti-x"></i></div>
-      <div id="dov-c" style="display:flex;flex-direction:column;height:100%;overflow:hidden"></div>
-    </div>
-    <div class="modal-bg" id="mbg">
-      <div class="modal"><div id="mc"></div></div>
-    </div>
-  `;
-
-  // Handle initial hash route
-  const hash = window.location.hash.replace('#/', '').split('?')[0];
-  const initialView = HASH_TO_VIEW[hash] || 'dashboard';
-  if (initialView !== 'dashboard') {
-    setView(initialView, false);
-  } else {
-    render();
-  }
-
-  // Hash change listener
-  window.addEventListener('hashchange', () => {
-    const h = window.location.hash.replace('#/', '').split('?')[0];
-    const v = HASH_TO_VIEW[h] || 'dashboard';
-    setView(v, false);
-  });
-}
-
-// Theme & language actions
+// ── THEME & LANGUAGE ACTIONS ─────────────────────────────────────────────────
 window.setTheme = theme => {
   document.documentElement.setAttribute('data-theme', theme);
   savePreference('theme', theme);
@@ -3421,15 +3394,43 @@ window.setTheme = theme => {
 window.setLanguage = lang => {
   setLang(lang);
   savePreference('language', lang);
-  render(); // re-render updates nav labels + topbar
+  render();
 };
 
 window.resetPreferences = () => {
   resetAllPreferences();
   document.documentElement.setAttribute('data-theme', 'dark');
   setLang('pt-BR');
-  toast(t('settings.resetConfirm'), 'ts');
+  toast('Preferências resetadas para o padrão.', 'ts');
   render();
 };
 
-initApp();
+// ── INIT ─────────────────────────────────────────────────────────────────────
+// Shell HTML is already in index.html — initApp() only sets up state & routing.
+export async function initApp() {
+  console.info('[RBVM] initApp() started');
+
+  // ── 1. Load & apply preferences ─────────────────────────────────────────────
+  const prefs = loadPreferences();
+  if (prefs.theme)    document.documentElement.setAttribute('data-theme', prefs.theme);
+  if (prefs.language) setLang(prefs.language);
+  console.info('[RBVM] preferences loaded — theme:', prefs.theme, 'lang:', prefs.language||'pt-BR');
+
+  // ── 2. Handle initial hash route ─────────────────────────────────────────────
+  const hash = window.location.hash.replace('#/', '').split('?')[0];
+  const initialView = HASH_TO_VIEW[hash] || 'dashboard';
+  VIEW = initialView;
+  console.info('[RBVM] initial route resolved:', initialView);
+
+  // ── 3. First render — fills #sidebar-inner and #main ─────────────────────────
+  render();
+  console.info('[RBVM] initial render() completed');
+
+  // ── 4. Hash change listener ────────────────────────────────────────────────
+  window.addEventListener('hashchange', () => {
+    const h = window.location.hash.replace('#/', '').split('?')[0];
+    setView(HASH_TO_VIEW[h] || 'dashboard', false);
+  });
+
+  console.info('[RBVM] app ready ✓');
+}
