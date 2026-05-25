@@ -309,16 +309,16 @@
   <div class="sb-sec">
     <div class="sb-it" id="nav-cicd"        onclick="setView('cicd')">       <i class="ti ti-git-branch"></i>CI/CD Security<span class="sb-n nc" id="sb-cicd">—</span></div>
     <div class="sb-it" id="nav-sbom"        onclick="setView('sbom')">       <i class="ti ti-box-multiple"></i>SBOM<span class="sb-n nh" id="sb-sbom">—</span></div>
-    <div class="sb-it" id="nav-bugbounty"   onclick="setView('offensive');OFT_TAB='bugbounty';render()"><i class="ti ti-bug-off"></i>Bug Bounty<span class="sb-n nh" id="sb-bb">—</span></div>
+    <div class="sb-it" id="nav-bugbounty"   onclick="window.setOffensive&&setOffensive('bugbounty')"><i class="ti ti-bug-off"></i>Bug Bounty<span class="sb-n nh" id="sb-bb">—</span></div>
     <div class="sb-it" id="nav-fpw"         onclick="setView('fpw')">        <i class="ti ti-shield-question"></i>False Positives<span class="sb-n nh" id="sb-fp">—</span></div>
   </div>
   <!-- ── OFFENSIVE RISK ─────────────────────────────────────────────────── -->
   <div class="sb-lbl">Offensive Risk</div>
   <div class="sb-sec">
     <div class="sb-it" id="nav-offensive"   onclick="setView('offensive')">  <i class="ti ti-shield-exclamation"></i>Offensive Findings<span class="sb-n nc" id="sb-off">—</span></div>
-    <div class="sb-it" id="nav-redteam"     onclick="setView('offensive');OFT_TAB='redteam';render()">  <i class="ti ti-sword"></i>Red Team Findings</div>
-    <div class="sb-it" id="nav-gaps"        onclick="setView('offensive');OFT_TAB='gaps';render()">     <i class="ti ti-eye-off"></i>Control &amp; Detection Gaps</div>
-    <div class="sb-it" id="nav-retestqueue" onclick="setView('offensive');OFT_TAB='retest';render()">   <i class="ti ti-refresh"></i>Retest Queue</div>
+    <div class="sb-it" id="nav-redteam"     onclick="window.setOffensive&&setOffensive('redteam')">  <i class="ti ti-sword"></i>Red Team Findings</div>
+    <div class="sb-it" id="nav-gaps"        onclick="window.setOffensive&&setOffensive('gaps')">     <i class="ti ti-eye-off"></i>Control &amp; Detection Gaps</div>
+    <div class="sb-it" id="nav-retestqueue" onclick="window.setOffensive&&setOffensive('retest')">   <i class="ti ti-refresh"></i>Retest Queue</div>
   </div>
   <!-- ── GOVERNANCE ─────────────────────────────────────────────────────── -->
   <div class="sb-lbl">Governance</div>
@@ -435,10 +435,35 @@ window.sft = s => { FST=s; render(); };
 
 // ── RENDER ────────────────────────────────────────────────────────────────────
 function render() {
-  upd();
-  const M={dashboard,threatintel,metrics,vulns,assets,suppliers,playbooks,reclassify,exceptions,sla,cicd,compliance,comms,risk,integrations,agent,settings,lifecycle,dataquality,execintel,smartgroup,warroom,crownj,sbom,fpw,asm,patch,rptexport,offensive};
-  document.getElementById('main').innerHTML=(M[VIEW]||dashboard)();
-  if(VIEW==='agent') rMsgs(false);
+  try { upd(); } catch(e) { console.warn('[RBVM] upd() warn:', e.message); }
+  const sb = document.getElementById('sidebar-inner');
+  if(sb) {
+    document.querySelectorAll('.sb-it').forEach(function(e){e.classList.remove('active');});
+    const n = document.getElementById('nav-' + VIEW);
+    if(n) n.classList.add('active');
+  }
+  const main = document.getElementById('main');
+  if(!main) { console.error('[RBVM] #main not found'); return; }
+  const M = {dashboard,threatintel,metrics,vulns,assets,suppliers,playbooks,reclassify,exceptions,sla,cicd,compliance,comms,risk,integrations,agent,settings,lifecycle,dataquality,execintel,smartgroup,warroom,crownj,sbom,fpw,asm,patch,rptexport,offensive};
+  try {
+    main.innerHTML = (M[VIEW] || dashboard)();
+    if(VIEW === 'agent') rMsgs(false);
+  } catch(e) {
+    console.error('[RBVM] Error in module', VIEW, e);
+    const errDiv = document.createElement('div');
+    errDiv.style.cssText = 'display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;padding:40px;text-align:center';
+    errDiv.innerHTML = '<i class="ti ti-alert-triangle" style="font-size:48px;color:var(--high)"></i>'
+      + '<div style="font-size:15px;font-weight:700">Módulo temporariamente indisponível</div>'
+      + '<div style="font-size:12px;color:var(--text2)">Módulo: <b>' + VIEW + '</b></div>'
+      + '<pre style="background:var(--bg3);border-radius:8px;padding:8px 14px;font-size:11px;max-width:460px;word-break:break-all;color:var(--high)">' + (e && e.message ? e.message : String(e)) + '</pre>';
+    const btn = document.createElement('button');
+    btn.textContent = '← Dashboard';
+    btn.onclick = function(){ setView('dashboard'); };
+    btn.style.cssText = 'padding:8px 16px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:12px';
+    errDiv.appendChild(btn);
+    main.innerHTML = '';
+    main.appendChild(errDiv);
+  }
 }
 
 // ── SHARED HTML HELPERS ───────────────────────────────────────────────────────
@@ -3567,7 +3592,7 @@ function offensive() {
 
   // ── EXEC SUMMARY TAB ───────────────────────────────────────────────────────
   const execTab=()=>`<div class="content">
-    <div class="card"><div class="card-hd"><i class="ti ti-briefcase" style="color:var(--accent)"></i><div><div class="card-t">Resumo Executivo — Risco Ofensivo</div></div><div class="card-ac"><button class="btn btn-s btn-p" onclick="quickMsg('Gere resumo executivo de findings ofensivos para o CISO. Red Team: ${allRTF.length} findings (${rtCrit} críticos, ${allRTF.filter(f=>f.crown_jewel_impacted).length} impactaram Crown Jewels, ${allRTF.filter(f=>f.detection_status===\'Not Detected\').length} não detectados). Bug Bounty: ${allBBF.length} reports (${bbCrit} críticos, R$ ${allBBF.reduce((s,f)=>s+(f.bounty_amount||0),0).toLocaleString(\'pt-BR\')} pagos). Gaps: ${allGaps.length} identificados. Inclua: (1) quais findings exigem decisão executiva, (2) quais controles precisam de investimento imediato, (3) tendência de risco e (4) métricas de programa de segurança ofensiva.')"><i class="ti ti-robot"></i> Gerar via IA</button></div></div>
+    <div class="card"><div class="card-hd"><i class="ti ti-briefcase" style="color:var(--accent)"></i><div><div class="card-t">Resumo Executivo — Risco Ofensivo</div></div><div class="card-ac"><button class="btn btn-s btn-p" onclick="quickMsg('Gere resumo executivo de findings ofensivos para o CISO. Red Team: ${allRTF.length} findings (${rtCrit} críticos, ${allRTF.filter(f=>f.crown_jewel_impacted).length} impactaram Crown Jewels, ${allRTF.filter(f=>f.detection_status==='Not Detected').length} não detectados). Bug Bounty: ${allBBF.length} reports (${bbCrit} críticos, R$ ${allBBF.reduce((s,f)=>s+(f.bounty_amount||0),0).toLocaleString('pt-BR')} pagos). Gaps: ${allGaps.length} identificados. Inclua: (1) quais findings exigem decisão executiva, (2) quais controles precisam de investimento imediato, (3) tendência de risco e (4) métricas de programa de segurança ofensiva.')"><i class="ti ti-robot"></i> Gerar via IA</button></div></div>
     <div class="card-bd">
       ${[
         {icon:'ti-sword',color:'var(--crit)',    text:`${rtCrit} findings críticos do Red Team abertos — ${allRTF.filter(f=>f.crown_jewel_impacted).length} atingiram Crown Jewels diretamente`},
@@ -3600,8 +3625,27 @@ window.bbReject   = id => { const f=BB_FINDINGS.find(x=>x.id===id); if(f){f.tria
 
 
 
+// ── GLOBAL HELPERS (callable from onclick attributes) ────────────────────────
+window.render = () => render();
+window.setOffensive = tab => {
+  VIEW = 'offensive';
+  OFT_TAB = tab;
+  FS='ALL'; FST='ALL'; FSQ='';
+  document.querySelectorAll('.sb-it').forEach(e=>e.classList.remove('active'));
+  const n = document.getElementById('nav-'+tab) || document.getElementById('nav-offensive');
+  if(n) n.classList.add('active');
+  render();
+  closeDov();
+};
+
 // ── START ─────────────────────────────────────────────────────────────────────
-render();
+try {
+  render();
+} catch(e) {
+  console.error('[RBVM] Initial render failed:', e);
+  const m = document.getElementById('main');
+  if(m) m.innerHTML = '<div style="padding:40px;color:var(--high);font-family:monospace;font-size:12px"><strong>⚠ Erro de carregamento</strong><br><br>' + e.message + '<br><br>Abra F12 → Console para detalhes.</div>';
+}
 </script>
 </body>
 </html>
