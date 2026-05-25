@@ -1,0 +1,55 @@
+/* =============================================================================
+   RBVM Platform — Design Tokens
+   © 2026 Andrews Ferreira. Todos os direitos reservados.
+   ============================================================================= */
+
+:root {
+  /* Typography */
+  --font:  'Segoe UI', system-ui, -apple-system, sans-serif;
+  --mono:  'Cascadia Code', 'Fira Code', 'JetBrains Mono', monospace;
+  --font-size-xs:  10px;
+  --font-size-sm:  11px;
+  --font-size-md:  13px;
+  --font-size-lg:  15px;
+  --font-size-xl:  18px;
+
+  /* Layout */
+  --sw: 224px;   /* sidebar width */
+  --th: 48px;    /* topbar height */
+  --r:  8px;     /* border radius sm */
+  --r2: 12px;    /* border radius lg */
+
+  /* Severity colors — same in all themes */
+  --crit:    #ff4c4c;
+  --critbg:  rgba(255, 76,  76,  .12);
+  --high:    #ff8c38;
+  --highbg:  rgba(255, 140, 56,  .12);
+  --med:     #f0c040;
+  --medbg:   rgba(240, 192, 64,  .12);
+  --low:     #40c87a;
+  --lowbg:   rgba(64,  200, 122, .12);
+
+  /* Semantic colors — same in all themes */
+  --success:    #40c87a;
+  --successbg:  rgba(64, 200, 122, .12);
+  --ai:         #00d4d4;
+  --aibg:       rgba(0, 212, 212, .10);
+
+  /* Z-index scale */
+  --z-base:    1;
+  --z-sidebar: 10;
+  --z-topbar:  20;
+  --z-drawer:  50;
+  --z-modal:   100;
+  --z-toast:   999;
+
+  /* Transitions */
+  --transition-fast:   .1s ease;
+  --transition-normal: .15s ease;
+  --transition-slow:   .25s ease;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(0,0,0,.2);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.3);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,.4);
+}
