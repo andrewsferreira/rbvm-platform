@@ -1,0 +1,64 @@
+{
+  "name": "riskbridge",
+  "version": 2,
+  "buildCommand": null,
+  "outputDirectory": ".",
+  "installCommand": null,
+  "framework": null,
+
+  "routes": [
+    {
+      "src": "/app/(.*)",
+      "dest": "/app/index.html",
+      "status": 200,
+      "headers": {
+        "Cache-Control": "no-cache, no-store, must-revalidate"
+      }
+    },
+    {
+      "src": "/auth/(.*)",
+      "dest": "/auth/index.html",
+      "status": 200
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "src": "/(.*\\.(?:js|css|png|ico|svg|woff2?)$)",
+      "dest": "/$1",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+
+  "headers": [
+    {
+      "source": "/app/(.*)",
+      "headers": [
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "geolocation=(), microphone=()" }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-RiskBridge-Version", "value": "1.0.0-beta" }
+      ]
+    }
+  ],
+
+  "env": {
+    "VITE_APP_ENV": "production"
+  }
+}
